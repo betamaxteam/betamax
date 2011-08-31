@@ -3,7 +3,7 @@ title: Home
 layout: home
 ---
 
-## About
+## Introduction
 
 Betamax is a record/playback proxy for testing JVM applications that access external HTTP resources. The project was inspired by Ruby's [VCR][vcr].
 
@@ -15,16 +15,7 @@ Tapes are stored to disk as [YAML][yaml] files and can be modified (or even crea
 
 ## Installation
 
-Betamax depends on the following libraries (you will need them available on your test classpath in order to use Betamax):
-
-* [Groovy 1.7+][groovy]
-* [Apache HttpClient][httpclient]
-* [Apache HttpCore NIO Extensions][httpcorenio]
-* [SnakeYAML][snakeyaml]
-* [JUnit 4][junit]
-* [Apache log4j][log4j]
-
-If your project gets dependencies from a [Maven][maven] repository these dependencies will be automatically included for you.
+Betamax is available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below:
 
 ### Maven
 
@@ -45,6 +36,7 @@ add the following to your `pom.xml` file:
 	<dependencies>
 	  ...
 	  <dependency>
+	    <scope>test</scope>
 	    <groupId>com.github.robfletcher</groupId>
 	    <artifactId>betamax</artifactId>
 	    <version>1.0-M1</version>
@@ -82,26 +74,6 @@ To use Betamax in a [Grails][grails] app add the following to your `grails-app/c
 	    test "com.github.robfletcher:betamax:1.0-M1"
 	    ...
 	}
-
-### License
-
-[Apache Software Licence, Version 2.0][licence]
-
-### Authors
-
-[Rob Fletcher][me]
-
-### Issues
-
-Please raise issues on Betamax's [GitHub issue tracker][issues]. Forks and pull requests are more than welcome.
-
-### Download
-
-You can download this project in either [zip](http://github.com/robfletcher/betamax/zipball/master) or [tar](http://github.com/robfletcher/betamax/tarball/master) formats.
-
-You can also clone the project with [Git][git] by running:
-
-	$ git clone git://github.com/robfletcher/betamax
 
 ## Usage
 
@@ -212,15 +184,58 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 	betamax.proxyPort=1337
 	betamax.defaultMode=READ_ONLY
 
+## About
+
+### License
+
+[Apache Software Licence, Version 2.0][licence]
+
+### Authors
+
+[Rob Fletcher][me]
+
+### Issues
+
+Please raise issues on Betamax's [GitHub issue tracker][issues]. Forks and pull requests are more than welcome.
+
+### Download
+
+You can download this project in either [zip](http://github.com/robfletcher/betamax/zipball/master) or [tar](http://github.com/robfletcher/betamax/tarball/master) formats.
+
+You can also clone the project with [Git][git] by running:
+
+	$ git clone git://github.com/robfletcher/betamax
+
+### Dependencies
+
+Betamax depends on the following libraries (you will need them available on your test classpath in order to use Betamax):
+
+* [Groovy 1.7+][groovy]
+* [Apache HttpClient][httpclient]
+* [Apache HttpCore NIO Extensions][httpcorenio]
+* [SnakeYAML][snakeyaml]
+* [JUnit 4][junit]
+* [Apache log4j][log4j]
+
+If your project gets dependencies from a [Maven][maven] repository these dependencies will be automatically included for you.
+
+### Acknowledgements
+
+Betamax is inspired by the [VCR][vcr] library for Ruby written by Myron Marston. Porting VCR to Groovy was suggested to me by [Jim Newbery][jim].
+
+The code for the HTTP proxy server is based on the _Basic non-blocking HTTP server_ example from the Apache [HttpCore examples][httpcoreexamples].
+
 [git]:http://git-scm.com
 [gradle]:http://www.gradle.org/
 [grails]:http://grails.org/
 [groovy]:http://groovy.codehaus.org/
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html
+[httpcoreexamples]:http://hc.apache.org/httpcomponents-core-ga/examples.html
 [httpcorenio]:http://hc.apache.org/httpcomponents-core-ga/httpcore-nio/index.html
 [httpurlclient]:http://groovy.codehaus.org/modules/http-builder/doc/httpurlclient.html
 [issues]:https://github.com/robfletcher/betamax/issues
+[jim]:http://tinnedfruit.com/
 [junit]:http://www.junit.org/
 [licence]:http://www.apache.org/licenses/LICENSE-2.0.html
 [log4j]:http://logging.apache.org/log4j/1.2/
@@ -229,6 +244,7 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 [proxyselector]:http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/conn/ProxySelectorRoutePlanner.html
 [restclient]:http://groovy.codehaus.org/modules/http-builder/doc/rest.html
 [snakeyaml]:http://www.snakeyaml.org/
+[sonatype]:https://oss.sonatype.org/
 [spock]:http://spockframework.org/
 [tapeexample]:https://github.com/robfletcher/betamax/blob/master/src/test/resources/betamax/tapes/smoke_spec.yaml
 [vcr]:http://relishapp.com/myronmarston/vcr

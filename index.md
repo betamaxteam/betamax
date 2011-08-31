@@ -15,14 +15,6 @@ Tapes are stored to disk as [YAML][yaml] files and can be modified (or even crea
 
 ## Installation
 
-* [Dependencies](#dependencies)
-* [Maven](#maven)
-* [Gradle](#gradle)
-* [Grapes](#grapes)
-* [Grails](#grails)
-
-### Dependencies
-
 Betamax depends on the following libraries (you will need them available on your test classpath in order to use Betamax):
 
 * [Groovy 1.8][groovy]
@@ -32,29 +24,63 @@ Betamax depends on the following libraries (you will need them available on your
 * [JUnit 4][junit]
 * [Apache log4j][log4j]
 
+If your project gets dependencies from a [Maven][maven] repository these dependencies will be automatically included for you.
+
 ### Maven
 
-Here's how to install in Maven.
+To use Betamax in a project using [Maven][maven] add the following to your `settings.xml` file:
+
+	<repositories>
+	  ...
+	  <repository>
+	    <id>Sonatype-public</id>
+	    <name>Sonatype public repository</name>
+	    <url>http://oss.sonatype.org/content/groups/public/</url>
+	  </repository>
+	  ...
+	</repositories>
+
+add the following to your `pom.xml` file:
+	
+	<dependencies>
+	  ...
+	  <dependency>
+	    <groupId>com.github.robfletcher</groupId>
+	    <artifactId>betamax</artifactId>
+	    <version>1.0-M1</version>
+	  </dependency>
+	  ...
+	</dependencies>
 
 ### Gradle
 
-Here's how to install in Gradle.
+To use Betamax in a project using [Gradle][gradle] add the following to your `build.gradle` file:
 
-### Grapes
-
-Here's how to install in Grapes.
+	repositories {
+	    ...
+	    mavenRepo name: "sonatype-public", urls: ["http://oss.sonatype.org/content/groups/public/"]
+	    ...
+	}
+	dependencies {
+	    ...
+	    testCompile "com.github.robfletcher:betamax:1.0-M1"
+	    ...
+	}
+	
 
 ### Grails
 
-To use Betamax in a Grails app add the following to your `grails-app/conf/BuildConfig.groovy`:
+To use Betamax in a [Grails][grails] app add the following to your `grails-app/conf/BuildConfig.groovy` file:
 
 	repositories {
-		// ... other repository declarations
-		mavenRepo "http://oss.sonatype.org/content/groups/public/"
+	    ...
+	    mavenRepo "http://oss.sonatype.org/content/groups/public/"
+	    ...
 	}
 	dependencies {
-		// ... other dependency declarations
-		test "com.github.robfletcher:betamax:1.0-M1"
+	    ...
+	    test "com.github.robfletcher:betamax:1.0-M1"
+	    ...
 	}
 
 ### License
@@ -184,6 +210,7 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 	betamax.proxyPort=1337
 
 [git]:http://git-scm.com
+[gradle]:http://www.gradle.org/
 [grails]:http://grails.org/
 [groovy]:http://groovy.codehaus.org/
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
@@ -194,6 +221,7 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 [junit]:http://www.junit.org/
 [licence]:http://www.apache.org/licenses/LICENSE-2.0.html
 [log4j]:http://logging.apache.org/log4j/1.2/
+[maven]:http://maven.apache.org/
 [me]:http://github.com/robfletcher
 [proxyselector]:http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/conn/ProxySelectorRoutePlanner.html
 [restclient]:http://groovy.codehaus.org/modules/http-builder/doc/rest.html

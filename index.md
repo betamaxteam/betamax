@@ -13,7 +13,7 @@ Betamax works with JUnit and [Spock][spock]. Although it is written in [Groovy][
 
 Tapes are stored to disk as [YAML][yaml] files and can be modified (or even created) by hand and committed to your project's source control repository so they can be shared by other members of your team and used by your CI server. Different tests can use different tapes to simulate various response conditions. Each tape can hold multiple request/response interactions but each must (currently) have a unique request method and URI. An example tape file can be found [here][tapeexample].
 
-## Installing 
+## Installation
 
 * [Dependencies](#dependencies)
 * [Maven](#maven)

@@ -194,6 +194,7 @@ The `Recorder` class has some configuration properties that you can override:
 
 * *tapeRoot*: the base directory where tape files are stored. Defaults to `src/test/resources/betamax/tapes`.
 * *proxyPort*: the port the Betamax proxy listens on. Defaults to `5555`.
+* *defaultMode*: the default _TapeMode_ applied to an inserted tape when the _mode_ argument is not present on the <code>@Betamax</code> annotation.
 
 If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhere in your classpath it will be picked up by the `Recorder` class.
 
@@ -202,12 +203,14 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 	betamax {
 	    tapeRoot = new File("test/fixtures/tapes")
 	    proxyPort = 1337
+	    defaultMode = TapeMode.READ_ONLY
 	}
 
 ### Example _betamax.properties_ file
 
 	betamax.tapeRoot=test/fixtures/tapes
 	betamax.proxyPort=1337
+	betamax.defaultMode=READ_ONLY
 
 [git]:http://git-scm.com
 [gradle]:http://www.gradle.org/

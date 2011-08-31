@@ -46,29 +46,30 @@
 	
     <div class="container">
 
-      <!-- Main hero unit for a primary marketing message or call to action -->
       <div id="masthead" class="hero-unit">
         <h1><span class="first-letter">&szlig;</span>etamax</h1>
         <p>A record / playback proxy for testing JVM applications that connect to external HTTP services.</p>
       </div>
 
-      <!-- Example row of columns -->
       <div class="row">
-        <div class="span6">
-          <h2>Simple</h2>
-          <p>Just add a <code>@Betamax</code> annotation to your test or spec method. Customize <em>tape</em> files with nothing more than a text editor.</p>
+        <div class="span5 teaser">
+          <h2>Record</h2>
+          <p>Just add a <code>@Betamax</code> annotation to your test or spec method. The first time it runs HTTP requests &amp; responses are recorded to <em>tape</em>.</p>
         </div>
-        <div class="span5">
-          <h2>Robust</h2>
-           <p>Don&apos;t let 3rd party server downtime or resource limits affect your tests or the stability of your Continuous Integration server.</p>
+        <div class="span5 teaser">
+          <h2>Playback</h2>
+          <p>Future test runs play HTTP responses back from <em>tape</em>. Insert different <em>tapes</em> to stub different responses.</p>
+        </div>
+        <div class="span5 teaser">
+          <h2>Customize</h2>
+           <p>Edit your <em>tape</em> files with any text editor. Commit them to source control to share with your team and use on your Continuous Integration server.</p>
        </div>
-        <div class="span5">
-          <h2>Flexible</h2>
-          <p>Insert a different <em>tape</em> to stub different responses from the target server.</p>
-        </div>
       </div>
+	</div>
 
+    <div class="container">
 {{ content }}
+    </div>
 
       <footer>
         <p>&copy; Rob Fletcher 2011</p>

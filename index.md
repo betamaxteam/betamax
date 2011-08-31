@@ -13,6 +13,14 @@ Betamax works with JUnit and [Spock][spock]. Although it is written in [Groovy][
 
 Tapes are stored to disk as [YAML][yaml] files and can be modified (or even created) by hand and committed to your project's source control repository so they can be shared by other members of your team and used by your CI server. Different tests can use different tapes to simulate various response conditions. Each tape can hold multiple request/response interactions but each must (currently) have a unique request method and URI. An example tape file can be found [here][tapeexample].
 
+## Installing 
+
+* [Dependencies](#dependencies)
+* [Maven](#maven)
+* [Gradle](#gradle)
+* [Grapes](#grapes)
+* [Grails](#grails)
+
 ### Dependencies
 
 Betamax depends on the following libraries (you will need them available on your test classpath in order to use Betamax):
@@ -23,6 +31,22 @@ Betamax depends on the following libraries (you will need them available on your
 * [SnakeYAML][snakeyaml]
 * [JUnit 4][junit]
 * [Apache log4j][log4j]
+
+### Maven
+
+Here's how to install in Maven.
+
+### Gradle
+
+Here's how to install in Gradle.
+
+### Grapes
+
+Here's how to install in Grapes.
+
+### Grails
+
+Here's how to install in Grails.
 
 ### License
 

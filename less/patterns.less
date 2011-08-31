@@ -260,7 +260,7 @@
 // ------------
 
 .hero-unit {
-  background: #f5f5f5 url(../images/stripes.png) -130px 0 no-repeat;
+  background: url(../images/stripes.png) -130px 0 no-repeat #f5f5f5;
   margin-top: 60px;
   margin-bottom: 30px;
   padding: 60px;
@@ -280,6 +280,7 @@
 	}
   }
   p {
+	color: @grayDark;
     font-size: 18px;
     font-weight: 200;
     line-height: @baseline * 1.5;
@@ -289,6 +290,12 @@ footer {
   margin-top: @baseline - 1;
   padding-top: @baseline - 1;
   border-top: 1px solid #eee;
+}
+
+.teaser {
+	background-color: #f5f5f5;
+	padding: 10px;
+	.border-radius(6px);
 }
 
 // PAGE HEADERS

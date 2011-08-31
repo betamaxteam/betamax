@@ -46,7 +46,16 @@ Here's how to install in Grapes.
 
 ### Grails
 
-Here's how to install in Grails.
+To use Betamax in a Grails app add the following to your `grails-app/conf/BuildConfig.groovy`:
+
+	repositories {
+		// ... other repository declarations
+		mavenRepo "http://oss.sonatype.org/content/groups/public/"
+	}
+	dependencies {
+		// ... other dependency declarations
+		test "com.github.robfletcher:betamax:1.0-M1"
+	}
 
 ### License
 

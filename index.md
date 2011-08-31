@@ -17,7 +17,7 @@ Tapes are stored to disk as [YAML][yaml] files and can be modified (or even crea
 
 Betamax depends on the following libraries (you will need them available on your test classpath in order to use Betamax):
 
-* [Groovy 1.8][groovy]
+* [Groovy 1.7+][groovy]
 * [Apache HttpClient][httpclient]
 * [Apache HttpCore NIO Extensions][httpcorenio]
 * [SnakeYAML][snakeyaml]

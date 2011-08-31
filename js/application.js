@@ -3,6 +3,7 @@ $(document).ready(function(){
   // Google code prettify
   // ====================
 
+  $('pre').addClass('prettyprint');
   prettyPrint();
 
   // scroll spy logic

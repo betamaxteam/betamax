@@ -1,0 +1,82 @@
+@cream: #f2f0e9;
+@lightcream: #fefefa;
+
+.lightbox() {
+	#translucent > .background(@lightcream);
+	#translucent > .border;
+	.box-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.fit-background() {
+	     -o-background-size: contain;
+	-webkit-background-size: contain;
+	 -khtml-background-size: contain;
+	        background-size: contain;
+}
+
+.stripes(@offset: 0) {
+	background-image: url(../images/stripes.png);
+	background-position: @offset 0;
+	background-repeat: no-repeat;
+	.fit-background;
+}
+
+// colours and layout tweaks
+body {
+	background-color: @cream;
+}
+
+.hero-unit {
+	.stripes(-40px);
+	.lightbox;
+	h1 {
+		font-family: 'Michroma', sans-serif;
+	}
+	p {
+		color: @grayDark;
+	}
+}
+
+.teaser {
+	background-color: @lightcream;
+	padding: 10px;
+	.border-radius(6px);
+	.lightbox;
+}
+
+#main h2 {
+	border-bottom: 1px solid @grayDark;
+	margin: 18px 0 9px 0;
+	&:first-child {
+		margin-top: 12px;
+	}
+}
+
+footer {
+	border: none;
+	padding: 8px;
+	p {
+		margin-bottom: 0;
+	}
+}
+
+code {
+	background-color: transparent;
+}
+
+pre {
+	&.prettyprint {
+		.lightbox;
+	}
+	code {
+		padding: 0;
+	}
+}
+
+// GitHub ribbon
+#forkme {
+    border: 0 none;
+    position: absolute;
+    right: 0;
+    top: 40px;
+}

@@ -1,0 +1,17 @@
+/* TEAM */
+Insomniac developer: Rob Fletcher
+Twitter: @rfletcherEW
+Location: London, UK
+
+/* THANKS */
+Name: Myron Marston
+Twitter: @myronmarston
+
+Name: Jim Newbery
+Twitter: @froots101
+
+/* SITE */
+Last update: YYYY/MM/DD
+Standards: HTML5, CSS3,..
+Components: Modernizr, jQuery, etc.
+Software: Twitter Bootstrap, Jekyll, LESS, jQuery

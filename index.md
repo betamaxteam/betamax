@@ -194,7 +194,7 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 
 	betamax.tapeRoot=test/fixtures/tapes
 	betamax.proxyPort=1337
-    betamax.proxyTimeout = 30000
+    betamax.proxyTimeout=30000
 	betamax.defaultMode=READ_ONLY
 
 ## About
@@ -238,9 +238,14 @@ Betamax is inspired by the [VCR][vcr] library for Ruby written by Myron Marston.
 
 The code for the HTTP proxy server is based on the _Basic non-blocking HTTP server_ example from the Apache [HttpCore examples][httpcoreexamples].
 
+## Examples
+
+Betamax's GitHub repository includes [an example Grails application][grailsexample].
+
 [git]:http://git-scm.com
 [gradle]:http://www.gradle.org/
 [grails]:http://grails.org/
+[grailsexample]:https://github.com/robfletcher/betamax/tree/master/examples/grails-betamax
 [groovy]:http://groovy.codehaus.org/
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html

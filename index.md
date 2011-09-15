@@ -25,23 +25,11 @@ The current development version is _1.0-M2-SNAPSHOT_.
 
 ## Installation
 
-Betamax is available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below:
+Stable versions of Betamax are available from the Maven central repository. Stable and development versions are available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below:
 
 ### Maven
 
-To use Betamax in a project using [Maven][maven] add the following to your `settings.xml` file:
-
-	<repositories>
-	  ...
-	  <repository>
-	    <id>Sonatype-public</id>
-	    <name>Sonatype public repository</name>
-	    <url>http://oss.sonatype.org/content/groups/public/</url>
-	  </repository>
-	  ...
-	</repositories>
-
-add the following to your `pom.xml` file:
+To use Betamax in a project using [Maven][maven] add the following to your `pom.xml` file:
 	
 	<dependencies>
 	  ...
@@ -58,11 +46,6 @@ add the following to your `pom.xml` file:
 
 To use Betamax in a project using [Gradle][gradle] add the following to your `build.gradle` file:
 
-	repositories {
-	    ...
-	    mavenRepo name: "sonatype-public", urls: ["http://oss.sonatype.org/content/groups/public/"]
-	    ...
-	}
 	dependencies {
 	    ...
 	    testCompile "com.github.robfletcher:betamax:1.0-M1"
@@ -76,7 +59,7 @@ To use Betamax in a [Grails][grails] app add the following to your `grails-app/c
 
 	repositories {
 	    ...
-	    mavenRepo "http://oss.sonatype.org/content/groups/public/"
+	    mavenCentral()
 	    ...
 	}
 	dependencies {

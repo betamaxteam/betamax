@@ -225,7 +225,7 @@ Betamax depends on the following libraries (you will need them available on your
 
 * [Groovy 1.7+][groovy]
 * [Apache HttpClient][httpclient]
-* [Apache HttpCore NIO Extensions][httpcorenio]
+* [Jetty 7][jetty]
 * [SnakeYAML][snakeyaml]
 * [JUnit 4][junit]
 * [Apache log4j][log4j]
@@ -250,9 +250,9 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html
 [httpcoreexamples]:http://hc.apache.org/httpcomponents-core-ga/examples.html
-[httpcorenio]:http://hc.apache.org/httpcomponents-core-ga/httpcore-nio/index.html
 [httpurlclient]:http://groovy.codehaus.org/modules/http-builder/doc/httpurlclient.html
 [issues]:https://github.com/robfletcher/betamax/issues
+[jetty]:http://www.eclipse.org/jetty/
 [jim]:http://tinnedfruit.com/
 [junit]:http://www.junit.org/
 [licence]:http://www.apache.org/licenses/LICENSE-2.0.html

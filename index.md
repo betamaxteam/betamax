@@ -11,7 +11,7 @@ Betamax can record and play back HTTP interactions made by your app so that your
 
 Betamax works with JUnit and [Spock][spock]. Although it is written in [Groovy][groovy] Betamax can be used to test applications written in any JVM language so long as HTTP connections are made in a way that respects Java's `http.proxyHost` and `http.proxyPort` system properties.
 
-Tapes are stored to disk as [YAML][yaml] files and can be modified (or even created) by hand and committed to your project's source control repository so they can be shared by other members of your team and used by your CI server. Different tests can use different tapes to simulate various response conditions. Each tape can hold multiple request/response interactions but each must (currently) have a unique request method and URI. An example tape file can be found [here][tapeexample].
+Tapes are stored to disk as [YAML][yaml] files and can be modified (or even created) by hand and committed to your project's source control repository so they can be shared by other members of your team and used by your CI server. Different tests can use different tapes to simulate various response conditions. Each tape can hold multiple request/response interactions. An example tape file can be found [here][tapeexample].
 
 ## Versions
 
@@ -125,9 +125,20 @@ To use Betamax you just need to annotate your JUnit test or [Spock][spock] speci
 
 ### Recording and playback
 
-Betamax will record to the current tape when it intercepts any HTTP request with a combination of method and URI that does not match anything that is already on the tape. If a recorded interaction with the same method and URI _is_ found then the proxy does not forward the request to the target URI but instead returns the previously recorded response to the requestor.
+Betamax will record to the current tape when it intercepts any HTTP request that does not match anything that is already on the tape. If a matching recorded interaction _is_ found then the proxy does not forward the request to the target URI but instead returns the previously recorded response to the client.
 
-In future it will be possible to match recorded interactions based on criteria other than just method and URI.
+### Matching requests
+
+By default recorded interactions are matched based on the _method_ and _URI_ of the request. For most scenarios this is adequate. However, you can modify the matching behaviour by specifying a _match_ argument on the `@Betamax` annotation. Any combination of instances of the `betamax.MatchRule` enum can be used. If multiple rules are used then only a recorded interaction that matches all of them will be played back. `MatchRule` options are:
+
+* `method`: the request method, _GET_, _POST_, etc.
+* `uri`: the full URI of the request target. This includes any query string.
+* `host`: the host of the target URI. For example the host of `http://search.twitter.com/search.json` is `search.twitter.com`.
+* `path`: the path of the target URI. For example the host of `http://search.twitter.com/search.json` is `/search.json`.
+* `port`: the port of the target URI.
+* `query`: the query string of the target URI.
+* `fragment`: the fragment of the target URI. i.e. anything after a `#`.
+* `headers`: the request headers. If this rule is used then _all_ headers on the intercepted request must match those on the previously recorded request.
 
 ### Tape modes
 

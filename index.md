@@ -25,23 +25,11 @@ The current development version is _1.0-M2-SNAPSHOT_.
 
 ## Installation
 
-Betamax is available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below:
+Stable versions of Betamax are available from the Maven central repository. Stable and development versions are available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below:
 
 ### Maven
 
-To use Betamax in a project using [Maven][maven] add the following to your `settings.xml` file:
-
-	<repositories>
-	  ...
-	  <repository>
-	    <id>Sonatype-public</id>
-	    <name>Sonatype public repository</name>
-	    <url>http://oss.sonatype.org/content/groups/public/</url>
-	  </repository>
-	  ...
-	</repositories>
-
-add the following to your `pom.xml` file:
+To use Betamax in a project using [Maven][maven] add the following to your `pom.xml` file:
 	
 	<dependencies>
 	  ...
@@ -58,11 +46,6 @@ add the following to your `pom.xml` file:
 
 To use Betamax in a project using [Gradle][gradle] add the following to your `build.gradle` file:
 
-	repositories {
-	    ...
-	    mavenRepo name: "sonatype-public", urls: ["http://oss.sonatype.org/content/groups/public/"]
-	    ...
-	}
 	dependencies {
 	    ...
 	    testCompile "com.github.robfletcher:betamax:1.0-M1"
@@ -76,7 +59,7 @@ To use Betamax in a [Grails][grails] app add the following to your `grails-app/c
 
 	repositories {
 	    ...
-	    mavenRepo "http://oss.sonatype.org/content/groups/public/"
+	    mavenCentral()
 	    ...
 	}
 	dependencies {
@@ -205,7 +188,7 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 
 	betamax.tapeRoot=test/fixtures/tapes
 	betamax.proxyPort=1337
-    betamax.proxyTimeout = 30000
+    betamax.proxyTimeout=30000
 	betamax.defaultMode=READ_ONLY
 
 ## About
@@ -236,7 +219,7 @@ Betamax depends on the following libraries (you will need them available on your
 
 * [Groovy 1.7+][groovy]
 * [Apache HttpClient][httpclient]
-* [Apache HttpCore NIO Extensions][httpcorenio]
+* [Jetty 7][jetty]
 * [SnakeYAML][snakeyaml]
 * [JUnit 4][junit]
 * [Apache log4j][log4j]
@@ -249,16 +232,21 @@ Betamax is inspired by the [VCR][vcr] library for Ruby written by Myron Marston.
 
 The code for the HTTP proxy server is based on the _Basic non-blocking HTTP server_ example from the Apache [HttpCore examples][httpcoreexamples].
 
+## Examples
+
+Betamax's GitHub repository includes [an example Grails application][grailsexample].
+
 [git]:http://git-scm.com
 [gradle]:http://www.gradle.org/
 [grails]:http://grails.org/
+[grailsexample]:https://github.com/robfletcher/betamax/tree/master/examples/grails-betamax
 [groovy]:http://groovy.codehaus.org/
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html
 [httpcoreexamples]:http://hc.apache.org/httpcomponents-core-ga/examples.html
-[httpcorenio]:http://hc.apache.org/httpcomponents-core-ga/httpcore-nio/index.html
 [httpurlclient]:http://groovy.codehaus.org/modules/http-builder/doc/httpurlclient.html
 [issues]:https://github.com/robfletcher/betamax/issues
+[jetty]:http://www.eclipse.org/jetty/
 [jim]:http://tinnedfruit.com/
 [junit]:http://www.junit.org/
 [licence]:http://www.apache.org/licenses/LICENSE-2.0.html

@@ -17,11 +17,7 @@ Tapes are stored to disk as [YAML][yaml] files and can be modified (or even crea
 
 ### Stable version
 
-The current stable version of Betamax is _1.0-M1_.
-
-### Development version
-
-The current development version is _1.0-M2-SNAPSHOT_.
+The current stable version of Betamax is _1.0_.
 
 ## Installation
 

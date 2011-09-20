@@ -26,7 +26,7 @@ Stable versions of Betamax are available from the Maven central repository. Stab
 ### Maven
 
 To use Betamax in a project using [Maven][maven] add the following to your `pom.xml` file:
-	
+
 	<dependencies>
 	  ...
 	  <dependency>
@@ -47,7 +47,7 @@ To use Betamax in a project using [Gradle][gradle] add the following to your `bu
 	    testCompile "com.github.robfletcher:betamax:1.0-M1"
 	    ...
 	}
-	
+
 
 ### Grails
 
@@ -68,7 +68,7 @@ To use Betamax in a [Grails][grails] app add the following to your `grails-app/c
 
 To use Betamax you just need to annotate your JUnit test or [Spock][spock] specifications with `@Betamax(tape="tape_name")` and include a `betamax.Recorder` Rule.
 
-### JUnit example
+### JUnit
 
 	import betamax.Betamax
 	import betamax.Recorder
@@ -85,7 +85,7 @@ To use Betamax you just need to annotate your JUnit test or [Spock][spock] speci
 	    }
 	}
 
-### Spock example
+### Spock
 
 	import betamax.Betamax
 	import betamax.Recorder

@@ -1,6 +1,10 @@
 @cream: #f2f0e9;
 @lightcream: #fefefa;
 
+.fancy-font() {
+	font-family: 'Michroma', sans-serif;
+}
+
 .lightbox() {
 	#translucent > .background(@lightcream);
 	#translucent > .border;
@@ -31,7 +35,7 @@ body {
 	.lightbox;
     margin-top: 60px;
 	h1 {
-		font-family: 'Michroma', sans-serif;
+		.fancy-font;
 	}
 	p {
 		color: @grayDark;
@@ -43,6 +47,9 @@ body {
 	padding: 10px;
 	.border-radius(6px);
 	.lightbox;
+	h2 {
+		.fancy-font;
+	}
 }
 
 #main h2 {

@@ -77,4 +77,7 @@ $(document).ready(function() {
     $('.pill-content > :first-child, .pills > :first-child').addClass('active');
     $('.pills').tabs();
 
+	// replace first letter of title
+	$('h1').html('&szlig;etamax');
+
 });

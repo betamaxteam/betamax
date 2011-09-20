@@ -1,7 +1,7 @@
 ---
 title: Home
 layout: home
-current_version: 1.0
+version: 1.0
 ---
 
 ## Introduction
@@ -18,7 +18,7 @@ Tapes are stored to disk as [YAML][yaml] files and can be modified (or even crea
 
 ### Stable version
 
-The current stable version of Betamax is _{{ page.current_version }}_.
+The current stable version of Betamax is _{{ page.version }}_.
 
 ## Installation
 
@@ -34,7 +34,7 @@ To use Betamax in a project using [Maven][maven] add the following to your `pom.
 	    <scope>test</scope>
 	    <groupId>com.github.robfletcher</groupId>
 	    <artifactId>betamax</artifactId>
-	    <version>{{ page.current_version }}</version>
+	    <version>{{ page.version }}</version>
 	  </dependency>
 	  ...
 	</dependencies>
@@ -45,7 +45,7 @@ To use Betamax in a project using [Gradle][gradle] add the following to your `bu
 
 	dependencies {
 	    ...
-	    testCompile "com.github.robfletcher:betamax:{{ page.current_version }}"
+	    testCompile "com.github.robfletcher:betamax:{{ page.version }}"
 	    ...
 	}
 
@@ -61,7 +61,7 @@ To use Betamax in a [Grails][grails] app add the following to your `grails-app/c
 	}
 	dependencies {
 	    ...
-	    test "com.github.robfletcher:betamax:{{ page.current_version }}"
+	    test "com.github.robfletcher:betamax:{{ page.version }}"
 	    ...
 	}
 

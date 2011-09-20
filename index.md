@@ -226,8 +226,6 @@ If your project gets dependencies from a [Maven][maven] repository these depende
 
 Betamax is inspired by the [VCR][vcr] library for Ruby written by Myron Marston. Porting VCR to Groovy was suggested to me by [Jim Newbery][jim].
 
-The code for the HTTP proxy server is based on the _Basic non-blocking HTTP server_ example from the Apache [HttpCore examples][httpcoreexamples].
-
 ## Examples
 
 Betamax's GitHub repository includes [an example Grails application][grailsexample].
@@ -239,7 +237,6 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [groovy]:http://groovy.codehaus.org/
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html
-[httpcoreexamples]:http://hc.apache.org/httpcomponents-core-ga/examples.html
 [httpurlclient]:http://groovy.codehaus.org/modules/http-builder/doc/httpurlclient.html
 [issues]:https://github.com/robfletcher/betamax/issues
 [jetty]:http://www.eclipse.org/jetty/

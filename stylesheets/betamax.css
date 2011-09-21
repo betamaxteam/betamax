@@ -1,3 +1,4 @@
+/*
 @cream: #f2f0e9;
 @lightcream: #fefefa;
 
@@ -24,49 +25,57 @@
 	background-repeat: no-repeat;
 	.fit-background;
 }
+*/
 
-// colours and layout tweaks
+/* colours and layout tweaks */
 body {
-	background-color: @cream;
+	/*background-color: #f2f0e9;*/
+    font-family: sans-serif;
 }
 
-.hero-unit {
-	.stripes(-40px);
-	.lightbox;
-    margin-top: 60px;
-	h1 {
-		.fancy-font;
-	}
-	p {
-		color: @grayDark;
-	}
+nav {
+    position: fixed;
+    width: 160px;
+}
+
+#hero-unit {
+    background-image: url(../images/stripes.png);
+    background-position: -40px 0;
+    background-repeat: no-repeat;
+    -o-background-size: contain;
+   -webkit-background-size: contain;
+-khtml-background-size: contain;
+       background-size: contain;
 }
 
 .teaser {
-	background-color: @lightcream;
-	padding: 10px;
-	.border-radius(6px);
-	.lightbox;
-	h2 {
-		.fancy-font;
-	}
+	background-color: #fefefa;
+	/*.border-radius(6px);*/
+	/*.lightbox;*/
+}
+
+.teaser h2, .teaser p {
+    margin: 10px;
+}
+
+#hero-unit h1,
+.teaser h2 {
+    font-family: 'Michroma', sans-serif;
 }
 
 #main h2 {
-	border-bottom: 1px solid @grayLight;
+	border-bottom: 1px solid #bfbfbf;
 	margin-bottom: 12px;
-	padding-top: 48px;
-	&:first-child {
-		margin-top: 12px;
-	}
+	margin-top: 48px;
 }
 
 footer {
 	border: none;
 	padding: 8px;
-	p {
-		margin-bottom: 0;
-	}
+}
+
+footer p {
+    margin-bottom: 0;
 }
 
 code {
@@ -74,18 +83,21 @@ code {
 }
 
 pre {
+/*
 	&.prettyprint {
 		.lightbox;
 	}
-	code {
-		padding: 0;
-	}
+	*/
 }
 
-// GitHub ribbon
+pre code {
+    padding: 0;
+}
+
+/* GitHub ribbon */
 #forkme {
     border: 0 none;
     position: absolute;
     right: 0;
-    top: 40px;
+    top: 0;
 }

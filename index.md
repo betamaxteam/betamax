@@ -1,6 +1,6 @@
 ---
 title: Home
-layout: home
+layout: index
 version: 1.0
 ---
 
@@ -111,22 +111,42 @@ Betamax will record to the current tape when it intercepts any HTTP request that
 
 By default recorded interactions are matched based on the _method_ and _URI_ of the request. For most scenarios this is adequate. However, you can modify the matching behaviour by specifying a _match_ argument on the `@Betamax` annotation. Any combination of instances of the `betamax.MatchRule` enum can be used. If multiple rules are used then only a recorded interaction that matches all of them will be played back. `MatchRule` options are:
 
-* `method`: the request method, _GET_, _POST_, etc.
-* `uri`: the full URI of the request target. This includes any query string.
-* `host`: the host of the target URI. For example the host of `http://search.twitter.com/search.json` is `search.twitter.com`.
-* `path`: the path of the target URI. For example the host of `http://search.twitter.com/search.json` is `/search.json`.
-* `port`: the port of the target URI.
-* `query`: the query string of the target URI.
-* `fragment`: the fragment of the target URI. i.e. anything after a `#`.
-* `headers`: the request headers. If this rule is used then _all_ headers on the intercepted request must match those on the previously recorded request.
+`method`
+: the request method, _GET_, _POST_, etc.
+
+`uri`
+: the full URI of the request target. This includes any query string.
+
+`host`
+: the host of the target URI. For example the host of `http://search.twitter.com/search.json` is `search.twitter.com`.
+
+`path`
+: the path of the target URI. For example the host of `http://search.twitter.com/search.json` is `/search.json`.
+
+`port`
+: the port of the target URI.
+
+`query`
+: the query string of the target URI.
+
+`fragment`
+: the fragment of the target URI. i.e. anything after a `#`.
+
+`headers`
+: the request headers. If this rule is used then _all_ headers on the intercepted request must match those on the previously recorded request.
 
 ### Tape modes
 
 Betamax supports three different read/write modes for tapes. The tape mode is set by adding a `mode` argument to the `@Betamax` annotation.
 
-* `READ_WRITE`: This is the default mode. If the proxy intercepts a request that matches a recording on the tape then the recorded response is played back. Otherwise the request is forwarded to the target URI and the response recorded.
-* `READ_ONLY`: The proxy will play back responses from tape but if it intercepts an unknown request it will not forward it to the target URI or record anything, instead it responds with a `403: Forbidden` status code.
-* `WRITE_ONLY`: The proxy will always forward the request to the target URI and record the response regardless of whether or not a matching request is already on the tape. Any existing recorded interactions will be overwritten.
+`READ_WRITE`
+: This is the default mode. If the proxy intercepts a request that matches a recording on the tape then the recorded response is played back. Otherwise the request is forwarded to the target URI and the response recorded.
+
+`READ_ONLY`
+: The proxy will play back responses from tape but if it intercepts an unknown request it will not forward it to the target URI or record anything, instead it responds with a `403: Forbidden` status code.
+
+`WRITE_ONLY`
+: The proxy will always forward the request to the target URI and record the response regardless of whether or not a matching request is already on the tape. Any existing recorded interactions will be overwritten.
 
 ## Caveats
 
@@ -165,10 +185,17 @@ _HTTPBuilder_ also includes a [_HttpURLClient_][httpurlclient] class which needs
 
 The `Recorder` class has some configuration properties that you can override:
 
-* *tapeRoot*: the base directory where tape files are stored. Defaults to `src/test/resources/betamax/tapes`.
-* *proxyPort*: the port the Betamax proxy listens on. Defaults to `5555`.
-* *proxyTimeout*: the number of milliseconds before the proxy will give up on a connection to the target server. A value of zero means the proxy will wait indefinitely. Defaults to `5000`.
-* *defaultMode*: the default _TapeMode_ applied to an inserted tape when the _mode_ argument is not present on the <code>@Betamax</code> annotation.
+`tapeRoot`
+: the base directory where tape files are stored. Defaults to `src/test/resources/betamax/tapes`.
+
+`proxyPort`
+: the port the Betamax proxy listens on. Defaults to `5555`.
+
+`proxyTimeout`
+: the number of milliseconds before the proxy will give up on a connection to the target server. A value of zero means the proxy will wait indefinitely. Defaults to `5000`.
+
+`defaultMode`
+: the default _TapeMode_ applied to an inserted tape when the _mode_ argument is not present on the <code>@Betamax</code> annotation.
 
 If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhere in your classpath it will be picked up by the `Recorder` class.
 
@@ -196,7 +223,7 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 
 ### Authors
 
-[Rob Fletcher][me]
+Rob Fletcher [github][github] [twitter][twitter] [ad-hockery][adhockery]
 
 ### Issues
 
@@ -227,11 +254,15 @@ If your project gets dependencies from a [Maven][maven] repository these depende
 
 Betamax is inspired by the [VCR][vcr] library for Ruby written by Myron Marston. Porting VCR to Groovy was suggested to me by [Jim Newbery][jim].
 
+The documentation is built with [Jekyll][jekyll], [Skeleton][skeleton], [Modernizr][modernizr], [jQuery][jquery] & [Google Code Prettify][prettify]. The site header font is [Michroma][michroma] by Vernon Adams.
+
 ## Examples
 
 Betamax's GitHub repository includes [an example Grails application][grailsexample].
 
+[adhockery]:http://adhockery.blogspot.com/ (Ad-Hockery)
 [git]:http://git-scm.com
+[github]:http://github.com/robfletcher (Rob Fletcher on GitHub)
 [gradle]:http://www.gradle.org/
 [grails]:http://grails.org/
 [grailsexample]:https://github.com/robfletcher/betamax/tree/master/examples/grails-betamax
@@ -240,18 +271,24 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html
 [httpurlclient]:http://groovy.codehaus.org/modules/http-builder/doc/httpurlclient.html
 [issues]:https://github.com/robfletcher/betamax/issues
+[jekyll]:http://jekyllrb.com/
 [jetty]:http://www.eclipse.org/jetty/
+[jquery]:http://jquery.com/
 [jim]:http://tinnedfruit.com/
 [junit]:http://www.junit.org/
 [licence]:http://www.apache.org/licenses/LICENSE-2.0.html
 [log4j]:http://logging.apache.org/log4j/1.2/
 [maven]:http://maven.apache.org/
-[me]:http://github.com/robfletcher
+[michroma]:http://www.fontsquirrel.com/fonts/michroma
+[modernizr]:http://www.modernizr.com/
+[prettify]:http://code.google.com/p/google-code-prettify/
 [proxyselector]:http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/conn/ProxySelectorRoutePlanner.html
 [restclient]:http://groovy.codehaus.org/modules/http-builder/doc/rest.html
+[skeleton]:http://www.getskeleton.com/
 [snakeyaml]:http://www.snakeyaml.org/
 [sonatype]:https://oss.sonatype.org/
 [spock]:http://spockframework.org/
 [tapeexample]:https://github.com/robfletcher/betamax/blob/master/src/test/resources/betamax/tapes/smoke_spec.yaml
+[twitter]:http://twitter.com/rfletcherew (Rob Fletcher on Twitter)
 [vcr]:http://relishapp.com/myronmarston/vcr
 [yaml]:http://yaml.org/

@@ -1,74 +1,94 @@
-/*
-@cream: #f2f0e9;
-@lightcream: #fefefa;
-
-.fancy-font() {
-	font-family: 'Michroma', sans-serif;
+/* colours */
+body, ul.tabs li a.active {
+	background-color: #fffdf6;
 }
 
-.lightbox() {
-	#translucent > .background(@lightcream);
-	#translucent > .border;
-	.box-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+ul.tabs li a {
+	background-color: #f2f0e9;
 }
 
-.fit-background() {
-	     -o-background-size: contain;
-	-webkit-background-size: contain;
-	 -khtml-background-size: contain;
-	        background-size: contain;
+/* font stack */
+body,
+h1, h2, h3, h4, h5, h6 {
+    font-family: Verdana, Tahoma, "Trebuchet MS", "DejaVu Sans", "Bitstream Vera Sans", sans-serif;
 }
 
-.stripes(@offset: 0) {
-	background-image: url(../images/stripes.png);
-	background-position: @offset 0;
-	background-repeat: no-repeat;
-	.fit-background;
-}
-*/
-
-/* colours and layout tweaks */
-body {
-	/*background-color: #f2f0e9;*/
-    font-family: sans-serif;
+/* overall layout */
+.container {
+	margin-top: 40px;
 }
 
-nav {
-    position: fixed;
-    width: 160px;
+header {
+	overflow: hidden;
 }
 
+/* big title at top of page */
 #hero-unit {
     background-image: url(../images/stripes.png);
     background-position: -40px 0;
     background-repeat: no-repeat;
-    -o-background-size: contain;
+        -o-background-size: contain;
    -webkit-background-size: contain;
--khtml-background-size: contain;
-       background-size: contain;
+    -khtml-background-size: contain;
+           background-size: contain;
+	padding: 40px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#hero-unit h1, #hero-unit p {
+	margin: 0;
+}
+
+#hero-unit, .teaser {
+	margin-bottom: 20px;
 }
 
 .teaser {
 	background-color: #fefefa;
-	/*.border-radius(6px);*/
-	/*.lightbox;*/
 }
 
-.teaser h2, .teaser p {
+.teaser h3, .teaser p {
     margin: 10px;
 }
 
 #hero-unit h1,
-.teaser h2 {
+.teaser h3 {
     font-family: 'Michroma', sans-serif;
 }
 
-#main h2 {
-	border-bottom: 1px solid #bfbfbf;
+#hero-unit h1 {
+	font-weight: bold;
+}
+
+/* nav sidebar */
+nav {
+    width: 160px;
+}
+
+nav.fix {
+	position: fixed;
+	top: 0;
+}
+
+nav li,
+#logo {
+	text-align: right;
+}
+
+/* main content section */
+h2 {
+	border-bottom: 1px solid #ddd;
 	margin-bottom: 12px;
 	margin-top: 48px;
 }
 
+h2:first-child {
+	margin-top: 0;
+}
+
+/* page footer */
 footer {
 	border: none;
 	padding: 8px;
@@ -78,20 +98,40 @@ footer p {
     margin-bottom: 0;
 }
 
-code {
-	background-color: transparent;
+/* code blocks */
+pre {
+	margin-bottom: 10px;
 }
 
-pre {
-/*
-	&.prettyprint {
-		.lightbox;
-	}
-	*/
+code {
+	background-color: transparent;
+	font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 }
 
 pre code {
     padding: 0;
+}
+
+/* definition lists */
+dl {
+	margin-bottom: 20px;
+}
+
+dt {
+	font-weight: bold;
+	margin-top: 8px;
+}
+
+/* coloured boxes for header and code blocks */
+#hero-unit, .teaser, pre.prettyprint {
+	background-color: #fefefb;
+	border-color: #fff;
+  -webkit-border-radius: 6px; 
+     -moz-border-radius: 6px; 
+          border-radius: 6px; 
+  -webkit-box-shadow: 0 0 2px rgba(0, 0, 0, 0.1); 
+     -moz-box-shadow: 0 0 2px rgba(0, 0, 0, 0.1); 
+          box-shadow: 0 0 2px rgba(0, 0, 0, 0.1); 
 }
 
 /* GitHub ribbon */
@@ -100,4 +140,62 @@ pre code {
     position: absolute;
     right: 0;
     top: 0;
+	z-index: 1;
+}
+
+/* icon links */
+a.icon {
+	display: inline-block;
+	height: 21px;
+	text-indent: -9999px;
+	vertical-align: baseline;
+	width: 21px;
+        -o-background-size: contain;
+   -webkit-background-size: contain;
+    -khtml-background-size: contain;
+           background-size: contain;
+}
+
+a.twitter {
+	background-image: url(../images/twitter.png);
+}
+
+a.github {
+	background-image: url(../images/github.png);
+}
+
+a.ad-hockery {
+	background-image: url(../images/rss.png);
+}
+
+/* Mobile */
+@media only screen and (max-width: 767px) {
+	#hero-unit {
+	        -o-background-size: cover;
+	   -webkit-background-size: cover;
+	    -khtml-background-size: cover;
+	           background-size: cover;
+		padding: 10px;
+	}
+	nav { position: relative; }
+	nav ul, #logo { display: none; }
+}
+
+/* iPad Portrait/Browser */
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+	nav { width: 124px; }
+}
+
+/* FOUC prevention */
+body {
+	opacity: 0;
+  -webkit-transition: opacity 0.2s ease-out;  
+     -moz-transition: opacity 0.2s ease-out;  
+      -ms-transition: opacity 0.2s ease-out;  
+       -o-transition: opacity 0.2s ease-out;  
+          transition: opacity 0.2s ease-out;  
+}
+
+.no-js body, body.ready {
+	opacity: 1;
 }

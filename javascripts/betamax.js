@@ -5,7 +5,12 @@ $(document).ready(function() {
     $('pre').addClass('prettyprint');
     prettyPrint();
 
-    // set up tab containers
+	// fix nav when page is scrolled down past header
+	var nav = $('nav');
+	var navPos = nav.parent('.sidebar').offset().top;
+	$(window).scroll(function(event) {
+		nav.toggleClass('fix', $(window).scrollTop() > navPos);
+	});
 
     // wrap a container around each section we want to be a tab
     $('#maven, #gradle, #grails, #junit, #spock').each(function() {
@@ -36,5 +41,18 @@ $(document).ready(function() {
 
     // activate the first link & tab in each group
     $('.tabs-content li:first-child, .tabs li:first-child a').addClass('active');
+
+	// replace h1 with fancier but less SEO-compliant text
+	$('h1, nav h3').html('&szlig;etamax');
+	
+	// icons for personal links
+	$('#authors').next('p').find('a').each(function() {
+		$(this).addClass('icon').addClass($(this).text());
+	});
+	
+	// FOUC prevention
+	$(window).load(function() {
+		$('body').addClass('ready');
+	});
 
 });

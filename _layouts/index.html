@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
-<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
-<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<!--[if lt IE 7 ]><html class="no-js ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="no-js ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="no-js ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html class="no-js" lang="en"> <!--<![endif]-->
 <head>
 
 	<meta charset="utf-8">
 	<title>Betamax - Record / playback testing proxy</title>
 	<meta name="description" content="">
 	<meta name="author" content="Rob Fletcher">
-	<!--[if lt IE 9]>
-		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-	<![endif]-->
+	<script src="javascripts/modernizr.js"></script>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -40,9 +38,8 @@
 
         <header>
             <div id="hero-unit" class="sixteen columns">
-                <h1 class="remove-bottom" style="margin-top: 40px">Betamax</h1>
+                <h1>Betamax</h1>
                 <p>A record / playback proxy for testing JVM applications that connect to external HTTP services.</p>
-                <hr />
             </div>
             <div class="one-third column teaser">
                 <h3>Record</h3>
@@ -62,7 +59,6 @@
             <nav>
                 <h3 id="logo">Betamax</h3>
                 <ul>
-                    <li><a href="#masthead">Home</a></li>
                     <li><a href="#introduction">Introduction</a></li>
                     <li><a href="#versions">Versions</a></li>
                     <li><a href="#installation">Installation</a></li>
@@ -73,6 +69,7 @@
                     <li><a href="#examples">Examples</a></li>
                 </ul>
             </nav>
+			&nbsp;
         </div>
 
         <div class="twelve columns content offset-by-one">

@@ -289,6 +289,6 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [sonatype]:https://oss.sonatype.org/
 [spock]:http://spockframework.org/
 [tapeexample]:https://github.com/robfletcher/betamax/blob/master/src/test/resources/betamax/tapes/smoke_spec.yaml
-[twitter]:http://twitter.com/rfletcherew (Rob Fletcher on Twitter)
+[twitter]:http://twitter.com/rfletcherEW (@rfletcherEW on Twitter)
 [vcr]:http://relishapp.com/myronmarston/vcr
 [yaml]:http://yaml.org/

@@ -146,14 +146,10 @@ dt {
 /* icon links */
 a.icon {
 	display: inline-block;
-	height: 21px;
+	height: 16px;
 	text-indent: -9999px;
-	vertical-align: baseline;
-	width: 21px;
-        -o-background-size: contain;
-   -webkit-background-size: contain;
-    -khtml-background-size: contain;
-           background-size: contain;
+	vertical-align: text-top;
+	width: 16px;
 }
 
 a.twitter {

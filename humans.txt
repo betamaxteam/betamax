@@ -11,5 +11,5 @@ Name: Jim Newbery
 Twitter: @froots101
 
 /* SITE */
-Components: Twitter Bootstrap, LESS, jQuery
+Components: Skeleton, Modernizr, jQuery, Google Code Prettify
 Software: Jekyll

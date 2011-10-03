@@ -1,10 +1,14 @@
 /* colours */
 body, ul.tabs li a.active {
-	background-color: #fffdf6;
+	background-color: #fffae7;
 }
 
 ul.tabs li a {
-	background-color: #f2f0e9;
+	background-color: #f6e9bd; /* background darken 10%, desaturate 25% */
+}
+
+ul.tabs, ul.tabs li a {
+	border-color: #daca91;
 }
 
 /* font stack */
@@ -79,7 +83,7 @@ nav li,
 
 /* main content section */
 h2 {
-	border-bottom: 1px solid #ddd;
+	border-bottom: 1px solid #daca91;
 	margin-bottom: 12px;
 	margin-top: 48px;
 }
@@ -129,9 +133,9 @@ dt {
   -webkit-border-radius: 6px; 
      -moz-border-radius: 6px; 
           border-radius: 6px; 
-  -webkit-box-shadow: 0 0 2px rgba(0, 0, 0, 0.1); 
-     -moz-box-shadow: 0 0 2px rgba(0, 0, 0, 0.1); 
-          box-shadow: 0 0 2px rgba(0, 0, 0, 0.1); 
+  -webkit-box-shadow: 0 0 2px rgba(218, 202, 145, 0.75); 
+     -moz-box-shadow: 0 0 2px rgba(218, 202, 145, 0.75); 
+          box-shadow: 0 0 2px rgba(218, 202, 145, 0.75); 
 }
 
 /* GitHub ribbon */

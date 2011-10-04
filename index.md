@@ -75,17 +75,17 @@ To use Betamax you just need to annotate your JUnit test or [Spock][spock] speci
 
 ### JUnit
 
-	import betamax.Betamax
-	import betamax.Recorder
-	import org.junit.*
+	import betamax.Betamax;
+	import betamax.Recorder;
+	import org.junit.*;
 
-	class MyTest {
+	public class MyTest {
 
 	    @Rule public Recorder recorder = new Recorder()
 
 	    @Betamax(tape="my tape")
 	    @Test
-	    void testMethodThatAccessesExternalWebService() {
+	    public void testMethodThatAccessesExternalWebService() {
 
 	    }
 	}

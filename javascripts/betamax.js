@@ -52,8 +52,8 @@ $(document).ready(function() {
 	
 	// FOUC prevention
 	$(window).load(function() {
-		window.scrollTo(0, 1);
 		$('body').addClass('ready');
+		window.scrollTo(0, 1);
 	});
 
 });

@@ -169,22 +169,22 @@ In a dependency injection context such as a [Grails][grails] app you can just in
 
 #### Configuring HttpClient
 
-	def client = new DefaultHttpClient()
-	client.routePlanner = new ProxySelectorRoutePlanner(
-	    client.connectionManager.schemeRegistry,
-	    ProxySelector.default
-	)
+	DefaultHttpClient client = new DefaultHttpClient();
+	HttpRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
+	    client.getConnectionManager().getSchemeRegistry(),
+	    ProxySelector.getDefault()
+	);
+	client.setRoutePlanner(routePlanner);
 
 The same is true of [Groovy _HTTPBuilder_][httpbuilder] and its [_RESTClient_][restclient] variant as they are wrappers around _HttpClient_.
 
 #### Configuring HTTPBuilder
 
 	def http = new HTTPBuilder("http://groovy.codehaus.org")
-	def routePlanner = new ProxySelectorRoutePlanner(
+	http.client.routePlanner = new ProxySelectorRoutePlanner(
 	    http.client.connectionManager.schemeRegistry,
 	    ProxySelector.default
 	)
-	http.client.routePlanner = routePlanner
 
 _HTTPBuilder_ also includes a [_HttpURLClient_][httpurlclient] class which needs no special configuration as it uses a `java.net.URLConnection` rather than _HttpClient_.
 

@@ -6,9 +6,13 @@ version: 1.0
 
 ## Introduction
 
-Betamax is a record/playback proxy for testing JVM applications that access external HTTP resources. The project was inspired by Ruby's [VCR][vcr].
+Betamax is a record/playback proxy for testing JVM applications that access external HTTP resources such as [web services][webservices] and [REST][rest] APIs. The project was inspired by the [VCR][vcr] library for Ruby.
 
-Betamax can record and play back HTTP interactions made by your app so that your tests can run without any real HTTP traffic going to external URLs. The first time an annotated test is run any HTTP traffic is recorded to a _tape_ and subsequent runs will play back the recorded HTTP response without connecting to the external server.
+Testing code that accesses HTTP services can be awkward. 3rd party downtime, network availability and resource constraints (such as the Twitter API's [rate limit][twitterratelimit]) can affect the reliability of your tests. You can always write custom _stub_ web server code and configure the application to connect to a different URI when running tests but this requires some up front time and may mean reinventing the wheel the next time a similar situation is encountered.
+
+Betamax aims to solve these problems by intercepting HTTP connections initiated by your application and returning _recorded_ responses.
+
+The first time a test annotated with `@Betamax` is run any HTTP traffic is recorded to a _tape_ and subsequent runs will play back the recorded HTTP response from the tape without actually connecting to the external server.
 
 Betamax works with JUnit and [Spock][spock]. Although it is written in [Groovy][groovy] Betamax can be used to test applications written in any JVM language so long as HTTP connections are made in a way that respects Java's `http.proxyHost` and `http.proxyPort` system properties.
 
@@ -286,6 +290,7 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [modernizr]:http://www.modernizr.com/
 [prettify]:http://code.google.com/p/google-code-prettify/
 [proxyselector]:http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/conn/ProxySelectorRoutePlanner.html
+[rest]:http://en.wikipedia.org/wiki/Representational_state_transfer
 [restclient]:http://groovy.codehaus.org/modules/http-builder/doc/rest.html
 [skeleton]:http://www.getskeleton.com/
 [snakeyaml]:http://www.snakeyaml.org/
@@ -293,5 +298,7 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [spock]:http://spockframework.org/
 [tapeexample]:https://github.com/robfletcher/betamax/blob/master/src/test/resources/betamax/tapes/smoke_spec.yaml
 [twitter]:http://twitter.com/rfletcherEW (@rfletcherEW on Twitter)
+[twitterratelimit]:https://dev.twitter.com/docs/rate-limiting
+[webservices]:http://en.wikipedia.org/wiki/Web_service
 [vcr]:http://relishapp.com/myronmarston/vcr
 [yaml]:http://yaml.org/

@@ -117,6 +117,9 @@ By default recorded interactions are matched based on the _method_ and _URI_ of 
 `uri`
 : the full URI of the request target. This includes any query string.
 
+`body`
+: the request body. This can be useful for testing connections to RESTful services that accept _POST_ data.
+
 `host`
 : the host of the target URI. For example the host of `http://search.twitter.com/search.json` is `search.twitter.com`.
 

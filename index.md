@@ -28,21 +28,6 @@ The current stable version of Betamax is _{{ page.version }}_.
 
 Stable versions of Betamax are available from the Maven central repository. Stable and development versions are available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below:
 
-### Maven
-
-To use Betamax in a project using [Maven][maven] add the following to your `pom.xml` file:
-
-	<dependencies>
-	  ...
-	  <dependency>
-	    <scope>test</scope>
-	    <groupId>com.github.robfletcher</groupId>
-	    <artifactId>betamax</artifactId>
-	    <version>{{ page.version }}</version>
-	  </dependency>
-	  ...
-	</dependencies>
-
 ### Gradle
 
 To use Betamax in a project using [Gradle][gradle] add the following to your `build.gradle` file:
@@ -68,6 +53,21 @@ To use Betamax in a [Grails][grails] app add the following to your `grails-app/c
 	    test "com.github.robfletcher:betamax:{{ page.version }}"
 	    ...
 	}
+
+### Maven
+
+To use Betamax in a project using [Maven][maven] add the following to your `pom.xml` file:
+
+	<dependencies>
+	  ...
+	  <dependency>
+	    <scope>test</scope>
+	    <groupId>com.github.robfletcher</groupId>
+	    <artifactId>betamax</artifactId>
+	    <version>{{ page.version }}</version>
+	  </dependency>
+	  ...
+	</dependencies>
 
 ## Usage
 

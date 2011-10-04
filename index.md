@@ -81,7 +81,7 @@ To use Betamax you just need to annotate your JUnit test or [Spock][spock] speci
 
 	public class MyTest {
 
-	    @Rule public Recorder recorder = new Recorder()
+	    @Rule public Recorder recorder = new Recorder();
 
 	    @Betamax(tape="my tape")
 	    @Test

@@ -2,6 +2,7 @@
 title: Home
 layout: index
 version: 1.0
+dev-version: 1.1-SNAPSHOT
 ---
 
 ## Introduction
@@ -20,9 +21,9 @@ Tapes are stored to disk as [YAML][yaml] files and can be modified (or even crea
 
 ## Versions
 
-### Stable version
-
 The current stable version of Betamax is _{{ page.version }}_.
+
+The current development version of Betamax is _{{ page.dev-version}}_.
 
 ## Installation
 
@@ -155,6 +156,14 @@ Betamax supports three different read/write modes for tapes. The tape mode is se
 `WRITE_ONLY`
 : The proxy will always forward the request to the target URI and record the response regardless of whether or not a matching request is already on the tape. Any existing recorded interactions will be overwritten.
 
+### Ignoring certain hosts
+
+Sometimes you may need to have Betamax ignore traffic to certain hosts. A typical example would be if you are using Betamax when end-to-end testing a web application using something like _[HtmlUnit][htmlunit]_ - you would not want Betamax to intercept connections to _localhost_ as that would mean traffic between _HtmlUnit_ and your app was recorded and played back!
+
+In such a case you can simply configure the `ignoreHosts` property of the `betamax.Recorder` object. The property accepts a list of hostnames or IP addresses. These can include wildcards at the start or end, for example `"*.mydomain.com"`.
+
+If you need to ignore connections to _localhost_ you can simply set the `ignoreLocalhost` property to `true`.
+
 ## Caveats
 
 ### Security
@@ -204,6 +213,12 @@ The `Recorder` class has some configuration properties that you can override:
 `defaultMode`
 : the default _TapeMode_ applied to an inserted tape when the _mode_ argument is not present on the <code>@Betamax</code> annotation.
 
+`ignoreHosts`
+: a list of hosts that will be ignored by the Betamax proxy. Any requests made to these hosts will proceed normally.
+
+`ignoreLocalhost`
+: if set to `true` the Betamax proxy will ignore connections to local addresses. This is equivalent to setting `ignoreHosts` to `["localhost", "127.0.0.1", InetAddress.localHost.hostName, InetAddress.localHost.hostAddress]`.
+
 If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhere in your classpath it will be picked up by the `Recorder` class.
 
 ### Example _BetamaxConfig.groovy_ script
@@ -213,6 +228,8 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 	    proxyPort = 1337
 	    proxyTimeout = 30000
 	    defaultMode = TapeMode.READ_ONLY
+		ignoreHosts = ["localhost", "127.0.0.1"]
+		ignoreLocalhost = true
 	}
 
 ### Example _betamax.properties_ file
@@ -221,6 +238,8 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 	betamax.proxyPort=1337
     betamax.proxyTimeout=30000
 	betamax.defaultMode=READ_ONLY
+	betamax.ignoreHosts=localhost,127.0.0.1
+	betamax.ignoreLocalhost=true
 
 ## About
 
@@ -274,6 +293,7 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [grails]:http://grails.org/
 [grailsexample]:https://github.com/robfletcher/betamax/tree/master/examples/grails-betamax
 [groovy]:http://groovy.codehaus.org/
+[htmlunit]:http://htmlunit.sourceforge.net/
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html
 [httpurlclient]:http://groovy.codehaus.org/modules/http-builder/doc/httpurlclient.html

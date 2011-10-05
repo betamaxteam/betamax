@@ -261,7 +261,7 @@ If your project gets dependencies from a [Maven][maven] repository these depende
 
 Betamax is inspired by the [VCR][vcr] library for Ruby written by Myron Marston. Porting VCR to Groovy was suggested to me by [Jim Newbery][jim].
 
-The documentation is built with [Jekyll][jekyll], [Skeleton][skeleton], [Modernizr][modernizr], [jQuery][jquery] & [Google Code Prettify][prettify]. The site header font is [Michroma][michroma] by Vernon Adams.
+The documentation is built with [Jekyll][jekyll], [Skeleton][skeleton], [LESS][less], [Modernizr][modernizr], [jQuery][jquery] & [Google Code Prettify][prettify]. The site header font is [Michroma][michroma] by Vernon Adams.
 
 ## Examples
 
@@ -283,6 +283,7 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [jquery]:http://jquery.com/
 [jim]:http://tinnedfruit.com/
 [junit]:http://www.junit.org/
+[less]:http://lesscss.org/
 [licence]:http://www.apache.org/licenses/LICENSE-2.0.html
 [log4j]:http://logging.apache.org/log4j/1.2/
 [maven]:http://maven.apache.org/

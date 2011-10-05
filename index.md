@@ -315,7 +315,7 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [restclient]:http://groovy.codehaus.org/modules/http-builder/doc/rest.html
 [skeleton]:http://www.getskeleton.com/
 [snakeyaml]:http://www.snakeyaml.org/
-[sonatype]:https://oss.sonatype.org/
+[sonatype]:https://oss.sonatype.org/content/repositories/snapshots/
 [spock]:http://spockframework.org/
 [tapeexample]:https://github.com/robfletcher/betamax/blob/master/src/test/resources/betamax/tapes/smoke_spec.yaml
 [twitter]:http://twitter.com/rfletcherEW (@rfletcherEW on Twitter)

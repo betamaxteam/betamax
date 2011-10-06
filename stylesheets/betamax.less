@@ -112,7 +112,7 @@ ul.tabs {
 
 	h1 {
 		font-family: @title-font;
-		font-size: 64px;
+		font-size: 72px;
 		margin: 0;
 	}
 
@@ -149,7 +149,8 @@ nav {
 		top: 0;
 	}
 
-	h3 {
+	h2 {
+	    border-bottom: 0;
 		font-family: @title-font;
 	}
 	
@@ -212,6 +213,10 @@ dt {
 	margin-top: @spacing;
 }
 
+dd {
+	padding-left: @spacing;
+}
+
 // GitHub ribbon
 #forkme {
     border: 0 none;
@@ -245,15 +250,38 @@ a.icon {
 
 // Mobile
 @media only screen and (max-width: 767px) {
+    header {
+    	padding: 2px;
+    }
 	#hero-unit {
 		.background-size(cover);
-		padding: @spacing;
+		padding: 2 * @spacing;
+		margin-bottom: 0;
+		width: 296px;
+
+		h1 {
+			font-size: 64px;
+		}
+	}
+	.teaser {
+		display: none;
 	}
 	nav { 
 		position: relative; 
 	}
 	nav ul, #logo {
 		display: none;
+	}
+}
+
+// Mobile (landscape)
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+	#hero-unit {
+		width: 416px;
+
+		h1 {
+			font-size: 72px;
+		}
 	}
 }
 

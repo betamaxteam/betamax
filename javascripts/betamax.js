@@ -43,7 +43,7 @@ $(document).ready(function() {
     $('.tabs-content li:first-child, .tabs li:first-child a').addClass('active');
 
 	// replace h1 with fancier but less SEO-compliant text
-	$('h1, nav h3').html('&szlig;etamax');
+	$('h1, nav h3').html('&beta;etamax');
 	
 	// icons for personal links
 	$('#authors').next('p').find('a').each(function() {

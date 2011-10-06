@@ -3,7 +3,7 @@
 @keyline-color: #daca91;
 
 @font-stack: Verdana, Tahoma, "Trebuchet MS", "DejaVu Sans", "Bitstream Vera Sans", sans-serif;
-@title-font: 'Michroma', sans-serif;
+@title-font: 'Play', sans-serif;
 @code-font: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 
 @spacing: 10px;
@@ -112,11 +112,13 @@ ul.tabs {
 
 	h1 {
 		font-family: @title-font;
-		font-weight: bold;
+		font-size: 64px;
+		margin: 0;
 	}
 
-	h1, p {
+	p {
 		margin: 0;
+		text-indent: 18px;
 	}
 
 	.teaser {
@@ -145,6 +147,10 @@ nav {
 	&.fix {
 		position: fixed;
 		top: 0;
+	}
+
+	h3 {
+		font-family: @title-font;
 	}
 	
 	li {

@@ -1,6 +1,10 @@
-@background-color: #fffae7;
-@inactive-tab-color: desaturate(darken(@background-color, 10%), 25%);
-@keyline-color: #daca91;
+@base-color: #8AB29F;
+@background-color: lighten(@base-color, 25%);
+@highlight-box-color: #F2E6CE;
+@inactive-tab-color: desaturate(@base-color, 15%);
+@keyline-color: #593325;
+@text-color: #1D1D1F;
+@heading-color: @text-color;
 
 @font-stack: Verdana, Tahoma, "Trebuchet MS", "DejaVu Sans", "Bitstream Vera Sans", sans-serif;
 @title-font: 'Play', sans-serif;
@@ -44,34 +48,39 @@
 	        transition: @effect @duration @style;  
 }
 
-/* coloured boxes for header and code blocks */
+.text-shadow(@color: fadeout(@keyline-color,30%)) {
+//   	text-shadow: 1px 1px 2px @color;
+}
+
+// coloured boxes for header and code blocks
 .highlight-box {
-	@background: #fefefa;
+	@background: @highlight-box-color;
 	@border: @keyline-color;
 
 	background-color: @background;
 	border-width: 0;
 	.border-radius(6px);
-	.box-shadow(2px, @border);
+	.box-shadow(3px, @border);
 }
 
 .code-box {
-	@background: darken(#694321, 10%);
-	@border: fadeout(lighten(@background, 50%), 50%);
-	background-color: @background;
-	border-color: @border;
+	@border: @keyline-color;
+	padding: @spacing;
 	.border-radius(6px);
-	.box-shadow(2px, @border);
+	.box-shadow(3px, @border);
 }
 
 // basic resets
 body {
 	background-color: @background-color;
+	color: @text-color;
 	font-family: @font-stack;
 }
 
 h1, h2, h3, h4, h5, h6 {
+    color: @heading-color;
     font-family: @font-stack;
+    .text-shadow;
 }
 
 // layout
@@ -114,11 +123,13 @@ ul.tabs {
 		font-family: @title-font;
 		font-size: 72px;
 		margin: 0;
+		.text-shadow;
 	}
 
 	p {
 		margin: 0;
 		text-indent: 18px;
+		.text-shadow;
 	}
 
 	.teaser {
@@ -132,6 +143,7 @@ ul.tabs {
 	
 	h3 {
 		font-family: @title-font;
+		.text-shadow;
 	}
 
 	h3, p {
@@ -152,6 +164,7 @@ nav {
 	h2 {
 	    border-bottom: 0;
 		font-family: @title-font;
+		.text-shadow;
 	}
 	
 	li {
@@ -190,7 +203,7 @@ pre {
 	margin-bottom: @spacing;
 	
 	&.prettyprint {
-		.highlight-box;
+		.code-box;
 	}
 	
 	code {

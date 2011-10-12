@@ -164,19 +164,15 @@ In such a case you can simply configure the `ignoreHosts` property of the `betam
 
 If you need to ignore connections to _localhost_ you can simply set the `ignoreLocalhost` property to `true`.
 
-## Caveats
+## Compatibility
 
-### Security
-
-Betamax is a testing tool and not a spec-compliant HTTP proxy. It ignores _any_ and _all_ headers that would normally be used to prevent a proxy caching or storing HTTP traffic. You should ensure that sensitive information such as authentication credentials is removed from recorded tapes before committing them to your app's source control repository.
-
-### Using Apache HttpClient
+### Apache HttpClient 4.x
 
 By default [Apache _HttpClient_][httpclient] takes no notice of Java's HTTP proxy settings. The Betamax proxy can only intercept traffic from HttpClient if the client instance is set up to use a [`ProxySelectorRoutePlanner`][proxyselector]. When Betamax is not active this will mean HttpClient traffic will be routed via the default proxy configured in Java (if any).
 
 In a dependency injection context such as a [Grails][grails] app you can just inject a proxy-configured _HttpClient_ instance into your class-under-test.
 
-#### Configuring HttpClient
+#### Configuring HttpClient 4.x
 
 	DefaultHttpClient client = new DefaultHttpClient();
 	HttpRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
@@ -185,7 +181,9 @@ In a dependency injection context such as a [Grails][grails] app you can just in
 	);
 	client.setRoutePlanner(routePlanner);
 
-The same is true of [Groovy _HTTPBuilder_][httpbuilder] and its [_RESTClient_][restclient] variant as they are wrappers around _HttpClient_.
+### Groovy HTTPBuilder
+
+[Groovy _HTTPBuilder_][httpbuilder] and its [_RESTClient_][restclient] variant are wrappers around _HttpClient_ so the same proxy configuration needs to be applied.
 
 #### Configuring HTTPBuilder
 
@@ -196,6 +194,16 @@ The same is true of [Groovy _HTTPBuilder_][httpbuilder] and its [_RESTClient_][r
 	)
 
 _HTTPBuilder_ also includes a [_HttpURLClient_][httpurlclient] class which needs no special configuration as it uses a `java.net.URLConnection` rather than _HttpClient_.
+
+### Apache HttpClient 3.x
+
+_HttpClient_ 3.x does not take any notice of Java's HTTP proxy settings and does not have the `ProxySelectorRoutePlanner` facility that _HttpClient_ 4.x does. This means you must set the host and port of the Betamax proxy on the _HttpClient_ instance explicitly.
+
+#### Configuring HttpClient 3.x
+
+	HttpClient client = new HttpClient();
+	ProxyHost proxy = new ProxyHost("localhost", 5555);
+	client.getHostConfiguration().setProxyHost(proxy);
 
 ## Configuration
 
@@ -240,6 +248,12 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 	betamax.defaultMode=READ_ONLY
 	betamax.ignoreHosts=localhost,127.0.0.1
 	betamax.ignoreLocalhost=true
+
+## Caveats
+
+### Security
+
+Betamax is a testing tool and not a spec-compliant HTTP proxy. It ignores _any_ and _all_ headers that would normally be used to prevent a proxy caching or storing HTTP traffic. You should ensure that sensitive information such as authentication credentials is removed from recorded tapes before committing them to your app's source control repository.
 
 ## About
 

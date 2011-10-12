@@ -33,10 +33,15 @@ Stable versions of Betamax are available from the Maven central repository. Stab
 
 To use Betamax in a project using [Gradle][gradle] add the following to your `build.gradle` file:
 
+	repositories {
+	    ...
+	    mavenCentral()
+	    // only required for development versions of Betamax
+	    mavenRepo urls: ["http://oss.sonatype.org/content/groups/public/"]
+	}
 	dependencies {
 	    ...
 	    testCompile "com.github.robfletcher:betamax:{{ page.version }}"
-	    ...
 	}
 
 
@@ -47,17 +52,27 @@ To use Betamax in a [Grails][grails] app add the following to your `grails-app/c
 	repositories {
 	    ...
 	    mavenCentral()
-	    ...
+	    // only required for development versions of Betamax
+	    mavenRepo "http://oss.sonatype.org/content/groups/public/"
 	}
 	dependencies {
 	    ...
 	    test "com.github.robfletcher:betamax:{{ page.version }}"
-	    ...
 	}
 
 ### Maven
 
 To use Betamax in a project using [Maven][maven] add the following to your `pom.xml` file:
+
+	<repositories>
+	  ...
+	  <!-- only required for development versions of Betamax -->
+	  <repository>
+	    <id>sonatype</id>
+	    <name>Sonatype</name>
+	    <url>http://oss.sonatype.org/content/groups/public/</url>
+	  </repository>
+	</repositories>
 
 	<dependencies>
 	  ...
@@ -67,7 +82,6 @@ To use Betamax in a project using [Maven][maven] add the following to your `pom.
 	    <artifactId>betamax</artifactId>
 	    <version>{{ page.version }}</version>
 	  </dependency>
-	  ...
 	</dependencies>
 
 ## Usage

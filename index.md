@@ -286,7 +286,6 @@ Betamax depends on the following libraries (you will need them available on your
 * [Jetty 7][jetty]
 * [SnakeYAML][snakeyaml]
 * [JUnit 4][junit]
-* [Apache log4j][log4j]
 
 If your project gets dependencies from a [Maven][maven] repository these dependencies will be automatically included for you.
 
@@ -319,7 +318,6 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [junit]:http://www.junit.org/
 [less]:http://lesscss.org/
 [licence]:http://www.apache.org/licenses/LICENSE-2.0.html
-[log4j]:http://logging.apache.org/log4j/1.2/
 [maven]:http://maven.apache.org/
 [modernizr]:http://www.modernizr.com/
 [playfont]:http://www.fontsquirrel.com/fonts/play

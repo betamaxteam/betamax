@@ -180,13 +180,13 @@ If you need to ignore connections to _localhost_ you can simply set the `ignoreL
 
 ## Compatibility
 
-### Apache HttpClient 4.x
+### Apache HttpClient
 
 By default [Apache _HttpClient_][httpclient] takes no notice of Java's HTTP proxy settings. The Betamax proxy can only intercept traffic from HttpClient if the client instance is set up to use a [`ProxySelectorRoutePlanner`][proxyselector]. When Betamax is not active this will mean HttpClient traffic will be routed via the default proxy configured in Java (if any).
 
 In a dependency injection context such as a [Grails][grails] app you can just inject a proxy-configured _HttpClient_ instance into your class-under-test.
 
-#### Configuring HttpClient 4.x
+#### Configuring HttpClient
 
 	DefaultHttpClient client = new DefaultHttpClient();
 	HttpRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
@@ -211,7 +211,7 @@ _HTTPBuilder_ also includes a [_HttpURLClient_][httpurlclient] class which needs
 
 ### Apache HttpClient 3.x
 
-_HttpClient_ 3.x does not take any notice of Java's HTTP proxy settings and does not have the `ProxySelectorRoutePlanner` facility that _HttpClient_ 4.x does. This means you must set the host and port of the Betamax proxy on the _HttpClient_ instance explicitly.
+[_HttpClient_ 3.x][httpclient3] does not take any notice of Java's HTTP proxy settings and does not have the `ProxySelectorRoutePlanner` facility that _HttpClient_ 4.x does. This means you must set the host and port of the Betamax proxy on the _HttpClient_ instance explicitly.
 
 #### Configuring HttpClient 3.x
 
@@ -323,6 +323,7 @@ Betamax's GitHub repository includes [an example Grails application][grailsexamp
 [htmlunit]:http://htmlunit.sourceforge.net/
 [httpbuilder]:http://groovy.codehaus.org/modules/http-builder/
 [httpclient]:http://hc.apache.org/httpcomponents-client-ga/httpclient/index.html
+[httpclient3]:http://hc.apache.org/httpclient-3.x/
 [httpurlclient]:http://groovy.codehaus.org/modules/http-builder/doc/httpurlclient.html
 [issues]:https://github.com/robfletcher/betamax/issues
 [jekyll]:http://jekyllrb.com/

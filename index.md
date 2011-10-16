@@ -211,7 +211,7 @@ _HTTPBuilder_ also includes a [_HttpURLClient_][httpurlclient] class which needs
 
 ### Apache HttpClient 3.x
 
-[_HttpClient_ 3.x][httpclient3] does not take any notice of Java's HTTP proxy settings and does not have the `ProxySelectorRoutePlanner` facility that _HttpClient_ 4.x does. This means you must set the host and port of the Betamax proxy on the _HttpClient_ instance explicitly.
+[_HttpClient_ 3.x][httpclient3] is no longer supported but still fairly widely used. It does not take any notice of Java's HTTP proxy settings and does not have the `ProxySelectorRoutePlanner` facility that _HttpClient_ 4.x does. This means Betamax cannot work as seamlessly. You must set the host and port of the Betamax proxy on the _HttpClient_ instance explicitly and Betamax's `ignoreHosts` and `ignoreLocalhost` configuration properties will be completely ignored.
 
 #### Configuring HttpClient 3.x
 
@@ -271,6 +271,10 @@ Betamax is a testing tool and not a spec-compliant HTTP proxy. It ignores _any_ 
 
 ## About
 
+### Why "Betamax"?
+
+Betamax is a JVM port of the [VCR][vcr] library for Ruby. It is named after _[Betamax][betamax]_, an obsolete format of [Video Cassette Recorder](http://en.wikipedia.org/wiki/Vcr).
+
 ### License
 
 [Apache Software Licence, Version 2.0][licence]
@@ -314,6 +318,7 @@ The documentation is built with [Jekyll][jekyll], [Skeleton][skeleton], [LESS][l
 Betamax's GitHub repository includes [an example Grails application][grailsexample].
 
 [adhockery]:http://adhockery.blogspot.com/ (Ad-Hockery)
+[betamax]:http://en.wikipedia.org/wiki/Betamax
 [git]:http://git-scm.com
 [github]:http://github.com/robfletcher (Rob Fletcher on GitHub)
 [gradle]:http://www.gradle.org/

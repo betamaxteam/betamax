@@ -143,7 +143,7 @@ By default recorded interactions are matched based on the _method_ and _URI_ of 
 : the host of the target URI. For example the host of `http://search.twitter.com/search.json` is `search.twitter.com`.
 
 `path`
-: the path of the target URI. For example the host of `http://search.twitter.com/search.json` is `/search.json`.
+: the path of the target URI. For example the path of `http://search.twitter.com/search.json` is `/search.json`.
 
 `port`
 : the port of the target URI.

@@ -317,7 +317,7 @@ The documentation is built with [Jekyll][jekyll], [Skeleton][skeleton], [LESS][l
 
 Betamax's GitHub repository includes [an example Grails application][grailsexample].
 
-[adhockery]:http://adhockery.blogspot.com/ (Ad-Hockery)
+[adhockery]:http://blog.freeside.co/ (Ad-Hockery)
 [betamax]:http://en.wikipedia.org/wiki/Betamax
 [git]:http://git-scm.com
 [github]:http://github.com/robfletcher (Rob Fletcher on GitHub)

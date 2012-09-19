@@ -186,14 +186,12 @@ By default [Apache _HttpClient_][httpclient] takes no notice of Java's HTTP prox
 
 In a dependency injection context such as a [Grails][grails] app you can just inject a proxy-configured _HttpClient_ instance into your class-under-test.
 
+Betamax provides a convenient `HttpRoutePlanner` implementation that you can use to configure your _HttpClient_ instance.
+
 #### Configuring HttpClient
 
 	DefaultHttpClient client = new DefaultHttpClient();
-	HttpRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
-	    client.getConnectionManager().getSchemeRegistry(),
-	    ProxySelector.getDefault()
-	);
-	client.setRoutePlanner(routePlanner);
+	BetamaxRoutePlanner.configure(client);
 
 ### Groovy HTTPBuilder
 
@@ -202,16 +200,13 @@ In a dependency injection context such as a [Grails][grails] app you can just in
 #### Configuring HTTPBuilder
 
 	def http = new HTTPBuilder("http://groovy.codehaus.org")
-	http.client.routePlanner = new ProxySelectorRoutePlanner(
-	    http.client.connectionManager.schemeRegistry,
-	    ProxySelector.default
-	)
+	BetamaxRoutePlanner.configure(http.client)
 
 _HTTPBuilder_ also includes a [_HttpURLClient_][httpurlclient] class which needs no special configuration as it uses a `java.net.URLConnection` rather than _HttpClient_.
 
 ### Apache HttpClient 3.x
 
-[_HttpClient_ 3.x][httpclient3] is no longer supported but still fairly widely used. It does not take any notice of Java's HTTP proxy settings and does not have the `ProxySelectorRoutePlanner` facility that _HttpClient_ 4.x does. This means Betamax cannot work as seamlessly. You must set the host and port of the Betamax proxy on the _HttpClient_ instance explicitly and Betamax's `ignoreHosts` and `ignoreLocalhost` configuration properties will be completely ignored.
+[_HttpClient_ 3.x][httpclient3] is no longer supported but still fairly widely used. It does not take any notice of Java's HTTP proxy settings and does not have the `HttpRoutePlanner` facility that _HttpClient_ 4.x does. This means Betamax cannot work as seamlessly. You must set the host and port of the Betamax proxy on the _HttpClient_ instance explicitly and Betamax's `ignoreHosts` and `ignoreLocalhost` configuration properties will be completely ignored.
 
 #### Configuring HttpClient 3.x
 

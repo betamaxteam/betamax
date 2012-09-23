@@ -1,6 +1,7 @@
 /build
 /out
 /.gradle
+/.gradletasknamecache
 /.idea
 *.ipr
 *.iml

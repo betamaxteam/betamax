@@ -8,3 +8,4 @@
 *.iws
 /_site
 /examples/
+.DS_Store

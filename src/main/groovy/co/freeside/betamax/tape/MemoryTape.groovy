@@ -24,6 +24,7 @@ import static TapeMode.READ_WRITE
 import static co.freeside.betamax.MatchRule.*
 import static co.freeside.betamax.proxy.jetty.BetamaxProxy.X_BETAMAX
 import static org.apache.http.HttpHeaders.VIA
+import java.util.logging.Logger
 /**
  * Represents a set of recorded HTTP interactions that can be played back or appended to.
  */
@@ -32,7 +33,11 @@ class MemoryTape implements Tape {
 	String name
 	List<RecordedInteraction> interactions = []
 	private TapeMode mode = READ_WRITE
+    private int orderedIndex = 0
 	private Comparator<Request>[] matchRules = [method, uri]
+
+	private static final log = Logger.getLogger(MemoryTape.name)
+
 
 	void setMode(TapeMode mode) {
 		this.mode = mode
@@ -50,6 +55,10 @@ class MemoryTape implements Tape {
 		mode.writable
 	}
 
+	boolean isSequential() {
+		mode.sequential
+	}
+
 	int size() {
 		interactions.size()
 	}
@@ -64,12 +73,34 @@ class MemoryTape implements Tape {
 			throw new IllegalStateException('the tape is not readable')
 		}
 
-		int position = findMatch(request)
-		if (position < 0) {
-			throw new IllegalStateException('no matching recording found')
+		if (mode.sequential) {
+			def requestMatcher = new RequestMatcher(request, matchRules)
+			RecordedInteraction nextInteraction = interactions[orderedIndex]
+			if (!requestMatcher.matches(nextInteraction.request)) {
+				throw new IllegalStateException("request ${stringify(request)} does not match recorded request ${stringify(nextInteraction.request)}")
+
+			} else {
+				orderedIndex++
+				nextInteraction.response
+			}
+
 		} else {
-			interactions[position].response
+			int position = findMatch(request)
+			if (position < 0) {
+				throw new IllegalStateException('no matching recording found')
+			} else {
+				interactions[position].response
+			}
 		}
+	}
+
+	private String stringify(Request request) {
+		[
+				method:request.method,
+				uri:request.uri,
+				headers:request.headers,
+				body:request.bodyAsText.text
+		]
 	}
 
 	synchronized void record(Request request, Response response) {
@@ -83,11 +114,16 @@ class MemoryTape implements Tape {
 				recorded: new Date()
 		)
 
-		int position = findMatch(request)
-		if (position >= 0) {
-			interactions[position] = interaction
-		} else {
+		if (mode.sequential) {
 			interactions << interaction
+
+		} else {
+			int position = findMatch(request)
+			if (position >= 0) {
+				interactions[position] = interaction
+			} else {
+				interactions << interaction
+			}
 		}
 	}
 

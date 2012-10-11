@@ -45,6 +45,11 @@ interface Tape {
 	boolean isWritable()
 
 	/**
+	 * @return `true` if access is sequential, `false` otherwise.
+	 */
+    boolean isSequential()
+
+	/**
 	 * @return the number of recorded HTTP interactions currently stored on the tape.
 	 */
 	int size()

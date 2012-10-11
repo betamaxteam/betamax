@@ -24,7 +24,7 @@ class TapeReader extends ChainedHttpHandler {
 		def tape = recorder.tape
 		if (!tape) {
 			throw new ProxyException(HTTP_FORBIDDEN, 'No tape')
-		} else if (tape.readable && tape.seek(request)) {
+		} else if (tape.readable && (tape.sequential || tape.seek(request))) {
 			log.log INFO, "Playing back from '$tape.name'"
 			def response = tape.play(request)
 			response.addHeader(X_BETAMAX, 'PLAY')

@@ -20,7 +20,7 @@ $(document).ready(function() {
 		$(this).nextUntil(':not(.tab-pane)').andSelf().wrapAll('<div class="tab-content"></div>');
 	});
 
-	// create a navbar for each tab container
+	// create nav pills for each tab container
 	$('.tab-content').each(function() {
 		var tabs = $('<ul class="nav nav-pills"></ul>');
 		$(this).children().each(function() {
@@ -38,12 +38,6 @@ $(document).ready(function() {
 		tabs.insertBefore(this)
 			.find('li:first-child a').tab('show');
 	});
-
-    var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-    s.type = 'text/javascript';
-    s.async = true;
-    s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-    t.parentNode.insertBefore(s, t);
 
 	// FOUC prevention
 	$(window).load(function() {

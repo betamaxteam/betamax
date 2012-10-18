@@ -24,7 +24,6 @@ import static TapeMode.READ_WRITE
 import static co.freeside.betamax.MatchRule.*
 import static co.freeside.betamax.proxy.jetty.BetamaxProxy.X_BETAMAX
 import static org.apache.http.HttpHeaders.VIA
-import java.util.logging.Logger
 /**
  * Represents a set of recorded HTTP interactions that can be played back or appended to.
  */
@@ -35,9 +34,6 @@ class MemoryTape implements Tape {
 	private TapeMode mode = READ_WRITE
     private int orderedIndex = 0
 	private Comparator<Request>[] matchRules = [method, uri]
-
-	private static final log = Logger.getLogger(MemoryTape.name)
-
 
 	void setMode(TapeMode mode) {
 		this.mode = mode

@@ -7,13 +7,11 @@ import co.freeside.betamax.encoding.NoOpEncoder
 import co.freeside.betamax.message.AbstractMessage
 import co.freeside.betamax.message.Message
 import org.apache.http.HttpHeaders
-import java.util.logging.Logger
 
 abstract class RecordedMessage extends AbstractMessage implements Message {
 
 	Map<String, String> headers = [:]
 	def body
-	private static final log = Logger.getLogger(RecordedMessage.name)
 
 	final void addHeader(String name, String value) {
 		if (headers[name]) {

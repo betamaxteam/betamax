@@ -1,0 +1,14 @@
+co.freeside.betamax
+co.freeside.betamax.encoding
+co.freeside.betamax.handler
+co.freeside.betamax.httpclient
+co.freeside.betamax.message
+co.freeside.betamax.message.filtering
+co.freeside.betamax.message.httpclient
+co.freeside.betamax.message.servlet
+co.freeside.betamax.message.tape
+co.freeside.betamax.proxy.jetty
+co.freeside.betamax.proxy.ssl
+co.freeside.betamax.tape
+co.freeside.betamax.tape.yaml
+co.freeside.betamax.util

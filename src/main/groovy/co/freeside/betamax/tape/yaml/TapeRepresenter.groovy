@@ -29,7 +29,7 @@ import static org.yaml.snakeyaml.nodes.Tag.*
 class TapeRepresenter extends GroovyRepresenter {
 
 	TapeRepresenter() {
-		propertyUtils = new TapePropertyUtils()
+		def propertyUtils = new TapePropertyUtils()
 		representers[URI] = new RepresentURI()
 	}
 

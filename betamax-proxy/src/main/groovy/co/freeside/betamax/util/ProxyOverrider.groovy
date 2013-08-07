@@ -2,6 +2,8 @@ package co.freeside.betamax.util
 
 import static java.net.Proxy.Type.HTTP
 
+import java.net.Proxy;
+
 /**
  * Provides a mechanism to temporarily override current HTTP and HTTPS proxy settings and restore them later.
  */

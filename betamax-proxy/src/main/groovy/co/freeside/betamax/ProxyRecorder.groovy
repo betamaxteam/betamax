@@ -1,5 +1,7 @@
 package co.freeside.betamax
 
+import java.net.Proxy;
+
 import co.freeside.betamax.proxy.netty.ProxyServer
 import co.freeside.betamax.proxy.ssl.DummySSLSocketFactory
 import co.freeside.betamax.util.PropertiesCategory

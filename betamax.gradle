@@ -33,3 +33,7 @@ allprojects {
 	}
 }
 
+configure(subprojects.findAll {it.name.startsWith("scala-")}) {
+	apply from: "$rootDir/gradle/scalaModule.gradle"
+}
+

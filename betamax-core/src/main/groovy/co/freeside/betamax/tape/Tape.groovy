@@ -16,6 +16,8 @@
 
 package co.freeside.betamax.tape
 
+import java.util.Comparator;
+
 import co.freeside.betamax.TapeMode
 import co.freeside.betamax.handler.HandlerException
 import co.freeside.betamax.message.*
@@ -34,6 +36,11 @@ interface Tape {
 	 */
 	void setMode(TapeMode mode)
 
+	/**
+	 * @param mode the new request matching rules of the tape.
+	 */
+	void setMatchRules(Comparator<Request>[] matchRules)
+	
 	/**
 	 * @return `true` if the tape is readable, `false` otherwise.
 	 */

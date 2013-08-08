@@ -1,0 +1,7 @@
+archivesBaseName = "betamax-scala_2.10"
+
+dependencies {
+	compile "org.scala-lang:scala-library:2.10.1"
+	compile "org.specs2:specs2_2.10:2.0"
+	compile "org.scalatest:scalatest_2.10:1.9.1"
+}

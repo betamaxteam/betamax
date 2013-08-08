@@ -21,3 +21,4 @@ bin/
 .project
 .classpath
 .settings
+.cache

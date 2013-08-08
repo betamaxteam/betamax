@@ -4,6 +4,8 @@ include "betamax-core",
 		"betamax-proxy",
 		"betamax-manual",
 		"betamax-netty",
+		"betamax-scala:scala-2.9.3",
+		"betamax-scala:scala-2.10.1",
 		"betamax-test-support"
 
 rootProject.name = "betamax"

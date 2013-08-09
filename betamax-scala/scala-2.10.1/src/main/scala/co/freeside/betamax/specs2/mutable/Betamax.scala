@@ -1,10 +1,10 @@
-package co.freeside.betamax.specs2
+package co.freeside.betamax.specs2.mutable
 
 import java.util.Comparator
 
 import org.specs2.execute.AsResult
 import org.specs2.execute.Result
-import org.specs2.specification.Around
+import org.specs2.mutable.Around
 
 import co.freeside.betamax.BetamaxScalaSupport
 import co.freeside.betamax.ProxyRecorder

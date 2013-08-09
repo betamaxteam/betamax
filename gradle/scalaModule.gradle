@@ -1,4 +1,4 @@
-apply plugin: 'scala'
+apply plugin: "scala"
 apply from: "$rootDir/gradle/publishedModule.gradle"
 
 repositories {
@@ -27,12 +27,15 @@ modifyPom {
 sourceSets {
 	main {
 		scala {
-			srcDirs = ['src/main/scala','../src/main/scala']
+			srcDirs = ["src/main/scala","../src/main/scala"]
 		}
 	}
 	test {
 		scala {
-			srcDirs = ['src/test/scala','../src/test/scala']
+			srcDirs = ["src/test/scala","../src/test/scala"]
+		}
+		resources {
+			srcDirs = ["../src/test/resources","src/test/resources"]
 		}
 	}
 }

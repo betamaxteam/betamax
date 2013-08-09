@@ -10,7 +10,7 @@ import co.freeside.betamax.BetamaxScalaSupport
 
 trait Betamax extends Wrapped {
  
-  def betamax(tape: String, mode: Option[TapeMode] = None, matchRules: Option[List[Comparator[Request]]] = None)(testFun: => Unit) = 
+  def betamax(tape: String, mode: TapeMode = null, matchRules: List[Comparator[Request]] = BetamaxScalaSupport.defaultMatchRules)(testFun: => Unit) = 
     BetamaxScalaSupport.betamax(tape, mode, matchRules)(testFun)
  
 }

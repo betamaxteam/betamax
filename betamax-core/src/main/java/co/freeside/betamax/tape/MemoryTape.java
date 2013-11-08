@@ -254,7 +254,8 @@ public abstract class MemoryTape implements Tape {
     }
 
     private void recordBodyToFile(Message message, RecordedMessage clone) throws IOException {
-        String filename = FileTypeMapper.getInstance().filenameFor("body", message.getContentType());
+        String uniqueBodyId = String.format("body-%s", UUID.randomUUID().getLeastSignificantBits());
+        String filename = FileTypeMapper.getInstance().filenameFor(uniqueBodyId, message.getContentType());
         File body = fileResolver.toFile(filename);
         ByteStreams.copy(message.getBodyAsBinary(), Files.newOutputStreamSupplier(body));
         clone.setBody(body);

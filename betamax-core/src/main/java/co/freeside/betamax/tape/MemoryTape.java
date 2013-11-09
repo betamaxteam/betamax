@@ -269,8 +269,9 @@ public abstract class MemoryTape implements Tape {
     }
 
     private String hashRequest(Request request) {
+        String requestIdentifier = String.format("%s-%s", request.getMethod(), request.getUri());
         try {
-            byte[] hash = MessageDigest.getInstance("MD5").digest(request.getUri().toString().getBytes());
+            byte[] hash = MessageDigest.getInstance("MD5").digest(requestIdentifier.getBytes());
             return new BigInteger(hash).toString(16);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("No MD5 algorithm available");

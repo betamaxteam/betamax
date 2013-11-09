@@ -107,11 +107,34 @@ class ExternalBodySpec extends Specification {
         response.addHeader(CONTENT_TYPE, "text/plain")
         tape.record(request, response)
 
+        then: "there should only be one interaction"
+        tape.interactions.size() == 1
+
         then: "the body file is re-used"
         tape.interactions[0].response.body == old(tape.interactions[0].response.body)
 
         and: "the data in the file is replaced"
         (tape.interactions[0].response.body as File).text == "KTHXBYE"
+
+    }
+
+    void "different HTTP methods to same URI do not overwrite each others body files"() {
+        given: "the tape is set to record response bodies externally"
+        tape.responseBodyStorage = external
+
+        and: "an HTTP GET interaction has been recorded to tape"
+        tape.record(request, plainTextResponse)
+
+        when: "the same URI is requested with a different verb"
+        def postRequest = new BasicRequest("POST", "http://freeside.co/betamax")
+        tape.record(postRequest, plainTextResponse)
+
+        then: "there should be two recorded interactions"
+        tape.interactions.size() == 2
+
+        and: "the body files should be different"
+        tape.interactions[0].response.body != tape.interactions[1].response.body
+
     }
 
     void "the body file extension is #extension when the content type is #contentType"() {

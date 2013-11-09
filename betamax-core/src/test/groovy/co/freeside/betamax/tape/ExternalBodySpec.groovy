@@ -78,6 +78,7 @@ class ExternalBodySpec extends Specification {
         body.parentFile == tapeRoot
     }
 
+    @Ignore
     void "each recorded interaction gets its own file"() {
         given: "the tape is set to record response bodies externally"
         tape.responseBodyStorage = external
@@ -95,6 +96,7 @@ class ExternalBodySpec extends Specification {
         body1 != body2
     }
 
+    @Ignore
     void "if a response is overwritten the body file is re-used"() {
         given: "the tape is set to record response bodies externally"
         tape.responseBodyStorage = external
@@ -103,7 +105,9 @@ class ExternalBodySpec extends Specification {
         tape.record(request, plainTextResponse)
 
         when: "the same interaction is overwritten"
-        tape.record(request, new BasicResponse(status: 200, reason: "OK", body: "KTHXBYE".bytes))
+        def response = new BasicResponse(status: 200, reason: "OK", body: "KTHXBYE".bytes)
+        response.addHeader(CONTENT_TYPE, "text/plain")
+        tape.record(request, response)
 
         then: "the body file is re-used"
         tape.interactions[0].response.body == old(tape.interactions[0].response.body)

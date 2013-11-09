@@ -17,6 +17,10 @@
 package co.freeside.betamax.tape;
 
 import java.io.*;
+import java.math.BigInteger;
+import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -28,6 +32,8 @@ import co.freeside.betamax.message.tape.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.google.common.io.*;
+import sun.security.provider.MD5;
+
 import static co.freeside.betamax.Headers.X_BETAMAX;
 import static com.google.common.net.HttpHeaders.VIA;
 import static java.util.Collections.unmodifiableList;
@@ -168,7 +174,7 @@ public abstract class MemoryTape implements Tape {
 
         RecordedInteraction interaction = new RecordedInteraction();
         interaction.setRequest(recordRequest(request));
-        interaction.setResponse(recordResponse(response));
+        interaction.setResponse(recordResponse(response, request));
         interaction.setRecorded(new Date());
 
         if (mode.isSequential()) {
@@ -217,7 +223,7 @@ public abstract class MemoryTape implements Tape {
         }
     }
 
-    private RecordedResponse recordResponse(Response response) {
+    private RecordedResponse recordResponse(Response response, Request request) {
         try {
             RecordedResponse clone = new RecordedResponse();
             clone.setStatus(response.getStatus());
@@ -229,7 +235,7 @@ public abstract class MemoryTape implements Tape {
             }
 
             if (response.hasBody()) {
-                recordResponseBody(response, clone);
+                recordResponseBody(response, clone, request);
             }
 
             return clone;
@@ -238,10 +244,10 @@ public abstract class MemoryTape implements Tape {
         }
     }
 
-    private void recordResponseBody(Response response, RecordedResponse clone) throws IOException {
+    private void recordResponseBody(Response response, RecordedResponse clone, Request request) throws IOException {
         switch (responseBodyStorage) {
             case external:
-                recordBodyToFile(response, clone);
+                recordBodyToFile(response, clone, request);
                 break;
             default:
                 recordBodyInline(response, clone);
@@ -253,12 +259,22 @@ public abstract class MemoryTape implements Tape {
         clone.setBody(representAsText ? CharStreams.toString(message.getBodyAsText()) : ByteStreams.toByteArray(message.getBodyAsBinary()));
     }
 
-    private void recordBodyToFile(Message message, RecordedMessage clone) throws IOException {
-        String uniqueBodyId = String.format("body-%s", UUID.randomUUID().getLeastSignificantBits());
-        String filename = FileTypeMapper.getInstance().filenameFor(uniqueBodyId, message.getContentType());
+    private void recordBodyToFile(Message message, RecordedMessage clone, Request request) throws IOException {
+        String uniqueBodyId = hashRequest(request);
+        String prefix = String.format("body-%s", uniqueBodyId);
+        String filename = FileTypeMapper.getInstance().filenameFor(prefix, message.getContentType());
         File body = fileResolver.toFile(filename);
         ByteStreams.copy(message.getBodyAsBinary(), Files.newOutputStreamSupplier(body));
         clone.setBody(body);
+    }
+
+    private String hashRequest(Request request) {
+        try {
+            byte[] hash = MessageDigest.getInstance("MD5").digest(request.getUri().toString().getBytes());
+            return new BigInteger(hash).toString(16);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("No MD5 algorithm available");
+        }
     }
 
     public static boolean isTextContentType(String contentType) {

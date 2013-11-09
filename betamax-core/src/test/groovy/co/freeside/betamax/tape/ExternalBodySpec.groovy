@@ -78,7 +78,6 @@ class ExternalBodySpec extends Specification {
         body.parentFile == tapeRoot
     }
 
-    @Ignore
     void "each recorded interaction gets its own file"() {
         given: "the tape is set to record response bodies externally"
         tape.responseBodyStorage = external
@@ -96,7 +95,6 @@ class ExternalBodySpec extends Specification {
         body1 != body2
     }
 
-    @Ignore
     void "if a response is overwritten the body file is re-used"() {
         given: "the tape is set to record response bodies externally"
         tape.responseBodyStorage = external

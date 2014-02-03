@@ -1,21 +1,21 @@
-# &beta;etamax [![Build Status](https://secure.travis-ci.org/robfletcher/betamax.png?branch=master)](http://travis-ci.org/robfletcher/betamax)
+# &beta;etamax [![Build Status](https://drone.io/github.com/robfletcher/betamax/status.png)](https://drone.io/github.com/robfletcher/betamax/latest)
 
 Betamax is a tool for mocking external HTTP resources such as web services and REST APIs in your tests. The project was inspired by the [VCR][vcr] library for Ruby.
 
-Betamax is written in [Groovy][groovy] but is compatible with tests written using [JUnit][junit] or [Spock][spock] for applications written in any JVM language.
+Betamax is written in Java and is compatible with tests written using [JUnit][junit] or [Spock][spock] for applications written in any JVM language.
 
 ## Usage
 
 ### Record
 
-Add a `@Rule Recorder` property to your test and annotate test methods with `@Betamax`. The first time the test runs any HTTP traffic is recorded to _tape_.
+Add a `@Rule RecorderRule` property to your test and annotate test methods with `@Betamax`. The first time the test runs any HTTP traffic is recorded to _tape_.
 
 ### Playback
 
 Future test runs replay responses from _tape_ without traffic going to the real target. No more 3rd party downtime or rate limits breaking your tests. You can even run your tests offline! Insert different _tapes_ to stub different responses.
 
 ### Customize
-_Tapes_ are just [YAML][yaml] files so you can edit them with a text editor, commit to source control, share with your team & use on continuous integration.
+_Tapes_ are just [YAML][yaml] files so you can edit them with a text editor, commit to source control, share with your team & use on continuous integration.  An example tape file can be found [here](https://github.com/robfletcher/betamax/blob/master/betamax-proxy/src/test/resources/betamax/tapes/smoke_spec.yaml).
 
 ## Full documentation
 
@@ -35,7 +35,6 @@ Please get in touch if you have any  feedback. You can raise defects and feature
 
 [gradle]:http://gradle.org/
 [grails]:http://grails.org/
-[groovy]:http://groovy.codehaus.org/
 [home]:http://freeside.co/betamax
 [issues]:http://github.com/robfletcher/betamax/issues
 [ivy]:http://ant.apache.org/ivy/

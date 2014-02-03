@@ -13,8 +13,12 @@ build/
 /.gradletasknamecache
 /src/docs/_site/
 .DS_Store
-
 /.java-version
+littleproxy_keystore.jks
+littleproxy_cert
+lib/
+log.txt
+/betamax-scala/scala-*/target
 
 # Eclipse files
 bin/

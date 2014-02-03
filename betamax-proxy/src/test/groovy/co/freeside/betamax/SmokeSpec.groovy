@@ -1,104 +1,130 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax
 
-import co.freeside.betamax.httpclient.BetamaxHttpsSupport
-import co.freeside.betamax.util.httpbuilder.BetamaxRESTClient
-import groovyx.net.http.*
-import org.junit.Rule
+import javax.net.ssl.HttpsURLConnection
+import co.freeside.betamax.encoding.GzipEncoder
+import co.freeside.betamax.junit.*
+import org.junit.ClassRule
 import spock.lang.*
+import static co.freeside.betamax.Headers.X_BETAMAX
 import static java.net.HttpURLConnection.HTTP_OK
-import static org.apache.http.HttpHeaders.VIA
+import static com.google.common.net.HttpHeaders.VIA
 
 @Unroll
+@Betamax
 class SmokeSpec extends Specification {
 
-	@Rule Recorder recorder = new ProxyRecorder(sslSupport: true)
+    static final TAPE_ROOT = new File(SmokeSpec.getResource("/betamax/tapes").toURI())
+    @Shared def configuration = ProxyConfiguration.builder().sslEnabled(true).tapeRoot(TAPE_ROOT).build()
+    @Shared @ClassRule RecorderRule recorder = new RecorderRule(configuration)
 
-	@Shared RESTClient http = new BetamaxRESTClient()
+    void "#type response data"() {
+        when:
+        HttpURLConnection connection = uri.toURL().openConnection()
+        connection.setRequestProperty("Accept-Encoding", "gzip")
 
-	@Betamax(tape = 'smoke spec')
-	void '#type response data'() {
-		when:
-		HttpResponseDecorator response = http.get(uri: uri)
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == "Betamax"
+        connection.getHeaderField(X_BETAMAX) == "PLAY"
+        connection.inputStream.text.contains(expectedContent)
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA).value == 'Betamax'
+        where:
+        type   | uri                             | expectedContent
+        "txt"  | "http://httpbin.org/robots.txt" | "User-agent: *"
+        "html" | "http://httpbin.org/html"       | "<!DOCTYPE html>"
+        "json" | "http://httpbin.org/get"        | '"url": "http://httpbin.org/get"'
+    }
 
-		where:
-		type   | uri
-		'txt'  | 'http://httpbin.org/robots.txt'
-		'html' | 'http://httpbin.org/html'
-		'json' | 'http://httpbin.org/get'
-//		'xml'  | 'http://blog.freeside.co/rss'
-//		'png'  | 'https://si0.twimg.com/profile_images/1665962331/220px-Betamax_Logo_normal.png'
-		'css'  | 'http://freeside.co/betamax/stylesheets/betamax.css'
-	}
+    void "gzipped response data"() {
+        when:
+        HttpURLConnection connection = uri.toURL().openConnection()
+        connection.setRequestProperty("Accept-Encoding", "gzip")
 
-	@Betamax(tape = 'smoke spec')
-	void 'gzipped response data'() {
-		when:
-		HttpResponseDecorator response = http.get(uri: uri)
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == "Betamax"
+        connection.getHeaderField(X_BETAMAX) == "PLAY"
+        encoder.decode(connection.inputStream).contains('"gzipped": true')
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA).value == 'Betamax'
+        where:
+        uri = "http://httpbin.org/gzip"
+        encoder = new GzipEncoder()
+    }
 
-		where:
-		uri = 'http://httpbin.org/gzip'
-	}
+    void "redirects are followed"() {
+        when:
+        HttpURLConnection connection = uri.toURL().openConnection()
 
-	@Betamax(tape = 'smoke spec')
-	void 'redirects are followed'() {
-		when:
-		HttpResponseDecorator response = http.get(uri: uri)
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == "Betamax"
+        connection.getHeaderField(X_BETAMAX) == "PLAY"
+        connection.inputStream.text.contains('"url": "http://httpbin.org/get"')
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA).value == 'Betamax'
+        where:
+        uri = "http://httpbin.org/redirect/1"
+    }
 
-		where:
-		uri = 'http://httpbin.org/redirect/1'
-	}
+    void "https proxying"() {
+        when:
+        HttpsURLConnection connection = uri.toURL().openConnection()
 
-	@Betamax(tape = 'smoke spec')
-	void 'https proxying'() {
-		setup:
-		BetamaxHttpsSupport.configure(http.client)
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == "Betamax"
+        connection.getHeaderField(X_BETAMAX) == "PLAY"
+        connection.inputStream.text.contains('"url": "http://httpbin.org/get"')
 
-		when:
-		HttpResponseDecorator response = http.get(uri: uri)
+        where:
+        uri = "https://httpbin.org/get"
+    }
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA).value == 'Betamax'
+    void "can POST to https"() {
+        when:
+        HttpsURLConnection connection = uri.toURL().openConnection()
+        connection.requestMethod = "POST"
+        connection.doOutput = true
+        connection.outputStream.withStream {
+            it << "message=O HAI"
+        }
 
-		where:
-		uri = 'https://httpbin.org/get'
-	}
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == "Betamax"
+        connection.getHeaderField(X_BETAMAX) == "PLAY"
+        connection.inputStream.text.contains('"message": "O HAI"')
 
-	@Issue('https://github.com/robfletcher/betamax/issues/52')
-	@Betamax(tape = 'ocsp')
-	void 'OCSP messages'() {
-		when:
-		HttpResponseDecorator response = http.post(uri: 'http://ocsp.ocspservice.com/public/ocsp')
+        where:
+        uri = "https://httpbin.org/post"
+    }
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA).value == 'Betamax'
-		response.data.bytes.length == 2529
-	}
+    @Issue(["https://github.com/robfletcher/betamax/issues/61", "http://jira.codehaus.org/browse/JETTY-1533"])
+    void "can cope with URLs that do not end in a slash"() {
+        when:
+        HttpURLConnection connection = uri.toURL().openConnection()
 
-	@Issue(['https://github.com/robfletcher/betamax/issues/61', 'http://jira.codehaus.org/browse/JETTY-1533'])
-	@Betamax(tape = 'smoke spec')
-	void 'can cope with URLs that do not end in a slash'() {
-		when:
-		HttpResponseDecorator response = http.get(uri: uri)
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == "Betamax"
+        connection.getHeaderField(X_BETAMAX) == "PLAY"
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA).value == 'Betamax'
-
-		where:
-		uri = 'http://httpbin.org'
-	}
+        where:
+        uri = "http://httpbin.org"
+    }
 }

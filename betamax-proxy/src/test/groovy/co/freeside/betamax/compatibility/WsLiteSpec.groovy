@@ -1,59 +1,67 @@
+/*
+ * Copyright 2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax.compatibility
 
-import co.freeside.betamax.*
-import co.freeside.betamax.proxy.jetty.SimpleServer
+import co.freeside.betamax.ProxyConfiguration
+import co.freeside.betamax.junit.*
 import co.freeside.betamax.util.server.*
-import org.junit.Rule
+import com.google.common.io.Files
+import org.junit.ClassRule
 import spock.lang.*
 import wslite.rest.RESTClient
 import static co.freeside.betamax.Headers.X_BETAMAX
-import static co.freeside.betamax.TapeMode.WRITE_ONLY
-import static co.freeside.betamax.util.FileUtils.newTempDir
+import static co.freeside.betamax.TapeMode.READ_WRITE
+import static co.freeside.betamax.util.server.HelloHandler.HELLO_WORLD
 import static java.net.HttpURLConnection.HTTP_OK
-import static org.apache.http.HttpHeaders.VIA
+import static com.google.common.net.HttpHeaders.VIA
 
+@Betamax(mode = READ_WRITE)
+@Timeout(10)
+@Unroll
 class WsLiteSpec extends Specification {
 
-	@Shared @AutoCleanup('deleteDir') File tapeRoot = newTempDir('tapes')
-	@Rule ProxyRecorder recorder = new ProxyRecorder(tapeRoot: tapeRoot, defaultMode: WRITE_ONLY, sslSupport: true)
-	@Shared @AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
-	@Shared @AutoCleanup('stop') SimpleServer httpsEndpoint = new SimpleSecureServer(5001)
+    @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
+    @Shared def configuration = ProxyConfiguration.builder().sslEnabled(true).tapeRoot(tapeRoot).build()
+    @Shared @ClassRule RecorderRule recorder = new RecorderRule(configuration)
 
-	void setupSpec() {
-		endpoint.start(EchoHandler)
-		httpsEndpoint.start(HelloHandler)
-	}
+    @Shared @AutoCleanup("stop") def httpEndpoint = new SimpleServer(HelloHandler)
+    @Shared @AutoCleanup("stop") def httpsEndpoint = new SimpleSecureServer(5001, HelloHandler)
 
-	@Betamax(tape = 'wslite spec')
-	void 'can record a connection made with WsLite'() {
-		given: 'a properly configured wslite instance'
-		def http = new RESTClient(endpoint.url)
+    void setupSpec() {
+        httpEndpoint.start()
+        httpsEndpoint.start()
+    }
 
-		when: 'a request is made'
-		def response = http.get(path: '/', proxy: recorder.proxy)
+    void "can record a #scheme connection made with WsLite"() {
+        given: "a properly configured wslite instance"
+        def http = new RESTClient(url)
 
-		then: 'the request is intercepted'
-		response.statusCode == HTTP_OK
-		response.headers[VIA] == 'Betamax'
-		response.headers[X_BETAMAX] == 'REC'
-	}
+        when: "a request is made"
+        def response = http.get(path: "/")
 
-	@IgnoreIf({ javaVersion >= 1.6 && javaVersion < 1.7 })
-	@Betamax(tape = 'wslite spec')
-	void 'proxy intercepts HTTPS requests'() {
-		given: 'a properly configured wslite instance'
-		def http = new RESTClient(httpsEndpoint.url)
+        then: "the request is intercepted"
+        response.statusCode == HTTP_OK
+        response.headers[VIA] == "Betamax"
+        response.headers[X_BETAMAX] == "REC"
+        response.contentAsString == HELLO_WORLD
 
-		when: 'a request is made'
-		def response = http.get(path: '/', proxy: recorder.proxy)
-
-		then: 'the request is intercepted'
-		response.statusCode == HTTP_OK
-		response.headers[VIA] == 'Betamax'
-		response.headers[X_BETAMAX] == 'REC'
-
-		and: 'the response body is decoded'
-		response.contentAsString == 'Hello World!'
-	}
+        where:
+        url << [httpEndpoint.url, httpsEndpoint.url]
+        scheme = url.toURI().scheme
+    }
 
 }

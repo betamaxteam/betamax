@@ -1,79 +1,91 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax
 
-import co.freeside.betamax.proxy.jetty.SimpleServer
-import co.freeside.betamax.util.httpbuilder.BetamaxRESTClient
-import co.freeside.betamax.util.server.EchoHandler
-import groovyx.net.http.RESTClient
+import co.freeside.betamax.junit.*
+import co.freeside.betamax.util.server.*
+import com.google.common.io.Files
 import org.junit.Rule
 import spock.lang.*
 import static co.freeside.betamax.Headers.X_BETAMAX
-import static co.freeside.betamax.util.FileUtils.newTempDir
+import static co.freeside.betamax.TapeMode.READ_WRITE
 import static java.net.HttpURLConnection.HTTP_OK
-import static org.apache.http.HttpHeaders.VIA
+import static com.google.common.net.HttpHeaders.VIA
 
 @Stepwise
 class AnnotationSpec extends Specification {
 
-	@Shared @AutoCleanup('deleteDir') File tapeRoot = newTempDir('tapes')
-	@Rule Recorder recorder = new ProxyRecorder(tapeRoot: tapeRoot)
-	@AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
-	RESTClient http
+    @Shared @AutoCleanup('deleteDir') def tapeRoot = Files.createTempDir()
+    @Shared def configuration = ProxyConfiguration.builder().tapeRoot(tapeRoot).build()
+    @Rule RecorderRule recorder = new RecorderRule(configuration)
 
-	void setup() {
-		http = new BetamaxRESTClient(endpoint.url)
-	}
+    @AutoCleanup('stop') def endpoint = new SimpleServer(EchoHandler)
 
-	void 'no tape is inserted if there is no annotation on the feature'() {
-		expect:
-		recorder.tape == null
-	}
+    void 'no tape is inserted if there is no annotation on the feature'() {
+        expect:
+        recorder.tape == null
+    }
 
-	@Betamax(tape = 'annotation_spec')
-	void 'annotation on feature causes tape to be inserted'() {
-		expect:
-		recorder.tape.name == 'annotation_spec'
-	}
+    @Betamax(tape = 'annotation_spec', mode = READ_WRITE)
+    void 'annotation on feature causes tape to be inserted'() {
+        expect:
+        recorder.tape.name == 'annotation_spec'
+    }
 
-	void 'tape is ejected after annotated feature completes'() {
-		expect:
-		recorder.tape == null
-	}
+    void 'tape is ejected after annotated feature completes'() {
+        expect:
+        recorder.tape == null
+    }
 
-	@Betamax(tape = 'annotation_spec')
-	void 'annotated feature can record'() {
-		given:
-		endpoint.start(EchoHandler)
+    @Betamax(tape = 'annotation_spec', mode = READ_WRITE)
+    void 'annotated feature can record'() {
+        given:
+        endpoint.start()
 
-		when:
-		def response = http.get(path: '/')
+        when:
+        HttpURLConnection connection = endpoint.url.toURL().openConnection()
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA)?.value == 'Betamax'
-		response.getFirstHeader(X_BETAMAX)?.value == 'REC'
-	}
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == 'Betamax'
+        connection.getHeaderField(X_BETAMAX) == 'REC'
+    }
 
-	@Betamax(tape = 'annotation_spec')
-	void 'annotated feature can play back'() {
-		when:
-		def response = http.get(path: '/')
+    @Betamax(tape = 'annotation_spec', mode = READ_WRITE)
+    void 'annotated feature can play back'() {
+        when:
+        HttpURLConnection connection = endpoint.url.toURL().openConnection()
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA)?.value == 'Betamax'
-		response.getFirstHeader(X_BETAMAX)?.value == 'PLAY'
-	}
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == 'Betamax'
+        connection.getHeaderField(X_BETAMAX) == 'PLAY'
+    }
 
-	void 'can make unproxied request after using annotation'() {
-		given:
-		endpoint.start(EchoHandler)
+    void 'can make unproxied request after using annotation'() {
+        given:
+        endpoint.start()
 
-		when:
-		def response = http.get(path: '/')
+        when:
+        HttpURLConnection connection = endpoint.url.toURL().openConnection()
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA) == null
-	}
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == null
+    }
 
 }

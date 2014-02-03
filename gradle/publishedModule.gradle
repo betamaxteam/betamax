@@ -1,8 +1,43 @@
-apply plugin: "nexus"
+apply plugin: "artifactory"
+apply plugin: "maven"
+apply from: "${rootDir}/gradle/pom.gradle"
+apply plugin: "signing"
+
+task sourceJar(type: Jar) {
+    description "An archive of the source code"
+    classifier "sources"
+    from sourceSets.main.allJava, sourceSets.main.resources
+}
+
+task javadocJar(type: Jar) {
+    description "An archive of the JavaDocs"
+    classifier "javadoc"
+    from javadoc
+}
+
+artifacts {
+    archives sourceJar, javadocJar
+}
+
+signing {
+    if (!isSnapshot) {
+        sign configurations.archives
+    }
+}
+
+artifactory {
+    publish {
+        repoKey = isSnapshot ? "oss-snapshot-local" : "oss-release-local"
+        gradle.taskGraph.whenReady { taskGraph ->
+            if (taskGraph.hasTask("artifactoryPublish")) {
+                username = bintray_username
+                password = bintray_api_key
+            }
+        }
+    }
+}
 
 modifyPom {
-	dependencies.removeAll(dependencies.findAll { it.scope == "test" })
-
 	project {
 		packaging "jar"
 		url "http://freeside.co/betamax"
@@ -34,8 +69,4 @@ modifyPom {
 			}
 		}
 	}
-}
-
-nexus {
-	sign = true
 }

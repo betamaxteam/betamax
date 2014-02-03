@@ -1,41 +1,51 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax.proxy
 
-import co.freeside.betamax.*
-import co.freeside.betamax.proxy.jetty.SimpleServer
-import co.freeside.betamax.util.httpbuilder.BetamaxRESTClient
-import co.freeside.betamax.util.server.SlowHandler
-import groovyx.net.http.*
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler
-import org.junit.Rule
+import co.freeside.betamax.ProxyConfiguration
+import co.freeside.betamax.junit.*
+import co.freeside.betamax.util.server.*
+import com.google.common.io.Files
+import org.junit.ClassRule
 import spock.lang.*
-import static co.freeside.betamax.util.FileUtils.newTempDir
-import static java.net.HttpURLConnection.HTTP_GATEWAY_TIMEOUT
+import static co.freeside.betamax.TapeMode.READ_WRITE
 
-@Issue('https://github.com/robfletcher/betamax/issues/20')
+@Issue("https://github.com/robfletcher/betamax/issues/20")
+@Issue("https://github.com/adamfisk/LittleProxy/issues/96")
+@Betamax(mode = READ_WRITE)
 class ProxyTimeoutSpec extends Specification {
 
-	@Rule Recorder recorder = new ProxyRecorder(tapeRoot: tapeRoot, proxyTimeout: 100)
+    @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
+    @Shared def configuration = ProxyConfiguration.builder().proxyTimeoutSeconds(1).tapeRoot(tapeRoot).build()
+    @Shared @ClassRule RecorderRule recorder = new RecorderRule(configuration)
 
-	@Shared @AutoCleanup('deleteDir') File tapeRoot = newTempDir('tapes')
-	@AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
-	RESTClient http = new BetamaxRESTClient(endpoint.url)
+    @AutoCleanup("stop") def endpoint = new SimpleServer(SlowHandler)
 
-	void setup() {
-		http.client.httpRequestRetryHandler = new DefaultHttpRequestRetryHandler(0, false)
-	}
+    void "proxy responds with 504 if target server takes too long to respond"() {
+        given:
+        endpoint.start()
 
-	@Betamax(tape = 'proxy timeout spec')
-	void 'proxy responds with 504 if target server takes too long to respond'() {
-		given:
-		endpoint.start(SlowHandler)
+        when:
+        HttpURLConnection connection = endpoint.url.toURL().openConnection()
+        connection.inputStream.text
 
-		when:
-		http.get(path: '/')
-
-		then:
-		def e = thrown(HttpResponseException)
-		e.statusCode == HTTP_GATEWAY_TIMEOUT
-		e.message == "Timed out connecting to $endpoint.url"
-	}
+        then:
+        def e = thrown(IOException)
+        e.message == "Server returned HTTP response code: 504 for URL: http://localhost:5000/"
+    }
 
 }

@@ -1,123 +1,78 @@
+/*
+ * Copyright 2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax.proxy.netty
 
-import io.netty.buffer.Unpooled
-import io.netty.handler.codec.http.*
-import spock.lang.*
-import static io.netty.handler.codec.http.HttpHeaders.Names.*
+import io.netty.handler.codec.http.HttpRequest
+import static io.netty.handler.codec.http.HttpHeaders.Names.HOST
 import static io.netty.handler.codec.http.HttpMethod.GET
-import static io.netty.util.CharsetUtil.UTF_8
 
-@Unroll
-class NettyRequestAdapterSpec extends Specification {
+class NettyRequestAdapterSpec extends NettyMessageAdapterSpec<HttpRequest, NettyRequestAdapter> {
 
-	FullHttpRequest nettyRequest = Mock(FullHttpRequest)
+    void setup() {
+        nettyMessage = Mock(HttpRequest) {
+            headers() >> nettyMessageHeaders
+        }
+    }
 
-	void 'request can read basic fields'() {
+    @Override
+    void createAdapter() {
+        adapter = new NettyRequestAdapter(nettyMessage)
+    }
+
+	void "can read basic fields"() {
 		given:
-		nettyRequest.method >> GET
-		nettyRequest.uri >> 'http://freeside.co/betamax'
+		nettyMessage.method >> GET
+		nettyMessage.uri >> "http://freeside.co/betamax"
 
-		and:
-		def request = new NettyRequestAdapter(nettyRequest)
+        and:
+        createAdapter()
 
 		expect:
-		request.method == 'GET'
-		request.uri == 'http://freeside.co/betamax'.toURI()
+		adapter.method == "GET"
+		adapter.uri == "http://freeside.co/betamax".toURI()
 	}
 
-	void 'request target includes query string'() {
+	void "uri includes query string"() {
 		given:
-		nettyRequest.uri >> 'http://freeside.co/betamax?q=1'
+		nettyMessage.uri >> "http://freeside.co/betamax?q=1"
 
-		and:
-		def request = new NettyRequestAdapter(nettyRequest)
+        and:
+        createAdapter()
 
-		expect:
-		request.uri == new URI('http://freeside.co/betamax?q=1')
+        expect:
+		adapter.uri == new URI("http://freeside.co/betamax?q=1")
 	}
 
-	void 'request can read headers'() {
-		given:
-		def headers = new DefaultHttpHeaders()
-		headers.add(IF_NONE_MATCH, "abc123")
-		headers.add(ACCEPT_ENCODING, ["gzip", "deflate"])
-		nettyRequest.headers() >> headers
+    /**
+     * LittleProxy returns only the path of the request URI of a tunnelled
+     * request. The adapter should handle this and construct the full URI using
+     * the *Host* header.
+     *
+     * The scheme is assumed to be HTTPS since it's not retrievable.
+     */
+    void "uri is synthesized using Host header if non-absolute"() {
+        given:
+        nettyMessage.uri >> "/betamax"
+        nettyMessageHeaders.add(HOST, "freeside.co")
 
-		and:
-		def request = new NettyRequestAdapter(nettyRequest)
+        and:
+        createAdapter()
 
-		expect:
-		request.getHeader(IF_NONE_MATCH) == 'abc123'
-		request.getHeader(ACCEPT_ENCODING) == 'gzip, deflate'
-	}
-
-	void 'request headers are immutable'() {
-		given:
-		nettyRequest.headers() >> HttpHeaders.EMPTY_HEADERS
-
-		and:
-		def request = new NettyRequestAdapter(nettyRequest)
-
-		when:
-		request.headers[IF_NONE_MATCH] = ['abc123']
-
-		then:
-		thrown UnsupportedOperationException
-	}
-
-	void 'request body is readable as text'() {
-		given:
-		def bodyBytes = bodyText.getBytes('ISO-8859-1')
-		nettyRequest.content() >> Unpooled.copiedBuffer(bodyBytes)
-		def headers = new DefaultHttpHeaders()
-		headers.set(CONTENT_TYPE, "application/x-www-form-urlencoded; charset=ISO-8859-1")
-		nettyRequest.headers() >> headers
-
-		and:
-		def request = new NettyRequestAdapter(nettyRequest)
-
-		expect:
-		request.hasBody()
-		request.bodyAsText.text == bodyText
-
-		where:
-		bodyText = "value=\u00a31"
-	}
-
-	void 'request body is readable as binary'() {
-		given:
-		def body = 'value=\u00a31'.getBytes('ISO-8859-1')
-		nettyRequest.content() >> Unpooled.copiedBuffer(body)
-		def headers = new DefaultHttpHeaders()
-		headers.set(CONTENT_TYPE, "application/x-www-form-urlencoded; charset=ISO-8859-1")
-		nettyRequest.headers() >> headers
-
-		and:
-		def request = new NettyRequestAdapter(nettyRequest)
-
-		expect:
-		request.hasBody()
-		request.bodyAsBinary.bytes == body
-	}
-
-	void "request #description if the content buffer is #contentDescription"() {
-		given:
-		nettyRequest.content() >> content
-
-		and:
-		def request = new NettyRequestAdapter(nettyRequest)
-
-		expect:
-		request.hasBody() == consideredToHaveBody
-
-		where:
-		content                               | consideredToHaveBody
-		Unpooled.copiedBuffer("O HAI", UTF_8) | true
-		Unpooled.EMPTY_BUFFER                 | false
-		null                                  | false
-
-		description = consideredToHaveBody ? "has a body" : "does not have a body"
-		contentDescription = content ? "${content.readableBytes()} bytes long" : "null"
-	}
-
+        expect:
+        adapter.uri == new URI("https://freeside.co/betamax")
+    }
 }

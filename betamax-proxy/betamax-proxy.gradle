@@ -1,27 +1,34 @@
-apply from: "$rootDir/gradle/groovyModule.gradle"
+apply from: "$rootDir/gradle/javaModule.gradle"
 apply from: "$rootDir/gradle/publishedModule.gradle"
 
 repositories {
-	mavenRepo url: "http://repository.codehaus.org"
+    mavenRepo url: "http://repository.codehaus.org"
+    mavenRepo url: "http://maven.mashape.com/releases"
 }
 
 dependencies {
-	compile project(":betamax-core")
-	compile project(":betamax-netty")
+    compile project(":betamax-core")
+    compile commonDependencies.littleProxy
+    compile commonDependencies.netty
 
-	testCompile project(":betamax-test-support")
-	testCompile("commons-httpclient:commons-httpclient:3.1") {
-		exclude module: "commons-codec"
-		exclude module: "commons-logging"
-	}
-	testCompile "com.github.groovy-wslite:groovy-wslite:0.7.1"
+    testCompile project(":betamax-junit")
+    testCompile project(":betamax-tck")
+    testCompile project(":betamax-test-support")
+    testCompile("commons-httpclient:commons-httpclient:3.1") {
+        exclude module: "commons-codec"
+        exclude module: "commons-logging"
+    }
+    testCompile "com.github.groovy-wslite:groovy-wslite:0.8.0"
 
-	testRuntime "cglib:cglib-nodep:2.2.2"
+    testCompile "com.mashape.unirest:unirest-java:1.2.8",
+                "org.apache.httpcomponents:httpasyncclient:4.0"
+
+    testRuntime "cglib:cglib-nodep:2.2.2"
 }
 
 modifyPom {
-	project {
-		name "Betamax Proxy"
-		description "The HTTP proxy implementation of Betamax."
-	}
+    project {
+        name "Betamax Proxy"
+        description "The HTTP proxy implementation of Betamax."
+    }
 }

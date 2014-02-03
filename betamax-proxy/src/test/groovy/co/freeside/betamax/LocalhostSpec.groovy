@@ -1,44 +1,57 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax
 
-import co.freeside.betamax.proxy.jetty.SimpleServer
-import co.freeside.betamax.util.httpbuilder.BetamaxRESTClient
-import co.freeside.betamax.util.server.EchoHandler
-import groovyx.net.http.*
-import org.junit.Rule
+import co.freeside.betamax.junit.*
+import co.freeside.betamax.util.server.*
+import com.google.common.io.Files
+import org.junit.ClassRule
 import spock.lang.*
 import static co.freeside.betamax.TapeMode.WRITE_ONLY
-import static co.freeside.betamax.util.FileUtils.newTempDir
 import static java.net.HttpURLConnection.HTTP_OK
-import static org.apache.http.HttpHeaders.VIA
+import static com.google.common.net.HttpHeaders.VIA
 
 @Issue('https://github.com/robfletcher/betamax/issues/62')
 @Issue('http://bugs.sun.com/view_bug.do?bug_id=6737819')
+@Betamax(mode = WRITE_ONLY)
 @Unroll
 class LocalhostSpec extends Specification {
 
-	@Shared @AutoCleanup('deleteDir') File tapeRoot = newTempDir('tapes')
-	@Rule Recorder recorder = new ProxyRecorder(tapeRoot: tapeRoot)
+    @Shared @AutoCleanup('deleteDir') def tapeRoot = Files.createTempDir()
+    @Shared def configuration = ProxyConfiguration.builder().tapeRoot(tapeRoot).build()
+    @Shared @ClassRule RecorderRule recorder = new RecorderRule(configuration)
 
-	@Shared @AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
+    @Shared @AutoCleanup('stop') def endpoint = new SimpleServer(EchoHandler)
 
-	@Shared RESTClient http = new BetamaxRESTClient()
+    void setupSpec() {
+        endpoint.start()
+    }
 
-	void setupSpec() {
-		endpoint.start(EchoHandler)
-	}
+    @IgnoreIf({ javaVersion >= 1.6 && javaVersion < 1.7 })
+    void 'can proxy requests to local endpoint at #uri'() {
+        when:
+        HttpURLConnection connection = uri.toURL().openConnection()
 
-	@IgnoreIf({ println javaVersion; javaVersion >= 1.6 && javaVersion < 1.7 })
-	@Betamax(tape = 'localhost', mode = WRITE_ONLY)
-	void 'can proxy requests to local endpoint at #uri'() {
-		when:
-		HttpResponseDecorator response = http.get(uri: uri)
+        then:
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == 'Betamax'
 
-		then:
-		response.status == HTTP_OK
-		response.getFirstHeader(VIA)?.value == 'Betamax'
-
-		where:
-		uri << [endpoint.url, "http://localhost:$endpoint.port/", "http://127.0.0.1:$endpoint.port/"]
-	}
+        where:
+        uri << [endpoint.url, "http://localhost:$endpoint.port/", "http://127.0.0.1:$endpoint.port/"]
+    }
 
 }

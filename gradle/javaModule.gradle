@@ -1,0 +1,32 @@
+apply plugin: "groovy" // TODO: this should be Java but Spock tests don't run
+
+configurations {
+    pegdownDoclet
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile commonDependencies.guava
+    testCompile commonDependencies.groovy
+    testCompile commonDependencies.spock
+    pegdownDoclet "ch.raffael.pegdown-doclet:pegdown-doclet:1.1.1"
+}
+
+apply from: "$rootDir/gradle/checkstyle.gradle"
+
+test {
+    testLogging {
+        quiet {
+            events "failed"
+            exceptionFormat "short"
+        }
+    }
+}
+
+javadoc {
+    options.docletpath = configurations.pegdownDoclet.files.asType(List)
+    options.doclet = "ch.raffael.doclets.pegdown.PegdownDoclet"
+}

@@ -1,11 +1,13 @@
 apply from: "$rootDir/gradle/groovyModule.gradle"
 
 repositories {
-	mavenRepo url: "http://repository.codehaus.org"
+    mavenRepo url: "http://repository.codehaus.org"
 }
 
 dependencies {
-	compile project(":betamax-jetty") 
-	compile commonDependencies.httpClient
-	compile commonDependencies.httpBuilder
+    compile project(":betamax-core")
+    compile project(":betamax-junit")
+    compile commonDependencies.netty
+    compile commonDependencies.httpClient
+    compile commonDependencies.httpBuilder
 }

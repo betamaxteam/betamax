@@ -1,36 +1,54 @@
 buildscript {
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath "org.gradle.api.plugins:gradle-nexus-plugin:0.2"
-	}
+    repositories {
+        jcenter()
+        maven {
+            url "http://dl.bintray.com/jfrog/jfrog-jars"
+        }
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:2.2.2"
+    }
 }
 
+apply plugin: "artifactory"
 apply from: "gradle/idea/idea.gradle"
 
-allprojects {
-	version = "2.0-SNAPSHOT"
-	group = "co.freeside"
+artifactory {
+    contextUrl = "http://oss.jfrog.org/"
+}
 
-	ext {
-		commonDependencies = [
-			groovy: dependencies.create("org.codehaus.groovy:groovy-all:1.8.8"),
-			guava: dependencies.create("com.google.guava:guava:14.0.1"),
-			httpBuilder: dependencies.create("org.codehaus.groovy.modules.http-builder:http-builder:0.6", {
-				exclude module: "groovy"
-				exclude module: "httpclient"
-			}),
-			httpClient: dependencies.create("org.apache.httpcomponents:httpclient:4.2.2"),
-			jetty: dependencies.create("org.eclipse.jetty:jetty-server:7.3.1.v20110307"),
-			junit: dependencies.create("junit:junit:4.10"),
-			netty: dependencies.create("io.netty:netty-all:4.0.6.Final"), // TODO: not sure we need netty-all
-			spock: dependencies.create("org.spockframework:spock-core:0.7-groovy-1.8", {
-				exclude module: "groovy-all"
-				exclude module: "junit-dep"
-			})
-		]
-	}
+allprojects {
+    version = "2.0-SNAPSHOT"
+    group = "co.freeside.betamax"
+
+    plugins.withType(JavaPlugin) {
+        sourceCompatibility = "1.6"
+        targetCompatibility = "1.6"
+    }
+
+    ext {
+        isSnapshot = version.endsWith("-SNAPSHOT")
+
+        commonDependencies = [
+            cglib: dependencies.create("cglib:cglib-nodep:2.2.2"),
+            groovy: dependencies.create("org.codehaus.groovy:groovy-all:2.1.9"),
+            guava: dependencies.create("com.google.guava:guava:15.0"),
+            httpBuilder: dependencies.create("org.codehaus.groovy.modules.http-builder:http-builder:0.6", {
+                exclude module: "groovy"
+                exclude module: "httpclient"
+            }),
+            httpClient: dependencies.create("org.apache.httpcomponents:httpclient:4.3.1"),
+            junit: dependencies.create("junit:junit:4.10"),
+            littleProxy: dependencies.create("org.littleshoot:littleproxy:1.0.0-beta4"),
+            netty: dependencies.create("io.netty:netty-all:4.0.11.Final"),
+            snakeYaml: dependencies.create("org.yaml:snakeyaml:1.13"),
+            spock: dependencies.create("org.spockframework:spock-core:0.7-groovy-2.0", {
+                exclude module: "groovy-all"
+                exclude module: "junit-dep"
+            }),
+            tika: dependencies.create("org.apache.tika:tika-core:1.4")
+        ]
+    }
 }
 
 configure(subprojects.findAll {it.name.startsWith("scala-")}) {

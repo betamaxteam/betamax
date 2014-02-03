@@ -1,44 +1,57 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax.proxy
 
-import co.freeside.betamax.*
-import co.freeside.betamax.proxy.jetty.SimpleServer
-import co.freeside.betamax.util.httpbuilder.BetamaxRESTClient
-import co.freeside.betamax.util.server.EchoHandler
-import org.junit.Rule
+import co.freeside.betamax.ProxyConfiguration
+import co.freeside.betamax.junit.*
+import co.freeside.betamax.util.server.*
+import com.google.common.io.Files
+import org.junit.ClassRule
 import spock.lang.*
-import static co.freeside.betamax.util.FileUtils.newTempDir
+import static co.freeside.betamax.TapeMode.READ_WRITE
+import static com.google.common.net.HttpHeaders.VIA
 import static java.net.HttpURLConnection.HTTP_OK
-import static org.apache.http.HttpHeaders.VIA
 
+@Betamax(mode = READ_WRITE)
 @Unroll
+@Timeout(10)
 class RequestMethodsSpec extends Specification {
 
-    @AutoCleanup('deleteDir') File tapeRoot = newTempDir('tapes')
-    @Rule Recorder recorder = new ProxyRecorder(tapeRoot: tapeRoot)
-    @Shared @AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
+    @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
+    @Shared def configuration = ProxyConfiguration.builder().tapeRoot(tapeRoot).build()
+    @Shared @ClassRule RecorderRule recorder = new RecorderRule(configuration)
+
+    @Shared @AutoCleanup("stop") def endpoint = new SimpleServer(OkHandler)
 
     void setupSpec() {
-        endpoint.start(EchoHandler)
+        endpoint.start()
     }
 
-    @Timeout(10)
-	@Betamax(tape = 'proxy network comms spec')
-    void 'proxy handles #method requests'() {
-        given:
-        def http = new BetamaxRESTClient(endpoint.url)
-
+    void "proxy handles #method requests"() {
         when:
-        def response = http."$method"(path: '/')
+        HttpURLConnection connection = endpoint.url.toURL().openConnection()
+        connection.requestMethod = method
 
         then:
-        response.status == HTTP_OK
-        response.getFirstHeader(VIA)?.value == 'Betamax'
-
-        cleanup:
-        http.shutdown()
+        connection.responseCode == HTTP_OK
+        connection.getHeaderField(VIA) == "Betamax"
 
         where:
-        method << ['get', 'post', 'put', 'head', 'delete', 'options']
+        method << ["GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS"]
     }
 
 }

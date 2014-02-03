@@ -1,50 +1,67 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax.tape
 
-import co.freeside.betamax.encoding.*
-import co.freeside.betamax.tape.yaml.YamlTape
+import co.freeside.betamax.tape.yaml.YamlTapeLoader
 import co.freeside.betamax.util.message.*
+import com.google.common.io.Files
 import spock.lang.*
+import static co.freeside.betamax.TapeMode.READ_WRITE
+import static com.google.common.base.Charsets.*
+import static com.google.common.net.HttpHeaders.*
+import static com.google.common.net.MediaType.PLAIN_TEXT_UTF_8
 import static java.net.HttpURLConnection.HTTP_OK
-import static org.apache.http.HttpHeaders.*
 
-@Issue('https://github.com/robfletcher/betamax/issues/21')
+@Issue("https://github.com/robfletcher/betamax/issues/21")
 @Unroll
 class ContentCharsetSpec extends Specification {
 
-	void 'a response with a #charset body is recorded correctly'() {
-		given:
-		def request = new BasicRequest()
+    @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
+    @Shared def loader = new YamlTapeLoader(tapeRoot)
 
-		def response = new BasicResponse(HTTP_OK, 'OK')
-		response.addHeader(CONTENT_TYPE, "text/plain;charset=$charset")
-		response.addHeader(CONTENT_ENCODING, encoding)
-		response.body = encoder ? encoder.encode('\u00a3', charset) : '\u00a3'.getBytes(charset)
+    void "a response with a #charset body is recorded correctly"() {
+        given:
+        def request = new BasicRequest()
 
-		and:
-		def tape = new YamlTape(name: 'charsets')
-		tape.record(request, response)
+        def response = new BasicResponse(HTTP_OK, "OK")
+        response.addHeader(CONTENT_TYPE, PLAIN_TEXT_UTF_8.withCharset(charset).toString())
+        response.addHeader(CONTENT_ENCODING, "none")
+        response.body = "\u00a3".getBytes(charset)
 
-		when:
-		def writer = new StringWriter()
-		tape.writeTo(writer)
+        and:
+        def tape = loader.newTape("charsets")
+        tape.mode = READ_WRITE
+        tape.record(request, response)
 
-		then:
-		def yaml = writer.toString()
-		yaml.contains('body: \u00a3')
+        when:
+        def writer = new StringWriter()
+        loader.writeTo(tape, writer)
 
-		where:
-		charset      | encoding  | encoder
-		'UTF-8'      | 'none'    | null
-		'ISO-8859-1' | 'none'    | null
-		'UTF-8'      | 'gzip'    | new GzipEncoder()
-		'ISO-8859-1' | 'gzip'    | new GzipEncoder()
-		'UTF-8'      | 'deflate' | new DeflateEncoder()
-		'ISO-8859-1' | 'deflate' | new DeflateEncoder()
-	}
+        then:
+        def yaml = writer.toString()
+        yaml.contains("body: \u00a3")
 
-	void 'a response with a #charset body is played back correctly'() {
-		given:
-		def yaml = """\
+        where:
+        charset << [UTF_8, ISO_8859_1]
+    }
+
+    void "a response with a #charset body is played back correctly"() {
+        given:
+        def yaml = """\
 !tape
 name: charsets
 interactions:
@@ -56,29 +73,23 @@ interactions:
     status: 200
     headers:
       Content-Type: text/plain;charset=$charset
-      Content-Encoding: $encoding
+      Content-Encoding: none
     body: \u00a3
 """
-		def tape = YamlTape.readFrom(new StringReader(yaml))
+        def tape = loader.readFrom(new StringReader(yaml))
 
-		and:
-		def request = new BasicRequest('GET', 'http://freeside.co/betamax')
+        and:
+        def request = new BasicRequest("GET", "http://freeside.co/betamax")
 
-		when:
-		def response = tape.play(request)
+        when:
+        def response = tape.play(request)
 
-		then:
-		def expected = encoder ? encoder.encode('\u00a3', charset) : '\u00a3'.getBytes(charset)
-		response.bodyAsBinary.bytes == expected
+        then:
+        def expected = "\u00a3".getBytes(charset)
+        response.bodyAsBinary.input.bytes == expected
 
-		where:
-		charset      | encoding  | encoder
-		'UTF-8'      | 'none'    | null
-		'ISO-8859-1' | 'none'    | null
-		'UTF-8'      | 'gzip'    | new GzipEncoder()
-		'ISO-8859-1' | 'gzip'    | new GzipEncoder()
-		'UTF-8'      | 'deflate' | new DeflateEncoder()
-		'ISO-8859-1' | 'deflate' | new DeflateEncoder()
-	}
+        where:
+        charset << [UTF_8, ISO_8859_1]
+    }
 
 }

@@ -20,10 +20,11 @@
 
 * No Groovy
 * No Apache commons
-* Probably pull in Guava to make writing Java code tolerable
 * Maybe Guice or Dagger if really justified
 
 ## Docs
 
 * Port to Sass
 * Use Prism instead of Prettify
+* Cover use of `@ClassRule`
+* Links to all compatibility tests for examples of how to use with various clients.

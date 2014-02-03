@@ -4,12 +4,12 @@ interactions:
 - recorded: 2013-08-09T12:57:52.040Z
   request:
     method: GET
-    uri: http://localhost:5555
+    uri: http://localhost:6666
     headers:
       Accept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
       Cache-Control: no-cache
       Content-Length: '0'
-      Host: localhost:5555
+      Host: localhost:6666
       Pragma: no-cache
       Proxy-Connection: keep-alive
       User-Agent: Java/1.7.0_25

@@ -1,20 +1,25 @@
-apply from: "$rootDir/gradle/groovyModule.gradle"
+apply from: "$rootDir/gradle/javaModule.gradle"
 apply from: "$rootDir/gradle/publishedModule.gradle"
 
 repositories {
-	mavenRepo url: "http://repository.codehaus.org"
+    mavenRepo url: "http://repository.codehaus.org"
 }
 
 dependencies {
-	compile project(":betamax-core")
+    compile project(":betamax-core")
+    compile commonDependencies.httpClient
 
-	testCompile project(":betamax-test-support")
-	testCompile commonDependencies.httpBuilder
+    testCompile project(":betamax-junit")
+    testCompile project(":betamax-tck")
+    testCompile project(":betamax-test-support")
+    testCompile commonDependencies.httpBuilder
+
+    testRuntime commonDependencies.cglib
 }
 
 modifyPom {
-	project {
-		name "Betamax HTTPClient"
-		description "The Apache HTTPClient wrapper implementation of Betamax."
-	}
+    project {
+        name "Betamax HTTPClient"
+        description "The Apache HTTPClient wrapper implementation of Betamax."
+    }
 }

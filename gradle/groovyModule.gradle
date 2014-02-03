@@ -1,5 +1,4 @@
 apply plugin: "groovy"
-apply plugin: "codenarc"
 
 repositories {
 	mavenCentral()
@@ -9,12 +8,10 @@ dependencies {
 	compile commonDependencies.groovy
 	compile commonDependencies.guava
 	testCompile commonDependencies.spock
+	testCompile commonDependencies.junit
 }
 
-codenarc {
-	toolVersion = "0.17"
-	ignoreFailures = true
-}
+apply from: "$rootDir/gradle/checkstyle.gradle"
 
 test {
 	testLogging {

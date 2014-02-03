@@ -1,181 +1,200 @@
+/*
+ * Copyright 2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package co.freeside.betamax.httpclient
 
-import co.freeside.betamax.*
+import co.freeside.betamax.Configuration
 import co.freeside.betamax.handler.HandlerException
-import co.freeside.betamax.proxy.jetty.SimpleServer
+import co.freeside.betamax.junit.*
 import co.freeside.betamax.util.Network
 import co.freeside.betamax.util.server.*
-import groovyx.net.http.RESTClient
+import com.google.common.io.Files
+import groovyx.net.http.*
+import io.netty.channel.ChannelInboundHandler
 import org.apache.http.client.methods.*
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.params.HttpParams
-import org.eclipse.jetty.server.Handler
 import org.junit.Rule
 import spock.lang.*
-import static co.freeside.betamax.util.FileUtils.newTempDir
+import static co.freeside.betamax.TapeMode.READ_WRITE
 import static co.freeside.betamax.util.server.HelloHandler.HELLO_WORLD
 import static java.net.HttpURLConnection.HTTP_OK
-import static org.apache.http.HttpHeaders.VIA
+import static com.google.common.net.HttpHeaders.VIA
 import static org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED
 
-@Issue('https://github.com/robfletcher/betamax/issues/40')
+@Issue("https://github.com/robfletcher/betamax/issues/40")
 class BetamaxHttpClientSpec extends Specification {
 
-	@Shared @AutoCleanup('deleteDir') File tapeRoot = co.freeside.betamax.util.FileUtils.newTempDir('tapes')
-	@Rule Recorder recorder = new Recorder(tapeRoot: tapeRoot)
-	@AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
-	def http = new BetamaxHttpClient(recorder)
+    @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
+    def configuration = Spy(Configuration, constructorArgs: [Configuration.builder().tapeRoot(tapeRoot)])
+    @Rule RecorderRule recorder = new RecorderRule(configuration)
 
-	@Betamax(tape = 'betamax http client')
-	void 'can use Betamax without starting the proxy'() {
-		given:
-		endpoint.start(HelloHandler)
+    @AutoCleanup("stop") def endpoint
+    def http = new BetamaxHttpClient(configuration, recorder)
 
-		and:
-		def request = new HttpGet(endpoint.url)
+    @Betamax(tape = "betamax http client", mode = READ_WRITE)
+    void "can use Betamax without starting the proxy"() {
+        given:
+        endpoint = SimpleServer.start(HelloHandler)
 
-		when:
-		def response = http.execute(request)
+        and:
+        def request = new HttpGet(endpoint.url)
 
-		then:
-		response.statusLine.statusCode == HTTP_OK
-		response.entity.content.text == HELLO_WORLD
+        when:
+        def response = http.execute(request)
 
-		and:
-		response.getFirstHeader(VIA).value == 'Betamax'
-		response.getFirstHeader('X-Betamax').value == 'REC'
-	}
+        then:
+        response.statusLine.statusCode == HTTP_OK
+        response.entity.content.text == HELLO_WORLD
 
-	@Betamax(tape = 'betamax http client')
-	void 'can play back from tape'() {
-		given:
-		def handler = Mock(Handler)
-		endpoint.start(handler)
+        and:
+        response.getFirstHeader(VIA).value == "Betamax"
+        response.getFirstHeader("X-Betamax").value == "REC"
+    }
 
-		and:
-		def request = new HttpGet(endpoint.url)
+    @Betamax(tape = "betamax http client", mode = READ_WRITE)
+    void "can play back from tape"() {
+        given:
+        def handler = Mock(ChannelInboundHandler)
+        endpoint = SimpleServer.start(handler)
 
-		when:
-		def response = http.execute(request)
+        and:
+        def request = new HttpGet(endpoint.url)
 
-		then:
-		response.statusLine.statusCode == HTTP_OK
-		response.entity.content.text == HELLO_WORLD
+        when:
+        def response = http.execute(request)
 
-		and:
-		response.getFirstHeader(VIA).value == 'Betamax'
-		response.getFirstHeader('X-Betamax').value == 'PLAY'
+        then:
+        response.statusLine.statusCode == HTTP_OK
+        response.entity.content.text == HELLO_WORLD
 
-		and:
-		0 * handler.handle(*_)
-	}
+        and:
+        response.getFirstHeader(VIA).value == "Betamax"
+        response.getFirstHeader("X-Betamax").value == "PLAY"
 
-	@Betamax(tape = 'betamax http client')
-	void 'can send a request with a body'() {
-		given:
-		endpoint.start(EchoHandler)
+        and:
+        0 * handler.channelRead(* _)
+    }
 
-		and:
-		def request = new HttpPost(endpoint.url)
-		request.entity = new StringEntity('message=O HAI', APPLICATION_FORM_URLENCODED)
+    @Betamax(tape = "betamax http client", mode = READ_WRITE)
+    void "can send a request with a body"() {
+        given:
+        endpoint = SimpleServer.start(EchoHandler)
 
-		when:
-		def response = http.execute(request)
+        and:
+        def request = new HttpPost(endpoint.url)
+        request.entity = new StringEntity("message=O HAI", APPLICATION_FORM_URLENCODED)
 
-		then:
-		response.statusLine.statusCode == HTTP_OK
-		response.entity.content.text.endsWith 'message=O HAI'
+        when:
+        def response = http.execute(request)
 
-		and:
-		response.getFirstHeader(VIA).value == 'Betamax'
-	}
+        then:
+        response.statusLine.statusCode == HTTP_OK
+        response.entity.content.text.endsWith "message=O HAI"
 
-	void 'fails in non-annotated spec'() {
-		given:
-		def handler = Mock(Handler)
-		endpoint.start(handler)
+        and:
+        response.getFirstHeader(VIA).value == "Betamax"
+    }
 
-		when:
-		http.execute(new HttpGet(endpoint.url))
+    void "fails in non-annotated spec"() {
+        given:
+        def handler = Mock(ChannelInboundHandler)
+        endpoint = SimpleServer.start(handler)
 
-		then:
-		def e = thrown(HandlerException)
-		e.message == 'No tape'
+        when:
+        http.execute(new HttpGet(endpoint.url))
 
-		and:
-		0 * handler.handle(*_)
-	}
+        then:
+        def e = thrown(HandlerException)
+        e.message == "No tape"
 
-	@Betamax(tape = 'betamax http client')
-	void 'can use ignoreLocalhost config setting'() {
-		given:
-		endpoint.start(HelloHandler)
+        and:
+        0 * handler.channelRead(* _)
+    }
 
-		and:
-		recorder.ignoreLocalhost = true
+    @Betamax(tape = "betamax http client")
+    void "can use ignoreLocalhost config setting"() {
+        given:
+        endpoint = SimpleServer.start(HelloHandler)
 
-		and:
-		def request = new HttpGet(endpoint.url)
+        and:
+        configuration.isIgnoreLocalhost() >> true
 
-		when:
-		def response = http.execute(request)
+        and:
+        def request = new HttpGet(endpoint.url)
 
-		then:
-		response.statusLine.statusCode == HTTP_OK
-		response.entity.content.text == HELLO_WORLD
+        when:
+        def response = http.execute(request)
 
-		and:
-		!response.getFirstHeader(VIA)
-		!response.getFirstHeader('X-Betamax')
-	}
+        then:
+        response.statusLine.statusCode == HTTP_OK
+        response.entity.content.text == HELLO_WORLD
 
-	@Betamax(tape = 'betamax http client')
-	void 'can use ignoreHosts config setting'() {
-		given:
-		endpoint.start(HelloHandler)
+        and:
+        !response.getFirstHeader(VIA)
+        !response.getFirstHeader("X-Betamax")
+    }
 
-		and:
-		recorder.ignoreHosts = Network.localAddresses
+    @Betamax(tape = "betamax http client")
+    void "can use ignoreHosts config setting"() {
+        given:
+        endpoint = SimpleServer.start(HelloHandler)
 
-		and:
-		def request = new HttpGet(endpoint.url)
+        and:
+        configuration.getIgnoreHosts() >> Network.localAddresses
 
-		when:
-		def response = http.execute(request)
+        and:
+        def request = new HttpGet(endpoint.url)
 
-		then:
-		response.statusLine.statusCode == HTTP_OK
-		response.entity.content.text == HELLO_WORLD
+        when:
+        def response = http.execute(request)
 
-		and:
-		!response.getFirstHeader(VIA)
-		!response.getFirstHeader('X-Betamax')
-	}
+        then:
+        response.statusLine.statusCode == HTTP_OK
+        response.entity.content.text == HELLO_WORLD
 
-	@Betamax(tape = 'betamax http client')
-	void 'can use with HttpBuilder'() {
-		given:
-		endpoint.start(HelloHandler)
+        and:
+        !response.getFirstHeader(VIA)
+        !response.getFirstHeader("X-Betamax")
+    }
 
-		and:
-		def restClient = new RESTClient() {
-			@Override
-			protected AbstractHttpClient createClient(HttpParams params) {
-				new BetamaxHttpClient(recorder)
-			}
-		}
+    @Betamax(tape = "betamax http client", mode = READ_WRITE)
+    void "can use with HttpBuilder"() {
+        given:
+        endpoint = SimpleServer.start(HelloHandler)
 
-		when:
-		def response = restClient.get(uri: endpoint.url)
+        and:
+        def restClient = new RESTClient() {
+            @Override
+            protected AbstractHttpClient createClient(HttpParams params) {
+                new BetamaxHttpClient(configuration, recorder)
+            }
+        }
 
-		then:
-		response.status == HTTP_OK
-		response.data.text == HELLO_WORLD
+        when:
+        HttpResponseDecorator response = restClient.get(uri: endpoint.url)
 
-		and:
-		response.getFirstHeader(VIA).value == 'Betamax'
-		response.getFirstHeader('X-Betamax').value == 'PLAY'
-	}
+        then:
+        response.status == HTTP_OK
+        response.data.text == HELLO_WORLD
+
+        and:
+        response.getFirstHeader(VIA).value == "Betamax"
+        response.getFirstHeader("X-Betamax").value == "PLAY"
+    }
 
 }

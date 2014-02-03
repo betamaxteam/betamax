@@ -18,3 +18,11 @@ littleproxy_keystore.jks
 littleproxy_cert
 lib/
 log.txt
+/betamax-scala/scala-*/target
+
+# Eclipse files
+bin/
+.project
+.classpath
+.settings
+.cache

@@ -1,0 +1,41 @@
+apply plugin: "scala"
+apply from: "$rootDir/gradle/publishedModule.gradle"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile project(":betamax-core")
+	compile project(":betamax-proxy")
+	
+	testCompile project(":betamax-test-support")
+}
+
+modifyPom {
+	dependencies.removeAll dependencies.findAll {dep -> 
+		dep.groupId == "org.specs2" || dep.groupId == "org.scalatest"
+	}
+
+	project {
+		name "Betamax Scala"
+		description "Scala extensions for the Betamax API."
+		artifactId = archivesBaseName
+	}
+}
+
+sourceSets {
+	main {
+		scala {
+			srcDirs = ["src/main/scala","../src/main/scala"]
+		}
+	}
+	test {
+		scala {
+			srcDirs = ["src/test/scala","../src/test/scala"]
+		}
+		resources {
+			srcDirs = ["../src/test/resources","src/test/resources"]
+		}
+	}
+}

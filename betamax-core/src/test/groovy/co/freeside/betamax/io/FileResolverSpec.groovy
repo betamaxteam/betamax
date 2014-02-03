@@ -38,7 +38,7 @@ class FileResolverSpec extends Specification {
         where:
         file                                       | path
         new File(baseDirectory, "foo.txt")         | ["foo.txt"]
-        new File(baseDirectory, "foo/bar.txt")     | ["foo/bar.txt"]
+        new File(baseDirectory, "foo/bar.txt")     | ["foo", "bar.txt"]
         new File(baseDirectory, "foo/bar/baz.txt") | ["foo", "bar", "baz.txt"]
 
         absolutePath = file.absolutePath

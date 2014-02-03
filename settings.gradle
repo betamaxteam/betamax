@@ -1,9 +1,11 @@
 include "betamax-core",
         "betamax-junit",
-        "betamax-httpclient",
-        "betamax-proxy",
-        "betamax-manual",
-        "betamax-test-support",
+		"betamax-httpclient",
+		"betamax-proxy",
+		"betamax-manual",
+		"betamax-scala:scala-2.9.3",
+		"betamax-scala:scala-2.10.1",
+		"betamax-test-support",
         "betamax-tck"
 
 rootProject.name = "betamax"

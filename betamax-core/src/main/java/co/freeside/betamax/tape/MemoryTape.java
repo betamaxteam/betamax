@@ -16,21 +16,42 @@
 
 package co.freeside.betamax.tape;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
-import co.freeside.betamax.*;
-import co.freeside.betamax.handler.NonWritableTapeException;
-import co.freeside.betamax.io.*;
-import co.freeside.betamax.message.*;
-import co.freeside.betamax.message.tape.*;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-import com.google.common.io.*;
 import static co.freeside.betamax.Headers.X_BETAMAX;
 import static com.google.common.net.HttpHeaders.VIA;
 import static java.util.Collections.unmodifiableList;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
+
+import co.freeside.betamax.Configuration;
+import co.freeside.betamax.MatchRule;
+import co.freeside.betamax.TapeMode;
+import co.freeside.betamax.encoding.DeflateEncoder;
+import co.freeside.betamax.encoding.GzipEncoder;
+import co.freeside.betamax.encoding.NoOpEncoder;
+import co.freeside.betamax.handler.NonWritableTapeException;
+import co.freeside.betamax.io.FileResolver;
+import co.freeside.betamax.io.FileTypeMapper;
+import co.freeside.betamax.io.FilenameNormalizer;
+import co.freeside.betamax.message.Message;
+import co.freeside.betamax.message.Request;
+import co.freeside.betamax.message.Response;
+import co.freeside.betamax.message.tape.RecordedMessage;
+import co.freeside.betamax.message.tape.RecordedRequest;
+import co.freeside.betamax.message.tape.RecordedResponse;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
 
 /**
  * Represents a set of recorded HTTP interactions that can be played back or
@@ -258,11 +279,29 @@ public abstract class MemoryTape implements Tape {
 
     private void recordBodyInline(Message message, RecordedMessage recording) throws IOException {
         boolean representAsText = isTextContentType(message.getContentType());
-        if (representAsText) {
-            recording.setBody(CharStreams.toString(message.getBodyAsText()));
+        boolean representAsZipped = isCompressed(message.getEncoding());
+        if (representAsZipped) {
+        	// All zips saved as decoded binary
+        	byte[] encodedContent = ByteStreams.toByteArray(message.getBodyAsBinary());
+        	recording.setBody(decompressZipData(encodedContent,message.getEncoding()));
+        } else if (representAsText) {
+        	// All text, javascript, etc. saved as text
+        	recording.setBody(CharStreams.toString(message.getBodyAsText()));
         } else {
-            recording.setBody(ByteStreams.toByteArray(message.getBodyAsBinary()));
+        	// Everything else as binary
+        	recording.setBody(ByteStreams.toByteArray(message.getBodyAsBinary()));
         }
+    }
+    
+    private String decompressZipData(byte[] bytes, String encoding) {
+    	ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+    	if (encoding.equals("gzip")) {
+    		return new GzipEncoder().decode(bais);
+    	} else if (encoding.equals("deflate")) {
+    		return new DeflateEncoder().decode(bais);
+    	} else {
+    		return new NoOpEncoder().decode(bais);
+    	}
     }
 
     private void recordBodyToFile(Message message, RecordedMessage recording) throws IOException {
@@ -275,6 +314,10 @@ public abstract class MemoryTape implements Tape {
 
     public static boolean isTextContentType(String contentType) {
         return contentType != null && Pattern.compile("^text/|application/(json|javascript|(\\w+\\+)?xml)").matcher(contentType).find();
+    }
+    
+    public static boolean isCompressed(String contentEncoding) {
+    	return contentEncoding != null && (contentEncoding.matches("gzip|deflate"));
     }
 
 }

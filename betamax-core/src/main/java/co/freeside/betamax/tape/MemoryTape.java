@@ -15,43 +15,27 @@
  */
 
 package co.freeside.betamax.tape;
-
-import static co.freeside.betamax.Headers.X_BETAMAX;
-import static com.google.common.net.HttpHeaders.VIA;
-import static java.util.Collections.unmodifiableList;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import co.freeside.betamax.Configuration;
-import co.freeside.betamax.MatchRule;
-import co.freeside.betamax.TapeMode;
+import co.freeside.betamax.*;
 import co.freeside.betamax.encoding.DeflateEncoder;
 import co.freeside.betamax.encoding.GzipEncoder;
 import co.freeside.betamax.encoding.NoOpEncoder;
 import co.freeside.betamax.handler.NonWritableTapeException;
-import co.freeside.betamax.io.FileResolver;
-import co.freeside.betamax.io.FileTypeMapper;
-import co.freeside.betamax.io.FilenameNormalizer;
-import co.freeside.betamax.message.Message;
-import co.freeside.betamax.message.Request;
-import co.freeside.betamax.message.Response;
-import co.freeside.betamax.message.tape.RecordedMessage;
-import co.freeside.betamax.message.tape.RecordedRequest;
-import co.freeside.betamax.message.tape.RecordedResponse;
+import co.freeside.betamax.io.*;
+import co.freeside.betamax.message.*;
+import co.freeside.betamax.message.tape.*;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
+import com.google.common.collect.*;
+import com.google.common.io.*;
+
+import static co.freeside.betamax.Headers.X_BETAMAX;
+import static com.google.common.net.HttpHeaders.VIA;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * Represents a set of recorded HTTP interactions that can be played back or

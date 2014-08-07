@@ -265,26 +265,35 @@ public abstract class MemoryTape implements Tape {
         boolean representAsText = isTextContentType(message.getContentType());
         boolean representAsZipped = isCompressed(message.getEncoding());
         if (representAsZipped) {
-        	// All zips saved as decoded binary
+        	// All zips recorded as decompressed text
         	byte[] encodedContent = ByteStreams.toByteArray(message.getBodyAsBinary());
-        	recording.setBody(decompressZipData(encodedContent,message.getEncoding()));
+        	try {
+        		recording.setBody(decompressZipData(encodedContent, message.getEncoding()));
+        	} catch (RuntimeException e) {
+        		// Fall back to recorded as text
+        		recording.setBody(CharStreams.toString(message.getBodyAsText()));
+        	}
         } else if (representAsText) {
-        	// All text, javascript, etc. saved as text
+        	// All text (e.g. plaintext, uncompressed javascript, etc.) as text
         	recording.setBody(CharStreams.toString(message.getBodyAsText()));
         } else {
-        	// Everything else as binary
+        	// Everything else (e.g. images) as binary
         	recording.setBody(ByteStreams.toByteArray(message.getBodyAsBinary()));
         }
     }
     
     private String decompressZipData(byte[] bytes, String encoding) {
     	ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-    	if (encoding.equals("gzip")) {
-    		return new GzipEncoder().decode(bais);
-    	} else if (encoding.equals("deflate")) {
-    		return new DeflateEncoder().decode(bais);
-    	} else {
-    		return new NoOpEncoder().decode(bais);
+    	try {
+	    	if (encoding.equals("gzip")) {
+	    		return new GzipEncoder().decode(bais);
+	    	} else if (encoding.equals("deflate")) {
+	    		return new DeflateEncoder().decode(bais);
+	    	} else {
+	    		return new NoOpEncoder().decode(bais);
+	    	}
+    	} catch (RuntimeException e) {
+    		throw e;
     	}
     }
 

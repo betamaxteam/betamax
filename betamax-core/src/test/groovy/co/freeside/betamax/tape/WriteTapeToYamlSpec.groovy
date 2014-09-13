@@ -23,6 +23,7 @@ import com.google.common.io.Files
 import org.yaml.snakeyaml.Yaml
 import spock.lang.*
 import static co.freeside.betamax.TapeMode.READ_WRITE
+import static com.google.common.net.MediaType.FORM_DATA
 import static java.net.HttpURLConnection.*
 import static com.google.common.net.HttpHeaders.*
 
@@ -46,6 +47,7 @@ class WriteTapeToYamlSpec extends Specification {
         getRequest.addHeader(IF_NONE_MATCH, "b00b135")
 
         postRequest = new BasicRequest("POST", "http://github.com/")
+        postRequest.addHeader(CONTENT_TYPE, FORM_DATA.toString())
         postRequest.body = "q=1".bytes
 
         successResponse = new BasicResponse(HTTP_OK, "OK")

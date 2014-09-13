@@ -16,10 +16,6 @@
 
 package co.freeside.betamax.tape;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import co.freeside.betamax.*;
 import co.freeside.betamax.handler.NonWritableTapeException;
 import co.freeside.betamax.io.*;
@@ -28,6 +24,10 @@ import co.freeside.betamax.message.tape.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.google.common.io.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static co.freeside.betamax.Headers.X_BETAMAX;
 import static com.google.common.net.HttpHeaders.VIA;
 import static java.util.Collections.unmodifiableList;
@@ -203,7 +203,7 @@ public abstract class MemoryTape implements Tape {
         });
     }
 
-    private static RecordedRequest recordRequest(Request request) {
+    private RecordedRequest recordRequest(Request request) {
         try {
             final RecordedRequest recording = new RecordedRequest();
             recording.setMethod(request.getMethod());
@@ -216,7 +216,7 @@ public abstract class MemoryTape implements Tape {
             }
 
             if (request.hasBody()) {
-                recording.setBody(CharStreams.toString(request.getBodyAsText()));
+                recordBodyInline(request, recording);
             }
 
             return recording;
@@ -274,7 +274,7 @@ public abstract class MemoryTape implements Tape {
     }
 
     public static boolean isTextContentType(String contentType) {
-        return contentType != null && Pattern.compile("^text/|application/(json|javascript|(\\w+\\+)?xml)").matcher(contentType).find();
+        return contentType != null && ContentTypes.isTextContentType(contentType);
     }
 
 }

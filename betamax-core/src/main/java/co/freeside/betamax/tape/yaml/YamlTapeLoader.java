@@ -85,8 +85,10 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
     @VisibleForTesting
     public YamlTape readFrom(Reader reader) {
         try {
-            return getYaml().loadAs(reader, YamlTape.class);
+            return (YamlTape) getYaml().load(reader);
         } catch (YAMLException e) {
+            throw new TapeLoadException("Invalid tape", e);
+        } catch (ClassCastException e) { // Valid YAML, but not a YamlTape!
             throw new TapeLoadException("Invalid tape", e);
         }
     }

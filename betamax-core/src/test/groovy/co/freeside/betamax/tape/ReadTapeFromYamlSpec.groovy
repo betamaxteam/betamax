@@ -127,7 +127,18 @@ interactions:
 
     void "barfs on non-yaml data"() {
         given:
-        def yaml = "THIS IS NOT YAML"
+        def yaml = "{}][: THIS IS NOT YAML"
+
+        when:
+        loader.readFrom(new StringReader(yaml))
+
+        then:
+        thrown TapeLoadException
+    }
+
+    void "barfs on yaml data which is not a YamlTape"() {
+        given:
+        def yaml = "this is valid yaml"
 
         when:
         loader.readFrom(new StringReader(yaml))

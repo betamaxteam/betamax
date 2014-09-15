@@ -16,20 +16,32 @@
 
 package co.freeside.betamax
 
+import co.freeside.betamax.io.BodyConverter
 import co.freeside.betamax.message.tape.RecordedRequest
 import co.freeside.betamax.util.message.BasicRequest
-import spock.lang.*
+import spock.lang.Issue
+import spock.lang.Specification
+
 import static co.freeside.betamax.MatchRules.*
-import static com.google.common.net.HttpHeaders.*
+import static com.google.common.net.HttpHeaders.ACCEPT_ENCODING
+import static com.google.common.net.HttpHeaders.CACHE_CONTROL
 
 @Issue('https://github.com/robfletcher/betamax/issues/9')
 class MatchRuleSpec extends Specification {
 
+    def req(args) {
+        def req = new RecordedRequest(new BodyConverter(null))
+        args.each() { attr, val ->
+            req[attr] = val
+        }
+        return req
+    }
+
     void 'can match method and url'() {
         given:
-        def request1 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
-        def request2 = new RecordedRequest(method: 'HEAD', uri: 'http://freeside.co/betamax'.toURI())
-        def request3 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/betamax?q=1'.toURI())
+        def request1 = req(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
+        def request2 = req(method: 'HEAD', uri: 'http://freeside.co/betamax'.toURI())
+        def request3 = req(method: 'GET', uri: 'http://freeside.co/betamax?q=1'.toURI())
 
         and:
         def request = new BasicRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
@@ -43,10 +55,10 @@ class MatchRuleSpec extends Specification {
 
     void 'can match host'() {
         given:
-        def request1 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
-        def request2 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/grails-fields'.toURI())
-        def request3 = new RecordedRequest(method: 'HEAD', uri: 'http://freeside.co/betamax'.toURI())
-        def request4 = new RecordedRequest(method: 'GET', uri: 'http://icanhascheezburger.com/'.toURI())
+        def request1 = req(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
+        def request2 = req(method: 'GET', uri: 'http://freeside.co/grails-fields'.toURI())
+        def request3 = req(method: 'HEAD', uri: 'http://freeside.co/betamax'.toURI())
+        def request4 = req(method: 'GET', uri: 'http://icanhascheezburger.com/'.toURI())
 
         and:
         def request = new BasicRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
@@ -61,10 +73,10 @@ class MatchRuleSpec extends Specification {
 
     void 'can match path'() {
         given:
-        def request1 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
-        def request2 = new RecordedRequest(method: 'GET', uri: 'http://robfletcher.github.com/grails-enhanced-scaffolding'.toURI())
-        def request3 = new RecordedRequest(method: 'HEAD', uri: 'http://freeside.co/betamax'.toURI())
-        def request4 = new RecordedRequest(method: 'GET', uri: 'http://icanhascheezburger.com/betamax'.toURI())
+        def request1 = req(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
+        def request2 = req(method: 'GET', uri: 'http://robfletcher.github.com/grails-enhanced-scaffolding'.toURI())
+        def request3 = req(method: 'HEAD', uri: 'http://freeside.co/betamax'.toURI())
+        def request4 = req(method: 'GET', uri: 'http://icanhascheezburger.com/betamax'.toURI())
 
         and:
         def request = new BasicRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI())
@@ -79,10 +91,10 @@ class MatchRuleSpec extends Specification {
 
     void 'can match headers'() {
         given:
-        def request1 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI(), headers: [(ACCEPT_ENCODING): 'gzip, deflate'])
-        def request2 = new RecordedRequest(method: 'GET', uri: 'http://icanhascheezburger.com/'.toURI(), headers: [(ACCEPT_ENCODING): 'gzip, deflate'])
-        def request3 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI(), headers: [(ACCEPT_ENCODING): 'none'])
-        def request4 = new RecordedRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI(), headers: [(ACCEPT_ENCODING): 'gzip, deflate', (CACHE_CONTROL): 'no-cache'])
+        def request1 = req(method: 'GET', uri: 'http://freeside.co/betamax'.toURI(), headers: [(ACCEPT_ENCODING): 'gzip, deflate'])
+        def request2 = req(method: 'GET', uri: 'http://icanhascheezburger.com/'.toURI(), headers: [(ACCEPT_ENCODING): 'gzip, deflate'])
+        def request3 = req(method: 'GET', uri: 'http://freeside.co/betamax'.toURI(), headers: [(ACCEPT_ENCODING): 'none'])
+        def request4 = req(method: 'GET', uri: 'http://freeside.co/betamax'.toURI(), headers: [(ACCEPT_ENCODING): 'gzip, deflate', (CACHE_CONTROL): 'no-cache'])
 
         and:
         def request = new BasicRequest(method: 'GET', uri: 'http://freeside.co/betamax'.toURI(), headers: [(ACCEPT_ENCODING): ['gzip', 'deflate']])
@@ -97,9 +109,9 @@ class MatchRuleSpec extends Specification {
 
     void 'can match post body'() {
         given:
-        def request1 = new RecordedRequest(method: 'POST', uri: 'http://freeside.co/betamax'.toURI(), body: 'q=1')
-        def request2 = new RecordedRequest(method: 'POST', uri: 'http://freeside.co/betamax'.toURI(), body: 'q=2')
-        def request3 = new RecordedRequest(method: 'POST', uri: 'http://freeside.co/betamax'.toURI(), body: 'q=1&r=1')
+        def request1 = req(method: 'POST', uri: 'http://freeside.co/betamax'.toURI(), body: 'q=1')
+        def request2 = req(method: 'POST', uri: 'http://freeside.co/betamax'.toURI(), body: 'q=2')
+        def request3 = req(method: 'POST', uri: 'http://freeside.co/betamax'.toURI(), body: 'q=1&r=1')
 
         and:
         def request = new BasicRequest(method: 'POST', uri: 'http://freeside.co/betamax'.toURI(), body: 'q=1')

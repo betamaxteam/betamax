@@ -16,9 +16,15 @@
 
 package co.freeside.betamax.message.tape;
 
+import co.freeside.betamax.io.BodyConverter;
 import co.freeside.betamax.message.Response;
 
 public class RecordedResponse extends RecordedMessage implements Response {
+
+    public RecordedResponse(BodyConverter bodyConverter) {
+        super(bodyConverter);
+    }
+
     public int getStatus() {
         return status;
     }

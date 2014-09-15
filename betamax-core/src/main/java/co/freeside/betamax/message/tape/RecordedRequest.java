@@ -16,11 +16,17 @@
 
 package co.freeside.betamax.message.tape;
 
+import co.freeside.betamax.io.BodyConverter;
 import co.freeside.betamax.message.Request;
 
 import java.net.URI;
 
 public class RecordedRequest extends RecordedMessage implements Request {
+
+    public RecordedRequest(BodyConverter bodyConverter) {
+        super(bodyConverter);
+    }
+
     public String getMethod() {
         return method;
     }

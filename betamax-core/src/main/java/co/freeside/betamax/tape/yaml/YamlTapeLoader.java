@@ -36,11 +36,13 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
     public static final String FILE_CHARSET = "UTF-8";
 
     private final FileResolver fileResolver;
+    private final BodyConverter bodyConverter;
 
     private static final Logger LOG = Logger.getLogger(YamlTapeLoader.class.getName());
 
     public YamlTapeLoader(File tapeRoot) {
         fileResolver = new FileResolver(tapeRoot);
+        bodyConverter = new BodyConverter(fileResolver);
     }
 
     public YamlTape loadTape(String name) {
@@ -77,7 +79,7 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
 
     @VisibleForTesting
     public YamlTape newTape(String name) {
-        YamlTape tape = new YamlTape(fileResolver);
+        YamlTape tape = new YamlTape(this.bodyConverter);
         tape.setName(name);
         return tape;
     }
@@ -109,7 +111,7 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
         Representer representer = new TapeRepresenter(fileResolver);
         representer.addClassTag(YamlTape.class, TAPE_TAG);
 
-        Constructor constructor = new TapeConstructor(fileResolver);
+        Constructor constructor = new TapeConstructor(fileResolver, bodyConverter);
         constructor.addTypeDescription(new TypeDescription(YamlTape.class, TAPE_TAG));
 
         DumperOptions dumperOptions = new DumperOptions();

@@ -16,30 +16,35 @@
 
 package co.freeside.betamax.tape.yaml;
 
-import co.freeside.betamax.io.FileResolver;
+import co.freeside.betamax.io.*;
+import co.freeside.betamax.message.tape.*;
 import org.yaml.snakeyaml.constructor.*;
 import org.yaml.snakeyaml.nodes.*;
 import static co.freeside.betamax.tape.yaml.YamlTape.FILE_TAG;
 
 public class TapeConstructor extends Constructor {
 
-    public TapeConstructor(FileResolver fileResolver) {
-        yamlClassConstructors.put(NodeId.mapping, new ConstructTape(fileResolver));
+    public TapeConstructor(FileResolver fileResolver, BodyConverter bodyConverter) {
+        yamlClassConstructors.put(NodeId.mapping, new ConstructTape(bodyConverter));
         yamlConstructors.put(FILE_TAG, new ConstructFile(fileResolver));
     }
 
     private class ConstructTape extends ConstructMapping {
 
-        private final FileResolver fileResolver;
+        private final BodyConverter bodyConverter;
 
-        public ConstructTape(FileResolver fileResolver) {
-            this.fileResolver = fileResolver;
+        public ConstructTape(BodyConverter bodyConverter) {
+            this.bodyConverter = bodyConverter;
         }
 
         @Override
         protected Object createEmptyJavaBean(MappingNode node) {
             if (YamlTape.class.equals(node.getType())) {
-                return new YamlTape(fileResolver);
+                return new YamlTape(bodyConverter);
+            } else if (RecordedResponse.class.equals(node.getType())) {
+                return new RecordedResponse(bodyConverter);
+            } else if (RecordedRequest.class.equals(node.getType())) {
+                return new RecordedRequest(bodyConverter);
             } else {
                 return super.createEmptyJavaBean(node);
             }

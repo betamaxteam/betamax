@@ -16,13 +16,14 @@
 
 package co.freeside.betamax.proxy.netty;
 
-import java.io.*;
-import java.util.Map;
 import co.freeside.betamax.message.AbstractMessage;
 import com.google.common.base.Joiner;
 import com.google.common.collect.*;
 import io.netty.buffer.*;
 import io.netty.handler.codec.http.*;
+import java.io.*;
+import java.util.Map;
+
 import static io.netty.buffer.Unpooled.copiedBuffer;
 
 public abstract class NettyMessageAdapter<T extends HttpMessage> extends AbstractMessage {
@@ -84,4 +85,5 @@ public abstract class NettyMessageAdapter<T extends HttpMessage> extends Abstrac
         //Copy the body into a new ByteBuf so that it can be consumed multiple times.
         return new ByteBufInputStream(Unpooled.copiedBuffer(body));
     }
+
 }

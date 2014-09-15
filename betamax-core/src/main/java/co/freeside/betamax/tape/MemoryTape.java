@@ -43,13 +43,12 @@ public abstract class MemoryTape implements Tape {
 
     private transient TapeMode mode = Configuration.DEFAULT_MODE;
     private transient MatchRule matchRule = Configuration.DEFAULT_MATCH_RULE;
-    private transient EntityStorage responseBodyStorage = Configuration.DEFAULT_RESPONSE_BODY_STORAGE;
-    private final transient FileResolver fileResolver;
+    private final transient BodyConverter bodyConverter;
 
     private transient AtomicInteger orderedIndex = new AtomicInteger();
 
-    protected MemoryTape(FileResolver fileResolver) {
-        this.fileResolver = fileResolver;
+    protected MemoryTape(BodyConverter bodyConverter) {
+        this.bodyConverter = bodyConverter;
     }
 
     @Override
@@ -78,7 +77,7 @@ public abstract class MemoryTape implements Tape {
 
     @Override
     public void setResponseBodyStorage(EntityStorage responseBodyStorage) {
-        this.responseBodyStorage = responseBodyStorage;
+        this.bodyConverter.setResponseBodyStorage(responseBodyStorage);
     }
 
     @Override
@@ -205,7 +204,7 @@ public abstract class MemoryTape implements Tape {
 
     private RecordedRequest recordRequest(Request request) {
         try {
-            final RecordedRequest recording = new RecordedRequest();
+            final RecordedRequest recording = new RecordedRequest(this.bodyConverter);
             recording.setMethod(request.getMethod());
             recording.setUri(request.getUri());
 
@@ -216,7 +215,7 @@ public abstract class MemoryTape implements Tape {
             }
 
             if (request.hasBody()) {
-                recordBodyInline(request, recording);
+                recording.recordBody(request, this.name, "" + (size() + 1));
             }
 
             return recording;
@@ -227,7 +226,7 @@ public abstract class MemoryTape implements Tape {
 
     private RecordedResponse recordResponse(Response response) {
         try {
-            RecordedResponse recording = new RecordedResponse();
+            RecordedResponse recording = new RecordedResponse(this.bodyConverter);
             recording.setStatus(response.getStatus());
 
             for (Map.Entry<String, String> header : response.getHeaders().entrySet()) {
@@ -237,44 +236,13 @@ public abstract class MemoryTape implements Tape {
             }
 
             if (response.hasBody()) {
-                recordResponseBody(response, recording);
+                recording.recordBody(response, this.name, "" + (size() + 1));
             }
 
             return recording;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void recordResponseBody(Response response, RecordedResponse recording) throws IOException {
-        switch (responseBodyStorage) {
-            case external:
-                recordBodyToFile(response, recording);
-                break;
-            default:
-                recordBodyInline(response, recording);
-        }
-    }
-
-    private void recordBodyInline(Message message, RecordedMessage recording) throws IOException {
-        boolean representAsText = isTextContentType(message.getContentType());
-        if (representAsText) {
-            recording.setBody(CharStreams.toString(message.getBodyAsText()));
-        } else {
-            recording.setBody(ByteStreams.toByteArray(message.getBodyAsBinary()));
-        }
-    }
-
-    private void recordBodyToFile(Message message, RecordedMessage recording) throws IOException {
-        String filename = FileTypeMapper.filenameFor(String.format("response-%02d", size() + 1), message.getContentType());
-        File body = fileResolver.toFile(FilenameNormalizer.toFilename(name), filename);
-        Files.createParentDirs(body);
-        ByteStreams.copy(message.getBodyAsBinary(), Files.newOutputStreamSupplier(body));
-        recording.setBody(body);
-    }
-
-    public static boolean isTextContentType(String contentType) {
-        return contentType != null && ContentTypes.isTextContentType(contentType);
     }
 
 }

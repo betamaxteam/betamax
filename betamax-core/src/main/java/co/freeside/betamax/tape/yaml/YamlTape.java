@@ -28,8 +28,8 @@ class YamlTape extends MemoryTape {
 
     private transient boolean dirty;
 
-    YamlTape(FileResolver fileResolver) {
-        super(fileResolver);
+    YamlTape(BodyConverter bodyConverter) {
+        super(bodyConverter);
     }
 
     @Override

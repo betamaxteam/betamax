@@ -57,8 +57,7 @@ public interface Message {
     InputSupplier<Reader> getBodyAsText();
 
     /**
-     * Returns the decoded message body. If the implementation stores the message body in an encoded form (e.g. gzipped) then it <em>must</em> be decoded
-     * before being returned by this method
+     * Returns the raw (wire-level) body. Does not decode or otherwise modify the payload.
      *
      * @return the message body as binary data.
      * @throws IllegalStateException if the message does not have a body.

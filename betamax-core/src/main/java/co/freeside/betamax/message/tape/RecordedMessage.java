@@ -16,14 +16,20 @@
 
 package co.freeside.betamax.message.tape;
 
+import co.freeside.betamax.io.BodyConverter;
+import co.freeside.betamax.message.*;
+import com.google.common.io.*;
 import java.io.*;
 import java.util.LinkedHashMap;
-import co.freeside.betamax.encoding.*;
-import co.freeside.betamax.message.*;
-import com.google.common.io.ByteStreams;
-import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
 
 public abstract class RecordedMessage extends AbstractMessage implements Message {
+
+    private final transient BodyConverter bodyConverter;
+
+    protected RecordedMessage(BodyConverter bodyConverter) {
+        this.bodyConverter = bodyConverter;
+    }
+
     public final void addHeader(final String name, String value) {
         if (headers.get(name) != null) {
             headers.put(name, headers.get(name) + ", " + value);
@@ -48,29 +54,11 @@ public abstract class RecordedMessage extends AbstractMessage implements Message
         return new StringReader(string);
     }
 
-    protected final InputStream getBodyAsStream() throws UnsupportedEncodingException {
-        byte[] bytes;
-        if (hasBody()) {
-            bytes = body instanceof String ? ((String) body).getBytes(getCharset()) : (byte[]) body;
-        } else {
-            bytes = new byte[0];
+    protected final InputStream getBodyAsStream() throws IOException {
+        if (!hasBody()) {
+            throw new IllegalStateException("Message has no body.");
         }
-
-        return new ByteArrayInputStream(bytes);
-    }
-
-    private AbstractEncoder getEncoder() {
-        String contentEncoding = getHeader(CONTENT_ENCODING);
-
-        if ("gzip".equals(contentEncoding)) {
-            return new GzipEncoder();
-        }
-
-        if ("deflate".equals(contentEncoding)) {
-            return new DeflateEncoder();
-        }
-
-        return new NoOpEncoder();
+        return new ByteArrayInputStream(bodyConverter.toWireForm(this));
     }
 
     public LinkedHashMap<String, String> getHeaders() {
@@ -83,6 +71,10 @@ public abstract class RecordedMessage extends AbstractMessage implements Message
 
     public Object getBody() {
         return body;
+    }
+
+    public void recordBody(Message sourceMessage, String tapeName, String interactionId) throws IOException {
+        this.body = bodyConverter.toRecordedForm(sourceMessage, tapeName, interactionId);
     }
 
     public void setBody(Object body) {

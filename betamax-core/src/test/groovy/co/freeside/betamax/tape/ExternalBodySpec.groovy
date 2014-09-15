@@ -15,19 +15,17 @@
  */
 
 package co.freeside.betamax.tape
-
 import co.freeside.betamax.io.FilenameNormalizer
 import co.freeside.betamax.tape.yaml.YamlTapeLoader
-import co.freeside.betamax.util.message.*
+import co.freeside.betamax.util.message.BasicRequest
+import co.freeside.betamax.util.message.BasicResponse
 import com.google.common.io.Files
-import com.google.common.net.MediaType
 import spock.lang.*
+
 import static co.freeside.betamax.TapeMode.READ_WRITE
 import static co.freeside.betamax.tape.EntityStorage.external
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE
-import static com.google.common.net.MediaType.JSON_UTF_8
-import static com.google.common.net.MediaType.PLAIN_TEXT_UTF_8
-import static com.google.common.net.MediaType.PNG
+import static com.google.common.net.MediaType.*
 import static java.net.HttpURLConnection.HTTP_OK
 
 @Issue("https://github.com/robfletcher/betamax/issues/59")
@@ -101,7 +99,7 @@ class ExternalBodySpec extends Specification {
         body1 != body2
     }
 
-    void "if a response is overwritten the body file is re-used"() {
+    void "if a response is overwritten the body filename is re-used"() {
         given: "the tape is set to record response bodies externally"
         tape.responseBodyStorage = external
 

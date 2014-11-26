@@ -2,7 +2,7 @@
 title: Home
 layout: index
 version: 1.1.2
-dev-version: 1.2-SNAPSHOT
+dev-version: 1.1.2-SNAPSHOT
 ---
 
 ## Introduction
@@ -11,11 +11,11 @@ Betamax is a tool for mocking external HTTP resources such as [web services][web
 
 You don't want 3rd party downtime, network issues or resource constraints (such as the Twitter API's [rate limit][twitterratelimit]) to break your tests. Writing custom _stub_ web server code and configuring the application to connect to a different URI when under test is tedious and might not accurately simulate the real service.
 
-Betamax aims to solve these problems by intercepting HTTP connections initiated by your application and replaying previously _recorded_ responses.
+Betamax aims to solve these problems by intercepting HTTP connections initiated by your application and returning _recorded_ responses.
 
 The first time a test annotated with `@Betamax` is run any HTTP traffic is recorded to a _tape_ and subsequent test runs will play back the recorded HTTP response from the tape without actually connecting to the external server.
 
-Betamax works with [JUnit][junit] and [Spock][spock]. Although it is written in [Groovy][groovy] Betamax can be used to test applications written in any JVM language.
+Betamax works with [JUnit][junit] and [Spock][spock]. Although it is written in [Groovy][groovy] Betamax can be used to test applications written in any JVM language so long as HTTP connections are made in a way that respects Java's `http.proxyHost` and `http.proxyPort` system properties.
 
 Tapes are stored to disk as [YAML][yaml] files and can be modified (or even created) by hand and committed to your project's source control repository so they can be shared by other members of your team and used by your CI server. Different tests can use different tapes to simulate various response conditions. Each tape can hold multiple request/response interactions. An example tape file can be found [here][tapeexample].
 
@@ -23,31 +23,11 @@ Tapes are stored to disk as [YAML][yaml] files and can be modified (or even crea
 
 The current stable version of Betamax is _{{ page.version }}_.
 
-The current development version of Betamax is _{{page.dev-version}}_.
-
-## Implementations
-
-Betamax comes in two flavors. The first is an HTTP and HTTPS proxy that can intercept traffic made in any way that respects Java's `http.proxyHost` and `http.proxyPort` system properties. The second is a simple wrapper for Apache _HttpClient_.
-
-### The Betamax proxy
-
-The proxy implementation can be used with HTTP traffic initiated from _java.net.URLConnection_, Apache _HttpClient_, etc. It runs an actual HTTP(S) proxy on Jetty and overrides the JVM proxy settings so that traffic is redirected via the proxy.
-
-By default the proxy is enabled.
-
-### The Betamax HttpClient wrapper
-
-The _HttpClient_ wrapper is a simpler implementation but only works with _HttpClient_ (or things built on top of it such as the Groovy _Http Builder_). It is a good choice when you use _HttpClient_ instances that are injected in your classes to make external connections. In your tests you simply inject an instance of _BetamaxHttpClient_ instead.
-
-If you are using _BetamaxHttpClient_ you can simply set `useProxy` to `false` and the Betamax proxy will not run.
-
 ## Installation
 
-Stable versions of Betamax are available from the Maven central repository. Stable and development versions are available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below.
+Stable versions of Betamax are available from the Maven central repository. Stable and development versions are available from the [Sonatype OSS Maven repository][sonatype]. To install with your favourite build system see below:
 
 Please note the Maven group changed between versions 1.0 and 1.1. Make sure you are specifying the group `co.freeside` when referencing Betamax in your build.
-
-If you are installing a development version you will need to add the repository `http://oss.sonatype.org/content/groups/public/` to your build.
 
 ### Gradle
 
@@ -145,11 +125,9 @@ By default recorded interactions are matched based on the _method_ and _URI_ of 
 `headers`
 : the request headers. If this rule is used then _all_ headers on the intercepted request must match those on the previously recorded request.
 
-Note that request matching is **not** done at all when using `READ_SEQUENTIAL` or `WRITE_SEQUENTIAL` tape modes.
-
 ### Tape modes
 
-Betamax supports different read/write modes for tapes. The tape mode is set by adding a `mode` argument to the `@Betamax` annotation.
+Betamax supports three different read/write modes for tapes. The tape mode is set by adding a `mode` argument to the `@Betamax` annotation.
 
 `READ_WRITE`
 : This is the default mode. If the proxy intercepts a request that matches a recording on the tape then the recorded response is played back. Otherwise the request is forwarded to the target URI and the response recorded.
@@ -159,12 +137,6 @@ Betamax supports different read/write modes for tapes. The tape mode is set by a
 
 `WRITE_ONLY`
 : The proxy will always forward the request to the target URI and record the response regardless of whether or not a matching request is already on the tape. Any existing recorded interactions will be overwritten.
-
-`READ_SEQUENTIAL`
-: The proxy will replay recordings from the tape in strict sequential order. If the current request does not match the next recorded request on the tape an error is raised. Likewise if a request arrives after all the recordings have already been played back an error is raised. This is primarily useful for testing stateful endpoints. Note that in this mode multiple recordings that match the current request may exist on the tape.
-
-`WRITE_SEQUENTIAL`
-: The proxy will behave as per `WRITE_ONLY` except that no matching on existing requests is done. All requests are recorded in sequence regardless of whether they match an existing recording or not. This mode is intended for preparing tapes for use with `READ_SEQUENTIAL` mode.
 
 ### Ignoring certain hosts
 
@@ -178,9 +150,7 @@ If you need to ignore connections to _localhost_ you can simply set the `ignoreL
 
 Tape files are stored as _YAML_ so that they should be reasonably easy to edit by hand. HTTP request and response bodies are stored as text for most common textual MIME types. Binary data for things like images is also stored but is not practical to edit by hand. In some cases where the text contains non-printable characters then text data will be stored as binary.
 
-## Proxy compatibility
-
-If you're using the Betamax proxy there are some compatibility issues you should be aware of:
+## Compatibility
 
 ### Java 6
 
@@ -216,18 +186,16 @@ _HTTPBuilder_ also includes a [_HttpURLClient_][httpurlclient] class which needs
 
 ### WSLite
 
-[_WSLite_][wslite] does not use the default JVM proxy settings at all. You will need to configure it to use the Betamax proxy. There is a `getProxy()` convenience method on `Recorder` that makes this very easy:
+The [groovy-wslite][wslite] library is not aware of the default JVM proxy settings so the proxy needs to be explicitly configured with a `java.net.Proxy`. The `Recorder` class provides a convenience method for getting a `Proxy` instance. For example:
 
-    def http = new RESTClient('http://freeside.co/betamax')
-    def response = http.get(path: '/', proxy: recorder.proxy)
+ 	def client = new RESTClient(targetUrl)
+ 	def response = client.get(path: '/', proxy: recorder.proxy)
 
 ## HTTPS
 
-As of version 1.1 the Betamax proxy can handle HTTPS traffic as well as HTTP. Because Betamax needs to be able to read the content of the request and response it is not actually a valid secure proxy. Betamax will only work if the certificate chain is broken.
+As of version 1.1 Betamax can proxy HTTPS traffic as well as HTTP. Because Betamax needs to be able to read the content of the request and response it is not actually a valid secure proxy. Betamax will only work if the certificate chain is broken.
 
 To enable HTTP support you simply need to set the `sslSupport` boolean property on the `Recorder` instance in your test or via Betamax configuration.
-
-Note, this is not necessary if you are using the _BetamaxHttpClient_ wrapper class instead of the proxy. HTTPS is handled no differently to HTTP in that case.
 
 ### HTTPS with Apache HttpClient
 
@@ -241,9 +209,6 @@ The `Recorder` class has some configuration properties that you can override:
 
 `tapeRoot`
 : the base directory where tape files are stored. Defaults to `src/test/resources/betamax/tapes`.
-
-`useProxy`
-: if set to `true` the Betamax proxy will start before each annotated test and stop after it. If you're using the HTTPClient wrapper you can safely set this to `false` and avoid the overhead of running the proxy.
 
 `proxyPort`
 : the port the Betamax proxy listens on. Defaults to `5555`.
@@ -268,26 +233,24 @@ If you have a file called `BetamaxConfig.groovy` or `betamax.properties` somewhe
 ### Example _BetamaxConfig.groovy_ script
 
     betamax {
-        tapeRoot = new File('src/test/resources/betamax/tapes')
-        useProxy = true
-        proxyPort = 5555
-        proxyTimeout = 5000
-        defaultMode = TapeMode.READ_WRITE
+        tapeRoot = new File('test/fixtures/tapes')
+        proxyPort = 1337
+        proxyTimeout = 30000
+        defaultMode = TapeMode.READ_ONLY
         ignoreHosts = ['localhost', '127.0.0.1']
-        ignoreLocalhost = false
-        sslSupport = false
+        ignoreLocalhost = true
+        sslSupport = true
     }
 
 ### Example _betamax.properties_ file
 
-    betamax.tapeRoot=src/test/resources/betamax/tapes
-    betamax.useProxy=true
-    betamax.proxyPort=5555
-    betamax.proxyTimeout=5000
-    betamax.defaultMode=READ_WRITE
+    betamax.tapeRoot=test/fixtures/tapes
+    betamax.proxyPort=1337
+    betamax.proxyTimeout=30000
+    betamax.defaultMode=READ_ONLY
     betamax.ignoreHosts=localhost,127.0.0.1
-    betamax.ignoreLocalhost=false
-    betamax.sslSupport=false
+    betamax.ignoreLocalhost=true
+    betamax.sslSupport=true
 
 ## Caveats
 
@@ -333,7 +296,6 @@ If your project gets dependencies from a [Maven][maven] repository these depende
 
 * [Marcin Erdmann](https://github.com/erdi)
 * [Lari Hotari](https://github.com/lhotari)
-* [Steve Ims](https://github.com/steveims)
 * [Nobuhiro Sue](https://github.com/nobusue)
 
 ### Acknowledgements

@@ -8,6 +8,8 @@
 *.ipr
 *.iws
 *~
+**/build
+
 /examples/grails-betamax/target/
 *.log
 /.gradletasknamecache

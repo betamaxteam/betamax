@@ -25,7 +25,6 @@ enum TapeMode {
 
 	final boolean readable
 	final boolean writable
-
 	private TapeMode(boolean readable, boolean writable) {
 		this.readable = readable
 		this.writable = writable

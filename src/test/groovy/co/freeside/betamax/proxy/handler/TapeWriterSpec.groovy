@@ -64,4 +64,34 @@ class TapeWriterSpec extends Specification {
 		e.httpStatus == HTTP_FORBIDDEN
 	}
 
+        void 'behaves normally in reconciliation mode if live response matched taped response'() {
+                given:
+                def nextHandler = Mock(HttpHandler)
+		nextHandler.handle(_) >> response
+		handler << nextHandler
+
+                and:
+                def tape = Mock(Tape)
+                recorder.tape >> tape
+                tape.getMode() >> TapeMode.RECONCILE
+                tape.seek(request) >> true
+                tape.play(request) >> response
+
+                when:
+                handler.handle(request)
+
+                then:
+                def result = handler.handle(request)
+
+		then:
+		result.is(response)
+
+		and:
+		0 * tape.record(request, response)
+                0 * reconciler.record(tape, request, response)
+        }
+
+  //void 'writes reconciliation error and throws exception if live response didn\'t match taped response'() {
+  //
+  //      }
 }

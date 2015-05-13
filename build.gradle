@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-	groovy 'org.codehaus.groovy:groovy-all:2.2.0:indy'
+	groovy 'org.codehaus.groovy:groovy-all:2.3.0:indy'
 
 	compile 'junit:junit:4.8.2',
 			'org.yaml:snakeyaml:1.10',

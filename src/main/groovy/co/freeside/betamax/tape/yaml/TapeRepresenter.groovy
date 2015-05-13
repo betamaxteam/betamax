@@ -90,7 +90,7 @@ class TapePropertyUtils extends PropertyUtils {
 	}
 
 	private Set<Property> sort(Set<Property> properties, List<String> names) {
-		new LinkedHashSet(properties.sort(new OrderedPropertyComparator(names)))
+         return new LinkedHashSet(properties.sort(false, new OrderedPropertyComparator(names)))
 	}
 }
 

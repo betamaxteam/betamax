@@ -34,6 +34,11 @@ interface Tape {
 	 */
 	void setMode(TapeMode mode)
 
+        /**
+         * expose mode field
+         */
+        TapeMode getMode()
+
 	/**
 	 * @return `true` if the tape is readable, `false` otherwise.
 	 */

@@ -38,6 +38,10 @@ class MemoryTape implements Tape {
 		this.mode = mode
 	}
 
+        TapeMode getMode() {
+                this.mode
+        }
+
 	void setMatchRules(Comparator<Request>[] matchRules) {
 		this.matchRules = matchRules
 	}
@@ -152,5 +156,3 @@ class RecordedInteraction {
 	RecordedRequest request
 	RecordedResponse response
 }
-
-

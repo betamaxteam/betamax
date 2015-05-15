@@ -149,6 +149,8 @@ class MemoryTape implements Tape {
 		!(s =~ StreamReader.NON_PRINTABLE)
 	}
 
+        void recordReconciliationError(Request request, Response response) {}
+
 }
 
 class RecordedInteraction {

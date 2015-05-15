@@ -139,7 +139,7 @@ class Recorder implements MethodRule {
 	void ejectTape() {
 		if (tape) {
 			tapeLoader.writeTape(tape)
-			tape = null
+                       	tape = null
 		}
 	}
 

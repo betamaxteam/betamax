@@ -76,4 +76,6 @@ interface Tape {
 	 * @throws UnsupportedOperationException if this `Tape` implementation is not writable.
 	 */
 	void record(Request request, Response response)
+
+        void recordReconciliationError(Request request, Response response)
 }

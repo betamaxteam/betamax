@@ -1,23 +1,21 @@
 package co.freeside.betamax.proxy.handler
 
 import co.freeside.betamax.Recorder
-import co.freeside.betamax.message.Request
-import co.freeside.betamax.message.Response
-import co.freeside.betamax.tape.Tape
+import co.freeside.betamax.message.*
+import co.freeside.betamax.util.message.*
+import co.freeside.betamax.tape.*
 import co.freeside.betamax.TapeMode
-import co.freeside.betamax.util.message.BasicRequest
-import co.freeside.betamax.util.message.BasicResponse
 import spock.lang.Specification
 import spock.lang.Ignore
-
+import co.freeside.betamax.tape.responsematcher.ResponseMatcher
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN
 
 class TapeReconcilerSpec extends Specification {
 
 	Recorder recorder = Mock(Recorder)
         TargetConnector connector = Mock(TargetConnector)
-
-	TapeReconciler handler = new TapeReconciler(recorder, connector)
+        ResponseMatcher responseMatcher = Mock(ResponseMatcher)
+	TapeReconciler handler = new TapeReconciler(recorder, connector, responseMatcher)
 	Request request = new BasicRequest()
 	Response response = new BasicResponse()
 
@@ -51,14 +49,19 @@ class TapeReconcilerSpec extends Specification {
                 result.is(response)
         }
 
-        @Ignore("Not implemented yet")
         void 'return response if live response matched taped response'() {
                 given:
+                connector.handle(request) >> response
+
+                and:
                 def tape = Mock(Tape)
                 recorder.tape >> tape
-                tape.getMode() >> TapeMode.RECONCILE
+                tape.mode >> TapeMode.RECONCILE
                 tape.seek(request) >> true
-                tape.play(request) >> response // for reconciliation purposes
+
+                def tapedResponse = new BasicResponse()
+                tape.play(request) >> tapedResponse
+                responseMatcher.match(response, tapedResponse) >> true
 
                 when:
                 handler.handle(request)
@@ -74,15 +77,50 @@ class TapeReconcilerSpec extends Specification {
                 0 * tape.recordReconciliationError(request, response)
         }
 
-        @Ignore("Not implemented yet")
         void 'writes reconciliation error and throws exception if live response didn\'t match taped response'() {
-          given:
-          true
+                given:
+                connector.handle(request) >> response
 
-          when:
-          true
+                def tape = Mock(Tape)
+                recorder.tape >> tape
+                tape.mode >> TapeMode.RECONCILE
+                tape.seek(request) >> true
 
-          then:
-          true
+                def tapedResponse = new BasicResponse()
+                tape.play(request) >> tapedResponse
+
+                responseMatcher.match(response, tapedResponse) >> false
+
+                when:
+                handler.handle(request)
+
+                then:
+                def e = thrown(ReconciliationException)
+                e != null
+
+                and:
+                0 * tape.record(request, response)
+                1 * tape.recordReconciliationError(request, response)
+        }
+
+        void 'throws exception if no taped response found'() {
+                given:
+                connector.handle(request) >> response
+
+                def tape = Mock(Tape)
+                recorder.tape >> tape
+                tape.mode >> TapeMode.RECONCILE
+                tape.seek(request) >> false
+
+                when:
+                handler.handle(request)
+
+                then:
+                def e = thrown(NoSuchTapedRequestException)
+                e != null
+
+                and:
+                0 * tape.record(request, response)
+                0 * tape.recordReconciliationError(request, response)
         }
 }

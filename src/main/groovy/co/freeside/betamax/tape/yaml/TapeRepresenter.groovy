@@ -47,6 +47,8 @@ class TapeRepresenter extends GroovyRepresenter {
 			null
 		} else if (tuple.valueNode instanceof CollectionNode && tuple.valueNode.value.empty) {
 			null
+                } else if(property.name == 'mode') {
+                        null
 		} else if (property.name == 'body') {
 			ScalarNode n = tuple.valueNode
 			if (n.style == PLAIN.char) {

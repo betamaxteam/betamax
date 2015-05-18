@@ -7,7 +7,7 @@ import co.freeside.betamax.tape.*
 import co.freeside.betamax.TapeMode
 import spock.lang.Specification
 import spock.lang.Ignore
-import co.freeside.betamax.tape.responsematcher.ResponseMatcher
+import co.freeside.betamax.tape.ResponseMatcher
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN
 
 class TapeReconcilerSpec extends Specification {

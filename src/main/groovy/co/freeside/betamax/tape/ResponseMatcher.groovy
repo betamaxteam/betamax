@@ -1,9 +1,24 @@
-package co.freeside.betamax.tape.responsematcher
+package co.freeside.betamax.tape
 
 import co.freeside.betamax.message.Response
+import co.freeside.betamax.message.tape.RecordedResponse
+
+import static co.freeside.betamax.ResponseMatchRule.status
 
 class ResponseMatcher {
-  boolean match(Response response1, Response response2) {
-    true
+  private final Comparator<Response>[] rules
+  private final Response response
+
+  ResponseMatcher(Response response) {
+    this(response, [status] as Comparator<Response>[])
+  }
+
+  ResponseMatcher(Response response, Comparator<Response>... rules) {
+    this.response = response
+    this.rules = rules
+  }
+
+  boolean matches(RecordedResponse recordedResponse) {
+    rules.every { it.compare(response, recordedResponse) == 0 }
   }
 }

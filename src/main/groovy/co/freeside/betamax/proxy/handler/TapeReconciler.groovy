@@ -7,7 +7,7 @@ import co.freeside.betamax.message.*
 import co.freeside.betamax.tape.Tape
 import co.freeside.betamax.tape.ReconciliationException
 import co.freeside.betamax.tape.NoSuchTapedRequestException
-import co.freeside.betamax.tape.responsematcher.ResponseMatcher
+import co.freeside.betamax.tape.ResponseMatcher
 import static co.freeside.betamax.proxy.jetty.BetamaxProxy.X_BETAMAX
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN
 import static java.util.logging.Level.INFO

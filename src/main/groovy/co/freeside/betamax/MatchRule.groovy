@@ -86,8 +86,9 @@ enum MatchRule implements Comparator<Request> {
 	body {
 		@Override
 		int compare(Request a, Request b) {
-			a.bodyAsText.text <=> b.bodyAsText.text
-		}
+                  (a.hasBody() ? a.bodyAsText.text : null) <=>
+                  (b.hasBody() ? b.bodyAsText.text : null)
+      		}
 	}
 
 	int compare(Request a, Request b) {

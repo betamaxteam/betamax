@@ -13,16 +13,16 @@ class ResponseMatcherSpec extends Specification {
     new ResponseMatcher(response1)
   }
 
-  def response(String body, int status) {
+  def response(String body, int status = 200) {
     def resp = new BasicResponse()
-    resp.body = body.getBytes(Charset.forName("UTF-8"));
+    resp.body = body?.getBytes(Charset.forName("UTF-8"));
     resp.status = status
     resp
   }
 
-  def recordedResponse(String body, int status) {
+  def recordedResponse(String body, int status = 200) {
     def resp = new RecordedResponse()
-    resp.body = body.getBytes(Charset.forName("UTF-8"));
+    resp.body = body?.getBytes(Charset.forName("UTF-8"));
     resp.status = status
     resp
   }
@@ -51,17 +51,28 @@ class ResponseMatcherSpec extends Specification {
     result == false
   }
 
-  @Ignore
   void 'does not match responses whose bodies differ'(){
     given:
     def response1 = response("abc", 200)
-    def response2 = recordedRsponse("def", 200)
+    def response2 = recordedResponse("def", 200)
 
     when:
     def result = matcher(response1).matches(response2)
 
     then:
     result == false
+  }
+
+  void 'body matching handles nulls'(){
+    when:
+    def result1 = matcher(response(null)).matches(recordedResponse("abc"))
+    def result2 = matcher(response("abc")).matches(recordedResponse(null))
+    def result3 = matcher(response(null)).matches(recordedResponse(null))
+
+    then:
+    result1 == false
+    result2 == false
+    result3 == true
   }
 
   // Can look at status, content type, headers, body, content type, charset, encoding

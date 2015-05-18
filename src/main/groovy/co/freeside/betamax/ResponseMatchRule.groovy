@@ -1,4 +1,4 @@
-package co.freeside.betamax.tape
+package co.freeside.betamax
 
 import co.freeside.betamax.message.Response
 
@@ -10,6 +10,13 @@ enum ResponseMatchRule implements Comparator<Response> {
                @Override
                int compare(Response a, Response b) {
                  a.status <=> b.status
+               }
+        },
+        body {
+               @Override
+               int compare(Response a, Response b) {
+                 (a.hasBody() ? a.bodyAsText.text : null) <=>
+                 (b.hasBody() ? b.bodyAsText.text : null)
                }
         }
 

@@ -8,6 +8,7 @@ import co.freeside.betamax.util.message.BasicResponse
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
+import spock.lang.Ignore
 
 import static co.freeside.betamax.TapeMode.*
 import static groovyx.net.http.ContentType.URLENC
@@ -58,7 +59,7 @@ class TapeSpec extends Specification {
 		interaction.response.headers[CONTENT_LANGUAGE] == plainTextResponse.getHeader(CONTENT_LANGUAGE)
 		interaction.response.headers[CONTENT_ENCODING] == plainTextResponse.getHeader(CONTENT_ENCODING)
 	}
-	
+
 	void 'can overwrite a recorded interaction'() {
 		when: 'a recording is made'
 		tape.record(getRequest, plainTextResponse)
@@ -131,4 +132,27 @@ class TapeSpec extends Specification {
 		e.message == 'the tape is not writable'
 	}
 
+        void 'can record an interaction as a reconciliation error'() {
+                when: 'an HTTP interaction is recorded to the reconciliation errors'
+                tape.recordReconciliationError(getRequest, plainTextResponse)
+
+                then: 'the size of the reconciliation errors increases'
+                tape.reconciliationErrors.size == old(tape.reconciliationErrors.size()) + 1
+                def interaction = tape.reconciliationErrors.interactions[-1]
+
+                and: 'the request data is correctly stored'
+                interaction.request.method == getRequest.method
+                interaction.request.uri == getRequest.uri
+
+                and: 'the response data is correctly stored'
+                interaction.response.status == plainTextResponse.status
+                interaction.response.body == 'O HAI!'
+                interaction.response.headers[CONTENT_TYPE] == plainTextResponse.getHeader(CONTENT_TYPE)
+                interaction.response.headers[CONTENT_LANGUAGE] == plainTextResponse.getHeader(CONTENT_LANGUAGE)
+                interaction.response.headers[CONTENT_ENCODING] == plainTextResponse.getHeader(CONTENT_ENCODING)
+        }
+
+        @Ignore('Not yet implemented')
+        void 'reconciliation errors are not overwritten'() {
+        }
 }

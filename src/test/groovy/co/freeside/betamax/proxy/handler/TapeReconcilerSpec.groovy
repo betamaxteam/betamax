@@ -2,6 +2,7 @@ package co.freeside.betamax.proxy.handler
 
 import co.freeside.betamax.Recorder
 import co.freeside.betamax.message.*
+import co.freeside.betamax.message.tape.RecordedResponse
 import co.freeside.betamax.util.message.*
 import co.freeside.betamax.tape.*
 import co.freeside.betamax.TapeMode
@@ -17,7 +18,7 @@ class TapeReconcilerSpec extends Specification {
         ResponseMatcher responseMatcher = Mock(ResponseMatcher)
 	TapeReconciler handler = new TapeReconciler(recorder, connector, responseMatcher)
 	Request request = new BasicRequest()
-	Response response = new BasicResponse()
+	Response response = new RecordedResponse()
 
 	void 'throws an exception if there is no tape inserted'() {
 		given:

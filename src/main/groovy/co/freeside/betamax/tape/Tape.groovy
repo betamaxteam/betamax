@@ -77,5 +77,12 @@ interface Tape {
 	 */
 	void record(Request request, Response response)
 
+
+        /**
+         * Records an interaction which could not be reconciled to the tape (for use
+         * by the tape mode RECONCILE).
+         * @param request the request to record
+         * @param the response to record
+         */
         void recordReconciliationError(Request request, Response response)
 }

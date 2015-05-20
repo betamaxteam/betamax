@@ -21,10 +21,15 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	compile 'org.codehaus.groovy:groovy-all:2.3.0:indy'
+nexus {
+  repositoryUrl  "http://nexus.banno.com/nexus/content/repositories/releases/"
+  snapshotRepositoryUrl "http://nexus.banno.com/nexus/content/repositories/snapshots/"
 
-	compile 'junit:junit:4.10',
+}
+
+dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.3.0:indy',
+        'junit:junit:4.10',
         'org.yaml:snakeyaml:1.13',
         'org.apache.httpcomponents:httpclient:4.3.6',
         'commons-lang:commons-lang:2.6',

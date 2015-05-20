@@ -1,15 +1,15 @@
 apply plugin: 'groovy'
 apply plugin: 'codenarc'
-apply plugin: 'nexus'
-apply plugin: 'github-pages'
+apply plugin: 'com.bmuschko.nexus'
+apply plugin: 'org.ajoberstar.github-pages'
 
 buildscript {
 	repositories {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.2'
-		classpath 'org.ajoberstar:gradle-git:0.2.0'
+		classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+		classpath 'org.ajoberstar:gradle-git:1.2.0-milestone.1'
 	}
 }
 
@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-	groovy 'org.codehaus.groovy:groovy-all:2.3.0:indy'
+	compile 'org.codehaus.groovy:groovy-all:2.3.0:indy'
 
 	compile 'junit:junit:4.10',
         'org.yaml:snakeyaml:1.13',

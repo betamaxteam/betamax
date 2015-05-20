@@ -13,7 +13,7 @@ buildscript {
 	}
 }
 
-version = getVersionFromSbt()
+version = "1.1.2-banno-SNAPSHOT"
 group = 'co.freeside'
 archivesBaseName = 'betamax'
 
@@ -117,10 +117,3 @@ test {
 }
 
 
-def getVersionFromSbt() {
-  File versionFile = file('version.sbt')
-  def versionRegexpMatcher = (versionFile.getText('UTF-8') =~ /version in ThisBuild := \"([^\"]+)\"/)
-  def maybeVersion = versionRegexpMatcher.getCount() > 0 ? versionRegexpMatcher[0][1] : null
-  if(!maybeVersion) throw new RuntimeException("No version found in version.sbt!")
-  maybeVersion
-}

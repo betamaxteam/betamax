@@ -24,7 +24,7 @@ import co.freeside.betamax.message.Response
  */
 interface Tape {
 
-	/**
+  	/**
 	 * @return The name of the tape.
 	 */
 	String getName()

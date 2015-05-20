@@ -39,9 +39,10 @@ dependencies {
 		exclude module: 'junit-dep'
 	}
 	testCompile 'commons-httpclient:commons-httpclient:3.1',
-				'com.github.groovy-wslite:groovy-wslite:0.7.1'
+		    'com.github.groovy-wslite:groovy-wslite:0.7.1'
 
-	testRuntime 'cglib:cglib-nodep:3.1'
+        testRuntime 'cglib:cglib-nodep:3.1',
+                    'org.objenesis:objenesis:2.1'
 }
 
 modifyPom {

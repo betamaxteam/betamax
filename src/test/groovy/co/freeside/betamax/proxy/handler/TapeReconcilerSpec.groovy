@@ -58,11 +58,7 @@ class TapeReconcilerSpec extends Specification {
                 def tape = Mock(Tape)
                 recorder.tape >> tape
                 tape.mode >> TapeMode.RECONCILE
-                tape.seek(request) >> true
-
-                def tapedResponse = new BasicResponse()
-                tape.play(request) >> tapedResponse
-                responseMatcher.match(response, tapedResponse) >> true
+                tape.seek(request, response) >> true
 
                 when:
                 handler.handle(request)
@@ -85,12 +81,7 @@ class TapeReconcilerSpec extends Specification {
                 def tape = Mock(Tape)
                 recorder.tape >> tape
                 tape.mode >> TapeMode.RECONCILE
-                tape.seek(request) >> true
-
-                def tapedResponse = new BasicResponse()
-                tape.play(request) >> tapedResponse
-
-                responseMatcher.match(response, tapedResponse) >> false
+                tape.seek(request, response) >> false
 
                 when:
                 handler.handle(request)

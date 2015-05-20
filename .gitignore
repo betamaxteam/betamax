@@ -9,6 +9,7 @@
 *.iws
 *~
 **/build
+target/
 
 /examples/grails-betamax/target/
 *.log

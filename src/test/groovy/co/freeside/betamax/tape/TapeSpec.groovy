@@ -132,6 +132,7 @@ class TapeSpec extends Specification {
 		e.message == 'the tape is not writable'
 	}
 
+        @Ignore('Not yet implemented - may be changing how reconciliation errors are recorded')
         void 'can record an interaction as a reconciliation error'() {
                 when: 'an HTTP interaction is recorded to the reconciliation errors'
                 tape.recordReconciliationError(getRequest, plainTextResponse)

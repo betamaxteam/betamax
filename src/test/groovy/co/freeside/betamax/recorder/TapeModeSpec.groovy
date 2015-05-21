@@ -83,4 +83,18 @@ interactions:
 		tape.interactions[-1].response.body
 	}
 
+        void 'in reconciliation mode writes to tape on eject if necessary'() {
+		given: 
+		recorder.insertTape('blank reconcile tape', [mode: RECONCILE])
+		def tape = recorder.reconciliationTape
+
+	        when:
+		http.get(uri: endpoint.url)
+		tape.seek(request, response)
+
+		then:
+		tape.cleanup()
+		tape.size() == old(tape.size()) + 1
+	}
+
 }

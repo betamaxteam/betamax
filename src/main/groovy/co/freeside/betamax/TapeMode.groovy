@@ -22,7 +22,7 @@ enum TapeMode {
 	READ_ONLY(true, false),
 	WRITE_ONLY(false, true),
 	DEFAULT(false, false),
-        RECONCILE(true, false)
+        RECONCILE(true, true)
 
 	final boolean readable
 	final boolean writable

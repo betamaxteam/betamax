@@ -42,7 +42,6 @@ class ReconcileModeSpec extends Specification {
 		recorder.tape.size() == 1
 	}
 
-        @Ignore('Not implemented yet')
         @Betamax(tape = 'reconcilemode', mode = RECONCILE)
         void 'Reconcile mode plays response and records no errors when live response matches tape'()  {
                 given:

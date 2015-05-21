@@ -53,7 +53,7 @@ class TapeReconciler extends ChainedHttpHandler {
                        recorder.tape
                        recorder.reconciliationErrorTape
 
-                     Nice symmetry there, can just add the writing of the reconciliationErroTape to
+                     Nice symmetry there, can just add the writing of the reconciliationErrorTape to
                      the recorder's ejectTape method, e.g.
 
                        void ejectTape() {
@@ -67,11 +67,10 @@ class TapeReconciler extends ChainedHttpHandler {
                      This way, we don't have to add anything special to YamlTape, YamlTapeLoader, etc.
                      It's just an extra tape!  The Recorder is the main thing that changes, so it's tests
                      need to cover this.
-
                    */
 
                   if (!tape.seek(request, actualResponse)) {
-                    tape.recordReconciliationError(request, actualResponse)
+                    recorder.reconciliationTape.record(request, actualResponse)
                     throw new ReconciliationException()
                   }
 
@@ -79,9 +78,5 @@ class TapeReconciler extends ChainedHttpHandler {
                 } else {
                   chain(request)
                 }
-        }
-
-        private Response findTapedResponse(Tape tape, Request request) {
-          if(tape.seek(request)) tape.play(request) else null
         }
 }

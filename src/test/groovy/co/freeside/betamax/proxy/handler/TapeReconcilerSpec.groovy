@@ -17,9 +17,9 @@ class TapeReconcilerSpec extends Specification {
         TargetConnector connector = Mock(TargetConnector)
        	TapeReconciler handler = new TapeReconciler(recorder, connector)
 	Request request = new BasicRequest()
-	Response response = new RecordedResponse()
+	Response response = new BasicResponse()
 
-	void 'throws an exception if there is no tape inserted'() {
+       	void 'throws an exception if there is no tape inserted'() {
 		given:
                 recorder.tape >> null
 
@@ -60,6 +60,9 @@ class TapeReconcilerSpec extends Specification {
                 tape.seek(request) >> true
                 tape.seek(request, response) >> true
 
+                def reconciliationTape = Mock(Tape)
+                recorder.reconciliationTape >> reconciliationTape
+
                 when:
                 handler.handle(request)
 
@@ -70,11 +73,12 @@ class TapeReconcilerSpec extends Specification {
 		result.is(response)
 
 		and:
-		0 * tape.record(request, response)
-                0 * tape.recordReconciliationError(request, response)
+	        0 * reconciliationTape.record(request, response)
         }
 
         void 'writes reconciliation error and throws exception if live response didn\'t match taped response'() {
+                println("Running test, request is $request, response is $response")
+
                 given:
                 connector.handle(request) >> response
 
@@ -84,16 +88,19 @@ class TapeReconcilerSpec extends Specification {
                 tape.seek(request) >> true // Found a taped response
                 tape.seek(request, response) >> false // But it didn't match
 
+                def reconciliationTape = Mock(Tape)
+                recorder.reconciliationTape >> reconciliationTape
+
+
                 when:
                 handler.handle(request)
 
                 then:
+                1 * reconciliationTape.record(request, response)
+
                 def e = thrown(ReconciliationException)
                 e != null
 
-                and:
-                0 * tape.record(request, response)
-                1 * tape.recordReconciliationError(request, response)
         }
 
         void 'throws exception if no taped response found'() {
@@ -105,6 +112,9 @@ class TapeReconcilerSpec extends Specification {
                 tape.mode >> TapeMode.RECONCILE
                 tape.seek(request) >> false
 
+                def reconciliationTape = Mock(Tape)
+                recorder.reconciliationTape >> reconciliationTape
+
                 when:
                 handler.handle(request)
 
@@ -113,7 +123,6 @@ class TapeReconcilerSpec extends Specification {
                 e != null
 
                 and:
-                0 * tape.record(request, response)
-                0 * tape.recordReconciliationError(request, response)
+                0 * reconciliationTape.record(request, response)
         }
 }

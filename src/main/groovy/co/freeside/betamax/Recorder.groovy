@@ -110,6 +110,7 @@ class Recorder implements MethodRule {
 	}
 
 	private StorableTape tape
+        private StorableTape reconciliationTape
 	private final HttpInterceptor proxy = new ProxyServer(this)
 
 	/**
@@ -130,6 +131,15 @@ class Recorder implements MethodRule {
 	 */
 	Tape getTape() {
 		tape
+	}
+
+        /**
+	 * Gets the reconciliation error tape for the active tape, if
+         * the active tape's mode is RECONCILE.
+	 * @return the reconciliation tape for the current tape..
+	 */
+	Tape getReconciliationTape() {
+		reconciliationTape
 	}
 
 	/**

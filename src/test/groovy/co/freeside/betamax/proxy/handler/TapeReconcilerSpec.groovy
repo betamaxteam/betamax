@@ -15,8 +15,7 @@ class TapeReconcilerSpec extends Specification {
 
 	Recorder recorder = Mock(Recorder)
         TargetConnector connector = Mock(TargetConnector)
-        ResponseMatcher responseMatcher = Mock(ResponseMatcher)
-	TapeReconciler handler = new TapeReconciler(recorder, connector, responseMatcher)
+       	TapeReconciler handler = new TapeReconciler(recorder, connector)
 	Request request = new BasicRequest()
 	Response response = new RecordedResponse()
 
@@ -50,7 +49,6 @@ class TapeReconcilerSpec extends Specification {
                 result.is(response)
         }
 
-        @Ignore('Have to add the overloaded tape.seek(...) method')
         void 'return response if live response matched taped response'() {
                 given:
                 connector.handle(request) >> response
@@ -59,6 +57,7 @@ class TapeReconcilerSpec extends Specification {
                 def tape = Mock(Tape)
                 recorder.tape >> tape
                 tape.mode >> TapeMode.RECONCILE
+                tape.seek(request) >> true
                 tape.seek(request, response) >> true
 
                 when:
@@ -75,7 +74,6 @@ class TapeReconcilerSpec extends Specification {
                 0 * tape.recordReconciliationError(request, response)
         }
 
-        @Ignore('Have to add the overloaded tape.seek(...) method')
         void 'writes reconciliation error and throws exception if live response didn\'t match taped response'() {
                 given:
                 connector.handle(request) >> response
@@ -83,7 +81,8 @@ class TapeReconcilerSpec extends Specification {
                 def tape = Mock(Tape)
                 recorder.tape >> tape
                 tape.mode >> TapeMode.RECONCILE
-                tape.seek(request, response) >> false
+                tape.seek(request) >> true // Found a taped response
+                tape.seek(request, response) >> false // But it didn't match
 
                 when:
                 handler.handle(request)

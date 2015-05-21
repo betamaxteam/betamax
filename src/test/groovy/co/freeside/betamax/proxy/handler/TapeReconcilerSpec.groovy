@@ -77,8 +77,6 @@ class TapeReconcilerSpec extends Specification {
         }
 
         void 'writes reconciliation error and throws exception if live response didn\'t match taped response'() {
-                println("Running test, request is $request, response is $response")
-
                 given:
                 connector.handle(request) >> response
 

@@ -24,7 +24,7 @@ import co.freeside.betamax.util.*
 import org.junit.rules.MethodRule
 import org.junit.runners.model.*
 import org.yaml.snakeyaml.introspector.PropertyUtils
-import static TapeMode.READ_WRITE
+import static TapeMode.*
 import static co.freeside.betamax.MatchRule.*
 import static java.util.Collections.EMPTY_MAP
 /**
@@ -122,7 +122,13 @@ class Recorder implements MethodRule {
 		tape = tapeLoader.loadTape(name)
 		tape.mode = arguments.mode ?: defaultMode
 		tape.matchRules = arguments.match ?: [method, uri]
-		tape
+
+                if(tape.mode == RECONCILE) {
+                  reconciliationTape = tapeLoader.loadTape(name + ".reconciliation-errors")
+                } else {
+                  reconciliationTape = null
+                }
+                tape
 	}
 
 	/**
@@ -147,10 +153,14 @@ class Recorder implements MethodRule {
 	 * will no longer record or play back any HTTP traffic until another tape is inserted.
 	 */
 	void ejectTape() {
-		if (tape) {
+         	if (tape) {
 			tapeLoader.writeTape(tape)
                        	tape = null
 		}
+                if (reconciliationTape) {
+                        tapeLoader.writeTape(reconciliationTape)
+                        reconciliationTape = null
+                }
 	}
 
 	/**

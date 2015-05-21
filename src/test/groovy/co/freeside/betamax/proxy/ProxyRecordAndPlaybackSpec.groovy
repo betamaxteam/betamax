@@ -4,9 +4,13 @@ import co.freeside.betamax.Recorder
 import co.freeside.betamax.proxy.jetty.*
 import co.freeside.betamax.util.httpbuilder.BetamaxRESTClient
 import co.freeside.betamax.util.server.EchoHandler
+import co.freeside.betamax.util.server.HelloHandler
 import groovyx.net.http.RESTClient
+import groovyx.net.http.HttpResponseException
 import org.yaml.snakeyaml.Yaml
 import spock.lang.*
+import co.freeside.betamax.TapeMode
+import co.freeside.betamax.tape.yaml.YamlTapeLoader
 import static co.freeside.betamax.util.FileUtils.newTempDir
 import static java.net.HttpURLConnection.HTTP_OK
 
@@ -114,5 +118,30 @@ interactions:
 		response.statusLine.statusCode == HTTP_OK
 		response.data.text == 'O HAI!'
 	}
+
+        void 'writes reconciliation tape on eject, if necessary and in RECONCILE mode'() {
+                given:
+                proxy.stop()
+		endpoint.start(HelloHandler)
+                recorder.insertTape('proxy record and playback spec', [mode : TapeMode.RECONCILE])
+                def reconciliationTape = recorder.reconciliationTape
+                reconciliationTape.size() == 0
+                proxy.start()
+
+                when:
+                http.get(path: '/')
+
+                then:
+                def e = thrown(HttpResponseException)
+                e != null
+
+                reconciliationTape.name == recorder.tape.name + ".reconciliation-errors"
+                reconciliationTape.size() == 1
+
+                and:
+                recorder.ejectTape()
+                def file = new YamlTapeLoader(recorder.tapeRoot).fileFor(reconciliationTape.name)
+                file.exists() == true
+        }
 
 }

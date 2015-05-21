@@ -43,7 +43,7 @@ class YamlTapeLoader implements TapeLoader<YamlTape> {
             log.info "loaded tape with ${tape.size()} recorded interactions from file $file.name..."
             tape
         } else {
-            new YamlTape(name: name)
+          new YamlTape(name: name)
         }
     }
 

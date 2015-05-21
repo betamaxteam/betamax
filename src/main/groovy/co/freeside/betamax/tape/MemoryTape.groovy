@@ -33,7 +33,8 @@ class MemoryTape implements Tape {
 	List<RecordedInteraction> interactions = []
 	private TapeMode mode = READ_WRITE
 	private Comparator<Request>[] matchRules = [method, uri]
-
+        private Comparator<Response>[] responseMatchRules = [response, body]
+	
 	void setMode(TapeMode mode) {
 		this.mode = mode
 	}
@@ -59,8 +60,8 @@ class MemoryTape implements Tape {
 	}
 
 
-	boolean seek(Request request) {
-		findMatch(request) >= 0
+        boolean seek(Request request, Response response) {
+	  findMatch(request, response) >= 0
 	}
 
 	Response play(Request request) {
@@ -100,10 +101,12 @@ class MemoryTape implements Tape {
 		"Tape[$name]"
 	}
 
-	private synchronized int findMatch(Request request) {
+        private synchronized int findMatch(Request request, Response response) {
 		def requestMatcher = new RequestMatcher(request, matchRules)
+		def responseMatcher = new ResponseMatcher(response, responseMatchRules)
 		interactions.findIndexOf {
 			requestMatcher.matches(it.request)
+			responseMatcher.matches(it.response)
 		}
 	}
 

@@ -59,7 +59,7 @@ interface Tape {
 	 * @param request the HTTP request to match.
 	 * @return `true` if a matching recorded interaction was found, `false` otherwise.
 	 */
-	boolean seek(Request request)
+        boolean seek(Request request, Response response)
 
 	/**
 	 * Retrieves a previously recorded response that matches the request.

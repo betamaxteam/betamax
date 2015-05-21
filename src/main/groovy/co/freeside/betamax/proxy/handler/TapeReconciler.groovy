@@ -37,6 +37,42 @@ class TapeReconciler extends ChainedHttpHandler {
                     throw new NoSuchTapedRequestException()
                   }
 
+                  /*
+
+                     Because we have changed the ResponseMatcher to mirror the RequestMatcher,
+                     this means that we can't inject it into the TapeReconciler...that's not
+                     how RequestMatcher works.  It is used by the tape.  See how tape.seek(request)
+                     works.  We need to implement a tape.seek(request, response) which finds a
+                     matching request and then checks that its response matches the one passed in.
+
+                     Once we have that, we can tell the mock tape that .seek(request, response) >> false
+                     in TapeReconcilerSpec.
+
+                     After that, we'll change tape.recordReconciliationError.  Since we've said we
+                     want to model the reconciliation errors as a tape, we have the question of where
+                     this tape lives.  I was thinking the tape itself, e.g. tape.reconciliationErrorTape,
+                     but now I'm wondering if it should go on the recorder, e.g.
+
+                       recorder.tape
+                       recorder.reconciliationErrorTape
+
+                     Nice symmetry there, can just add the writing of the reconciliationErroTape to
+                     the recorder's ejectTape method, e.g.
+
+                       void ejectTape() {
+                         [tape, reconciliationErrorTape].each {
+	      	           it ? tapeLoader.writeTape(it)
+                         }
+                         tape = null
+                         reconciliationErrorTape = null
+	               }
+
+                     This way, we don't have to add anything special to YamlTape, YamlTapeLoader, etc.
+                     It's just an extra tape!  The Recorder is the main thing that changes, so it's tests
+                     need to cover this.
+
+                   */
+
                   if(!responseMatcher.match(actualResponse, tapedResponse)) {
                     tape.recordReconciliationError(request, actualResponse)
                     throw new ReconciliationException()

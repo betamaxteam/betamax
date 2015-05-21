@@ -20,6 +20,7 @@ import co.freeside.betamax.TapeMode
 import co.freeside.betamax.message.*
 import co.freeside.betamax.message.tape.*
 import org.yaml.snakeyaml.reader.StreamReader
+import co.freeside.betamax.ResponseMatchRule
 import static TapeMode.READ_WRITE
 import static co.freeside.betamax.MatchRule.*
 import static co.freeside.betamax.proxy.jetty.BetamaxProxy.X_BETAMAX
@@ -28,13 +29,12 @@ import static org.apache.http.HttpHeaders.VIA
  * Represents a set of recorded HTTP interactions that can be played back or appended to.
  */
 class MemoryTape implements Tape {
-
-	String name
+       	String name
 	List<RecordedInteraction> interactions = []
 	private TapeMode mode = READ_WRITE
-	private Comparator<Request>[] matchRules = [method, uri]
-        private Comparator<Response>[] responseMatchRules = [response, body]
-	
+      	private Comparator<Request>[] matchRules = [method, uri]
+        private Comparator<Response>[] responseMatchRules = [ResponseMatchRule.status, ResponseMatchRule.body]
+
 	void setMode(TapeMode mode) {
 		this.mode = mode
 	}
@@ -59,6 +59,9 @@ class MemoryTape implements Tape {
 		interactions.size()
 	}
 
+        boolean seek(Request request) {
+	  findMatch(request) >= 0
+	}
 
         boolean seek(Request request, Response response) {
 	  findMatch(request, response) >= 0
@@ -101,12 +104,12 @@ class MemoryTape implements Tape {
 		"Tape[$name]"
 	}
 
-        private synchronized int findMatch(Request request, Response response) {
+        private synchronized int findMatch(Request request, Response response = null) {
 		def requestMatcher = new RequestMatcher(request, matchRules)
 		def responseMatcher = new ResponseMatcher(response, responseMatchRules)
 		interactions.findIndexOf {
-			requestMatcher.matches(it.request)
-			responseMatcher.matches(it.response)
+			requestMatcher.matches(it.request) &&
+			(response ? responseMatcher.matches(it.response) : true)
 		}
 	}
 

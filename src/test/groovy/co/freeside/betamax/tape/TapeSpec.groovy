@@ -79,9 +79,22 @@ class TapeSpec extends Specification {
 		!tape.seek(request)
 	}
 
-	void 'can seek for a previously recorded interaction'() {
+        void 'can seek for a previously recorded interaction'() {
 		expect:
 		tape.seek(getRequest)
+	}
+
+        void 'seeking by request + response'() {
+		expect:
+		tape.seek(getRequest, plainTextResponse)
+	}
+
+        void 'seeking by request + response does not match a request for a different response status'() {
+		given:
+		def response = new BasicResponse(status: 404, reason: 'OK', body: new GzipEncoder().encode('O HAI!', 'UTF-8'))
+
+		expect:
+		!tape.seek(getRequest, response)
 	}
 
 	void 'can read a stored interaction'() {

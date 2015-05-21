@@ -102,12 +102,3 @@ githubPages {
 		}
 	}
 }
-
-test {
-	testLogging {
-		quiet {
-			events 'failed'
-			exceptionFormat 'short'
-		}
-	}
-}

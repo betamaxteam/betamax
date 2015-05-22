@@ -36,20 +36,10 @@ class HttpResponseAdapter extends AbstractMessage implements Response {
 		delegate.addHeader(name, value)
 	}
 
-	boolean hasBody() {
-		body != null
-	}
-
 	InputStream getBodyAsBinary() {
 		if (body == null) {
 			throw new IllegalStateException('cannot read the body of a response that does not have one')
 		}
 		new ByteArrayInputStream(body)
 	}
-
-	@Override
-	Reader getBodyAsText() {
-		new InputStreamReader(bodyAsBinary, charset)
-	}
-
 }

@@ -107,11 +107,11 @@ class MemoryTape implements Tape {
         private synchronized int findMatch(Request request, Response response = null) {
 		def requestMatcher = new RequestMatcher(request, matchRules)
 		def responseMatcher = new ResponseMatcher(response, responseMatchRules)
-		interactions.findIndexOf {
-			requestMatcher.matches(it.request) &&
-			(response ? responseMatcher.matches(it.response) : true)
+		interactions.findIndexOf {tapedInteraction ->
+			requestMatcher.matches(tapedInteraction.request) &&
+			(response ? responseMatcher.matches(tapedInteraction.response) : true)
 		}
-	}
+          }
 
 	private static RecordedRequest recordRequest(Request request) {
 		def clone = new RecordedRequest()

@@ -38,12 +38,12 @@ abstract class RecordedMessage extends AbstractMessage implements Message {
 
 	private AbstractEncoder getEncoder() {
 		switch (getHeader(HttpHeaders.CONTENT_ENCODING)) {
-			case 'gzip':
-				return new GzipEncoder()
+                        case 'gzip':
+                                return new GzipEncoder()
 			case 'deflate':
-				return new DeflateEncoder()
+                		return new DeflateEncoder()
 			default:
-				return new NoOpEncoder()
+                		return new NoOpEncoder()
 		}
 	}
 }

@@ -19,7 +19,7 @@ class TapeReconciler extends ChainedHttpHandler {
         private final TargetConnector connector
 
 	TapeReconciler(Recorder recorder, TargetConnector connector) {
-		this.recorder = recorder
+                this.recorder = recorder
                 this.connector = connector
        	}
 

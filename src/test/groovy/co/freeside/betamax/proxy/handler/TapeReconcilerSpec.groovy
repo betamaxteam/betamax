@@ -15,7 +15,7 @@ class TapeReconcilerSpec extends Specification {
 
 	Recorder recorder = Mock(Recorder)
         TargetConnector connector = Mock(TargetConnector)
-       	TapeReconciler handler = new TapeReconciler(recorder, connector)
+       	TapeReconciler reconciler = new TapeReconciler(recorder, connector)
 	Request request = new BasicRequest()
 	Response response = new BasicResponse()
 
@@ -24,7 +24,7 @@ class TapeReconcilerSpec extends Specification {
                 recorder.tape >> null
 
 		when:
-		handler.handle(request)
+		reconciler.handle(request)
 
 		then:
 		def e = thrown(ProxyException)
@@ -35,7 +35,7 @@ class TapeReconcilerSpec extends Specification {
                 given:
                 def nextHandler = Mock(HttpHandler)
 		nextHandler.handle(_) >> response
-		handler << nextHandler
+		reconciler << nextHandler
 
                 and:
                 def tape = Mock(Tape)
@@ -43,7 +43,7 @@ class TapeReconcilerSpec extends Specification {
                 tape.getMode() >> TapeMode.READ_ONLY
 
                 when:
-                def result = handler.handle(request)
+                def result = reconciler.handle(request)
 
                 then:
                 result.is(response)
@@ -64,10 +64,10 @@ class TapeReconcilerSpec extends Specification {
                 recorder.reconciliationTape >> reconciliationTape
 
                 when:
-                handler.handle(request)
+                reconciler.handle(request)
 
                 then:
-                def result = handler.handle(request)
+                def result = reconciler.handle(request)
 
 		then:
 		result.is(response)
@@ -91,7 +91,7 @@ class TapeReconcilerSpec extends Specification {
 
 
                 when:
-                handler.handle(request)
+                reconciler.handle(request)
 
                 then:
                 1 * reconciliationTape.record(request, response)
@@ -114,7 +114,7 @@ class TapeReconcilerSpec extends Specification {
                 recorder.reconciliationTape >> reconciliationTape
 
                 when:
-                handler.handle(request)
+                reconciler.handle(request)
 
                 then:
                 def e = thrown(NoSuchTapedRequestException)

@@ -54,6 +54,10 @@ abstract class AbstractMessage implements Message {
 		headers[name]
 	}
 
+  	boolean hasBody() {
+		body != null
+	}
+
 	/**
 	 * A default implementation that decodes the byte stream from `getBodyAsBinary`. Implementations can override this
 	 * if they have a simpler way of doing it.
@@ -67,5 +71,4 @@ abstract class AbstractMessage implements Message {
 		}
 		charset ? new InputStreamReader(stream, charset) : new InputStreamReader(stream)
 	}
-
 }

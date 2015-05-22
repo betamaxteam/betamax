@@ -16,8 +16,8 @@ import java.io.File
 @Stepwise
 class ReconcileModeSpec extends Specification {
 
-	@Shared @AutoCleanup('deleteDir') File tapeRoot = newTempDir('tapes')
-	@Rule Recorder recorder = new Recorder(tapeRoot: tapeRoot)
+        @Shared @AutoCleanup('deleteDir') File tapeRoot = newTempDir('tapes')
+        @Rule Recorder recorder = new Recorder(tapeRoot: tapeRoot)
 
 	@AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
 
@@ -31,7 +31,7 @@ class ReconcileModeSpec extends Specification {
 	@Betamax(tape = 'reconcilemode', mode = WRITE_ONLY)
 	void 'proxy makes a real HTTP request the first time it gets a request for a URI'() {
                 given:
-                endpoint.start(EchoHandler)
+                endpoint.start(HelloHandler)
 
                 when:
 		HttpResponseDecorator response = http.get(uri: endpoint.url)
@@ -42,16 +42,16 @@ class ReconcileModeSpec extends Specification {
 		recorder.tape.size() == 1
 	}
 
-        @Ignore('Need to fix')
         @Betamax(tape = 'reconcilemode', mode = RECONCILE)
         void 'Reconcile mode plays response and records no errors when live response matches tape'()  {
                 given:
-                endpoint.start(EchoHandler)
+                endpoint.start(HelloHandler)
 
                 when:
 		HttpResponseDecorator response = http.get(uri: endpoint.url)
 
 		then:
+                notThrown(HttpResponseException)
                 response.status == HTTP_OK
                 reconciliationErrorFile().exists() == false
         }

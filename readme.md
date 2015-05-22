@@ -1,3 +1,6 @@
+# NOTE - This is a Banno-specific fork of Betamax.
+See additional Banno-specific notes at the end of this document.
+
 # &beta;etamax [![Build Status](https://secure.travis-ci.org/robfletcher/betamax.png?branch=master)](http://travis-ci.org/robfletcher/betamax)
 
 Betamax is a tool for mocking external HTTP resources such as web services and REST APIs in your tests. The project was inspired by the [VCR][vcr] library for Ruby.
@@ -52,3 +55,34 @@ Please get in touch if you have any  feedback. You can raise defects and feature
 
 Go to _Settings -> Compiler_ and ensure that `*.keystore` appears in the _Resource patterns_ otherwise IDEA will not
 make the SSL keystore available on the classpath when tests run.
+
+## Banno Notes
+
+We've forked Betamax because it hasn't had a commit by the maintainer since June 2014, nor a release since 2012.  We needed some features so we forked from the 1.1.2 release.
+
+## New Features
+
+### Request Matching Doesn't Fail if Body is Empty
+
+### Groovy, Gradle and Other Dependencies Upgraded
+
+### New Tape Mode: Reconcile
+
+We periodically want to check our tapes against the live services, such as JxChange, to detect breaking changes on their end.  To this end we created a new tape mode, 'RECONCILE', which sends all requests to the live server and then looks for matching requests on the tape, and compares the responses using the new ResponseMatcher and ResponseMatchRule(s).  If they match, the test passes as normal.  If the response from the server is different from the taped one, the interaction is written to a 'reconciliation error tape' whose name will be the regular tape name plus '_reconciliation_errors', e.g. 'my_spec_reconciliation_errors.yaml'.  A Jenkins job can therefore fail on the presence of such files.
+
+Responses are unlikely to match exactly.  To handle this, we have an XmlAwareResponseBodyMatchRule which ignores the values in certain elements, e.g.
+
+```scala
+new XmlAwareResponseBodyMatchRule("trackingId", "timestamp")
+```
+
+This would ignore values inside <trackingId> and <timestamp> elements.  If more sophisticated checks are needed, simply implement more rules.
+
+### Banno Fork Development Notes
+
+- This project is written in Groovy and uses Gradle for builds.  './gradlew' is the wrapper script to run, and it will install Groovy and Gradle for you.
+- To build, run './gradlew clean test' (or whatever goals you need).
+- To release, run './gradlew clean test uploadArchives'.  You'll be prompted for Nexus credentials.
+- To be compatible with Java 1.7, we must build under 1.7 to avoid an error due to Groovy leveraging new 1.8 things such as ToIntFunction.
+- The version number has the '-banno' suffix, e.g. '1.1.2-banno-SNAPSHOT'
+- See Brian H. if you have other questions.

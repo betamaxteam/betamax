@@ -14,10 +14,17 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN
 class TapeReconcilerSpec extends Specification {
 
 	Recorder recorder = Mock(Recorder)
+        ChainedHttpHandler nextHandlerForReconciler = Mock(ChainedHttpHandler)
         TargetConnector connector = Mock(TargetConnector)
-       	TapeReconciler reconciler = new TapeReconciler(recorder, connector)
+        HeaderFilter filterAndConnector = new HeaderFilter()
+
+        TapeReconciler reconciler = new TapeReconciler(recorder, filterAndConnector)
 	Request request = new BasicRequest()
 	Response response = new BasicResponse()
+
+        def setup() {
+          filterAndConnector << connector
+        }
 
        	void 'throws an exception if there is no tape inserted'() {
 		given:

@@ -16,11 +16,11 @@ class TapeReconciler extends ChainedHttpHandler {
 	private static final Logger log = Logger.getLogger(TapeReconciler.name)
 
         private final Recorder recorder
-        private final TargetConnector connector
+        private final HeaderFilter headerFilter
 
-	TapeReconciler(Recorder recorder, TargetConnector connector) {
+	TapeReconciler(Recorder recorder, HeaderFilter headerFilter) {
                 this.recorder = recorder
-                this.connector = connector
+                this.headerFilter = headerFilter
        	}
 
 	Response handle(Request request) {
@@ -28,7 +28,7 @@ class TapeReconciler extends ChainedHttpHandler {
 		if (!tape) {
 			throw new ProxyException(HTTP_FORBIDDEN, 'No tape')
 		} else if (tape.mode == TapeMode.RECONCILE) {
-                  def actualResponse = connector.handle(request)
+                  def actualResponse = headerFilter.chain(request)
 
                   if (!tape.seek(request)) {
                     throw new NoSuchTapedRequestException()

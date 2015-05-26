@@ -10,6 +10,7 @@
 *~
 **/build
 target/
+log.txt
 
 /examples/grails-betamax/target/
 *.log

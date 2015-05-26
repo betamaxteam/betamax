@@ -46,9 +46,12 @@ class ProxyServer extends SimpleServer implements HttpInterceptor {
 
 		def handler = new BetamaxProxy()
                 def connector = new TargetConnector(newHttpClient(recorder))
-                HeaderFilter filterAndConnector = (new HeaderFilter() << connector)
+                def filterAndConnector = new HeaderFilter()
                 def writer = new TapeWriter(recorder)
                 def reader = new TapeReader(recorder)
+
+                filterAndConnector << connector
+
                 def reconciler = new TapeReconciler(recorder, filterAndConnector)
 
 		handler << reconciler << reader << writer << filterAndConnector

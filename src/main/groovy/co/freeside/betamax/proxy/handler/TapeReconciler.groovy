@@ -28,6 +28,7 @@ class TapeReconciler extends ChainedHttpHandler {
 		if (!tape) {
 			throw new ProxyException(HTTP_FORBIDDEN, 'No tape')
 		} else if (tape.mode == TapeMode.RECONCILE) {
+                  println("------------------------------------------- Using filter...")
                   def actualResponse = headerFilter.chain(request)
 
                   if (!tape.seek(request)) {

@@ -2,6 +2,7 @@ package co.freeside.betamax.compatibility
 
 import co.freeside.betamax.Betamax
 import co.freeside.betamax.Recorder
+import co.freeside.betamax.TrustModifier
 import co.freeside.betamax.proxy.jetty.SimpleServer
 import co.freeside.betamax.util.server.EchoHandler
 import co.freeside.betamax.util.server.HelloHandler
@@ -23,7 +24,6 @@ class HttpURLConnectionSpec extends Specification {
 	@Rule Recorder recorder = new Recorder(tapeRoot: tapeRoot, defaultMode: WRITE_ONLY, sslSupport: true)
 	@Shared @AutoCleanup('stop') SimpleServer endpoint = new SimpleServer()
 	@Shared @AutoCleanup('stop') SimpleServer httpsEndpoint = new SimpleSecureServer(5001)
-
 	void setupSpec() {
 		endpoint.start(EchoHandler)
 		httpsEndpoint.start(HelloHandler)
@@ -48,6 +48,7 @@ class HttpURLConnectionSpec extends Specification {
 	void 'proxy intercepts HTTPS requests'() {
 		when:
 		HttpURLConnection connection = httpsEndpoint.url.toURL().openConnection()
+                new TrustModifier().relaxHostChecking(connection)
 
 		then:
 		connection.responseCode == SC_OK

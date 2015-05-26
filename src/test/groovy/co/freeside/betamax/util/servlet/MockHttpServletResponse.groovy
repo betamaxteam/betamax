@@ -42,10 +42,15 @@ class MockHttpServletResponse implements HttpServletResponse {
 		headers[name]?.join(', ')
 	}
 
-	final Enumeration getHeaders(String name) {
-		def itr = headers.containsKey(name) ? headers[name].iterator() : EmptyIterator.INSTANCE
-		new IteratorEnumeration(itr)
+        @Override
+	final Collection getHeaders(String name) {
+		headers[name] ? headers[name] : []
 	}
+
+        @Override
+        final Collection getHeaderNames() {
+          headers.getKeys()
+        }
 
 	@Override
 	final boolean containsHeader(String name) {

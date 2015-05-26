@@ -47,6 +47,7 @@ class WsLiteSpec extends Specification {
 	void 'proxy intercepts HTTPS requests'() {
 		given: 'a properly configured wslite instance'
 		def http = new RESTClient(httpsEndpoint.url)
+                http.httpClient.sslTrustAllCerts = true
 
 		when: 'a request is made'
 		def response = http.get(path: '/', proxy: recorder.proxy)

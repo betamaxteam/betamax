@@ -1,19 +1,19 @@
 apply plugin: 'groovy'
 apply plugin: 'codenarc'
-apply plugin: 'nexus'
-apply plugin: 'github-pages'
+apply plugin: 'com.bmuschko.nexus'
+apply plugin: 'org.ajoberstar.github-pages'
 
 buildscript {
 	repositories {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.2'
-		classpath 'org.ajoberstar:gradle-git:0.2.0'
+		classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+		classpath 'org.ajoberstar:gradle-git:1.2.0-milestone.1'
 	}
 }
 
-version = '1.1.2-banno'
+version = "1.1.2-banno-SNAPSHOT"
 group = 'co.freeside'
 archivesBaseName = 'betamax'
 
@@ -21,14 +21,19 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	groovy 'org.codehaus.groovy:groovy-all:2.3.0:indy'
+nexus {
+  repositoryUrl  "http://nexus.banno.com/nexus/content/repositories/releases/"
+  snapshotRepositoryUrl "http://nexus.banno.com/nexus/content/repositories/snapshots/"
 
-	compile 'junit:junit:4.10',
+}
+
+dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.3.0:indy',
+        'junit:junit:4.10',
         'org.yaml:snakeyaml:1.13',
-        'org.apache.httpcomponents:httpclient:4.2.1',
+        'org.apache.httpcomponents:httpclient:4.3.6',
         'commons-lang:commons-lang:2.6',
-        'org.eclipse.jetty:jetty-server:7.3.1.v20110307'
+        'org.eclipse.jetty:jetty-server:8.1.2.v20120308'
 
 	testCompile('org.codehaus.groovy.modules.http-builder:http-builder:0.7.1') {
 		exclude module: 'groovy'

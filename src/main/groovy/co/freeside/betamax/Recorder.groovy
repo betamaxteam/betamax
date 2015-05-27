@@ -119,12 +119,13 @@ class Recorder implements MethodRule {
 	 * @param arguments customize the behaviour of the tape.
 	 */
 	void insertTape(String name, Map arguments = [:]) {
-		tape = tapeLoader.loadTape(name)
+                tape = tapeLoader.loadTape(name)
 		tape.mode = arguments.mode ?: defaultMode
 		tape.matchRules = arguments.match ?: [method, uri]
 
                 if(tape.mode == RECONCILE) {
                   reconciliationTape = tapeLoader.loadTape(name + ".reconciliation-errors")
+                  reconciliationTape.matchRules = arguments.match ?: [method, uri]
                 } else {
                   reconciliationTape = null
                 }

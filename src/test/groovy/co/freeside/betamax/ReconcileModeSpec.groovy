@@ -17,6 +17,7 @@ import static co.freeside.betamax.util.FileUtils.newTempDir
 import static java.net.HttpURLConnection.HTTP_OK
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import static org.apache.http.HttpHeaders.VIA
+import static co.freeside.betamax.MatchRule.*
 import java.io.File
 
 @Stepwise
@@ -28,21 +29,25 @@ class ReconcileModeSpec extends Specification {
 
 	@Shared RESTClient http = new BetamaxRESTClient()
 
-	@Betamax(tape = 'reconcilemode', mode = WRITE_ONLY)
+	@Betamax(tape = 'reconcilemode', mode = WRITE_ONLY, match = [method, uri, headers])
 	void 'proxy makes a real HTTP request the first time it gets a request for a URI'() {
                 given:
                 endpoint.start(HelloHandler)
 
                 when:
-		HttpResponseDecorator response = http.get(uri: endpoint.url)
+		List<HttpResponseDecorator> responses = ["", "?q=bar"].collect {http.get(uri: endpoint.url + it)}
+                responses << http.get(uri: endpoint.url, headers: ["header1" : "value1"])
 
 		then:
-                response.status == HTTP_OK
-                response.getFirstHeader(VIA)?.value == 'Betamax'
-		recorder.tape.size() == 1
-	}
+                responses.each {
+                  it.status == HTTP_OK
+                  it.getFirstHeader(VIA)?.value == 'Betamax'
+                }
 
-        @Betamax(tape = 'reconcilemode', mode = RECONCILE)
+		recorder.tape.size() == responses.size
+        }
+
+        @Betamax(tape = 'reconcilemode', mode = RECONCILE, match = [method, uri, headers])
         void 'Reconcile mode plays response and records no errors when live response matches tape'()  {
                 given:
                 endpoint.start(HelloHandler)
@@ -56,8 +61,8 @@ class ReconcileModeSpec extends Specification {
                 tapeFile(recorder.reconciliationTape).exists() == false
         }
 
-        @Betamax(tape = 'reconcilemode', mode = RECONCILE)
-        void 'Reconcile mode records reconciliation error tape when live response doesn\'t match taped response for the matching request'() {
+        @Betamax(tape = 'reconcilemode', mode = RECONCILE, match = [method, uri, headers])
+        void 'Reconcile mode records reconciliation error tape when live response doesn\'t match taped response for the matching request (and uses same match rules as normal tape)'() {
                given:
                endpoint.start(EchoHandler) // Gives different response for same uri
 
@@ -65,17 +70,26 @@ class ReconcileModeSpec extends Specification {
                http.get(uri: endpoint.url)
 
                then:
-               def e = thrown(HttpResponseException)
-               e.statusCode == HTTP_INTERNAL_ERROR
+               def e1 = thrown(HttpResponseException)
+               e1.statusCode == HTTP_INTERNAL_ERROR
+
+               when:
+               http.get(uri: endpoint.url, headers: ["header1" : "value1"])
+
+               then:
+               def e2 = thrown(HttpResponseException)
+               e2.statusCode == HTTP_INTERNAL_ERROR
+
 
                def recErrTape = recordedReconciliationTape()
-               recErrTape.size() == 1
+               recErrTape.size() == 2
 
                // The unmatched response body was from the echo handler
-               recErrTape.interactions[0].response.bodyAsText.text =~ /User-Agent/
+               recErrTape.interactions.each {it.response.bodyAsText.text =~ /User-Agent/}
         }
 
-        @Betamax(tape = 'reconcilemode', mode = RECONCILE)
+
+        @Betamax(tape = 'reconcilemode', mode = RECONCILE, match = [method, uri, headers])
         void 'Reconcile mode produces error if no matching request found'()   {
           given:
           endpoint.start(HelloHandler)

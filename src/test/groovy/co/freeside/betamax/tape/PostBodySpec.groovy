@@ -35,7 +35,6 @@ class PostBodySpec extends Specification {
 		connection.outputStream.withStream { stream ->
 			stream << postBody.getBytes('UTF-8')
 		}
-		println connection.inputStream.text
 
 		and:
 		recorder.stopProxy()

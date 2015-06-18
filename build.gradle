@@ -13,7 +13,7 @@ buildscript {
 	}
 }
 
-version = "1.1.2-banno-SNAPSHOT"
+version = "1.1.2-banno"
 group = 'co.freeside'
 archivesBaseName = 'betamax'
 

@@ -95,7 +95,7 @@ modifyPom {
 }
 
 nexus {
-	sign = true
+	sign = false 
 }
 
 codenarc {

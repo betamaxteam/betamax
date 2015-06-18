@@ -15,16 +15,11 @@ class TapeReconcilerSpec extends Specification {
 
 	Recorder recorder = Mock(Recorder)
         ChainedHttpHandler nextHandlerForReconciler = Mock(ChainedHttpHandler)
-        TargetConnector connector = Mock(TargetConnector)
-        HeaderFilter filterAndConnector = new HeaderFilter()
+        HeaderFilter filterAndConnector = Mock(HeaderFilter)
 
         TapeReconciler reconciler = new TapeReconciler(recorder, filterAndConnector)
 	Request request = new BasicRequest()
 	Response response = new BasicResponse()
-
-        def setup() {
-          filterAndConnector << connector
-        }
 
        	void 'throws an exception if there is no tape inserted'() {
 		given:
@@ -58,7 +53,7 @@ class TapeReconcilerSpec extends Specification {
 
         void 'return response if live response matched taped response'() {
                 given:
-                connector.handle(request) >> response
+                filterAndConnector.handle(request) >> response
 
                 and:
                 def tape = Mock(Tape)
@@ -85,7 +80,7 @@ class TapeReconcilerSpec extends Specification {
 
         void 'writes reconciliation error and throws exception if live response didn\'t match taped response'() {
                 given:
-                connector.handle(request) >> response
+                filterAndConnector.handle(request) >> response
 
                 def tape = Mock(Tape)
                 recorder.tape >> tape
@@ -110,7 +105,7 @@ class TapeReconcilerSpec extends Specification {
 
         void 'throws exception if no taped response found'() {
                 given:
-                connector.handle(request) >> response
+                filterAndConnector.handle(request) >> response
 
                 def tape = Mock(Tape)
                 recorder.tape >> tape

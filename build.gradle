@@ -3,6 +3,12 @@ apply plugin: 'codenarc'
 apply plugin: 'com.bmuschko.nexus'
 apply plugin: 'org.ajoberstar.github-pages'
 
+def currentJvm = org.gradle.internal.jvm.Jvm.current()
+
+if(!(currentJvm ==~ /1\.7\..*/)) {
+  ant.fail("Java version 1.7.x required, found '$currentJvm'")
+}
+
 buildscript {
 	repositories {
 		mavenCentral()

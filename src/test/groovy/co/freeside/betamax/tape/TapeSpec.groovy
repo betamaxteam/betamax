@@ -8,6 +8,7 @@ import co.freeside.betamax.util.message.BasicResponse
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
+import spock.lang.Ignore
 
 import static co.freeside.betamax.TapeMode.*
 import static groovyx.net.http.ContentType.URLENC
@@ -58,7 +59,7 @@ class TapeSpec extends Specification {
 		interaction.response.headers[CONTENT_LANGUAGE] == plainTextResponse.getHeader(CONTENT_LANGUAGE)
 		interaction.response.headers[CONTENT_ENCODING] == plainTextResponse.getHeader(CONTENT_ENCODING)
 	}
-	
+
 	void 'can overwrite a recorded interaction'() {
 		when: 'a recording is made'
 		tape.record(getRequest, plainTextResponse)
@@ -78,9 +79,22 @@ class TapeSpec extends Specification {
 		!tape.seek(request)
 	}
 
-	void 'can seek for a previously recorded interaction'() {
+        void 'can seek for a previously recorded interaction'() {
 		expect:
 		tape.seek(getRequest)
+	}
+
+        void 'seeking by request + response'() {
+		expect:
+		tape.seek(getRequest, plainTextResponse)
+	}
+
+        void 'seeking by request + response does not match a request for a different response status'() {
+		given:
+		def response = new BasicResponse(status: 404, reason: 'OK', body: new GzipEncoder().encode('O HAI!', 'UTF-8'))
+
+		expect:
+		!tape.seek(getRequest, response)
 	}
 
 	void 'can read a stored interaction'() {
@@ -130,5 +144,4 @@ class TapeSpec extends Specification {
 		def e = thrown(IllegalStateException)
 		e.message == 'the tape is not writable'
 	}
-
 }

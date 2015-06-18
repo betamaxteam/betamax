@@ -82,5 +82,4 @@ interactions:
 		tape.interactions[-1].response.status == HTTP_OK
 		tape.interactions[-1].response.body
 	}
-
 }

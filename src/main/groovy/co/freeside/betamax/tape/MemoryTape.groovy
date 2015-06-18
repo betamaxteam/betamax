@@ -20,6 +20,7 @@ import co.freeside.betamax.TapeMode
 import co.freeside.betamax.message.*
 import co.freeside.betamax.message.tape.*
 import org.yaml.snakeyaml.reader.StreamReader
+import co.freeside.betamax.ResponseMatchRule
 import static TapeMode.READ_WRITE
 import static co.freeside.betamax.MatchRule.*
 import static co.freeside.betamax.proxy.jetty.BetamaxProxy.X_BETAMAX
@@ -28,15 +29,19 @@ import static org.apache.http.HttpHeaders.VIA
  * Represents a set of recorded HTTP interactions that can be played back or appended to.
  */
 class MemoryTape implements Tape {
-
-	String name
+       	String name
 	List<RecordedInteraction> interactions = []
 	private TapeMode mode = READ_WRITE
-	private Comparator<Request>[] matchRules = [method, uri]
+      	private Comparator<Request>[] matchRules = [method, uri]
+        private Comparator<Response>[] responseMatchRules = [ResponseMatchRule.status, ResponseMatchRule.body]
 
 	void setMode(TapeMode mode) {
 		this.mode = mode
 	}
+
+        TapeMode getMode() {
+                this.mode
+        }
 
 	void setMatchRules(Comparator<Request>[] matchRules) {
 		this.matchRules = matchRules
@@ -54,9 +59,12 @@ class MemoryTape implements Tape {
 		interactions.size()
 	}
 
+        boolean seek(Request request) {
+	  findMatch(request) >= 0
+	}
 
-	boolean seek(Request request) {
-		findMatch(request) >= 0
+        boolean seek(Request request, Response response) {
+	  findMatch(request, response) >= 0
 	}
 
 	Response play(Request request) {
@@ -96,12 +104,14 @@ class MemoryTape implements Tape {
 		"Tape[$name]"
 	}
 
-	private synchronized int findMatch(Request request) {
+        private synchronized int findMatch(Request request, Response response = null) {
 		def requestMatcher = new RequestMatcher(request, matchRules)
-		interactions.findIndexOf {
-			requestMatcher.matches(it.request)
+		def responseMatcher = new ResponseMatcher(response, responseMatchRules)
+		interactions.findIndexOf {tapedInteraction ->
+			requestMatcher.matches(tapedInteraction.request) &&
+			(response ? responseMatcher.matches(tapedInteraction.response) : true)
 		}
-	}
+          }
 
 	private static RecordedRequest recordRequest(Request request) {
 		def clone = new RecordedRequest()
@@ -145,6 +155,8 @@ class MemoryTape implements Tape {
 		!(s =~ StreamReader.NON_PRINTABLE)
 	}
 
+        void recordReconciliationError(Request request, Response response) {}
+
 }
 
 class RecordedInteraction {
@@ -152,5 +164,3 @@ class RecordedInteraction {
 	RecordedRequest request
 	RecordedResponse response
 }
-
-

@@ -24,7 +24,7 @@ import co.freeside.betamax.message.Response
  */
 interface Tape {
 
-	/**
+  	/**
 	 * @return The name of the tape.
 	 */
 	String getName()
@@ -33,6 +33,11 @@ interface Tape {
 	 * @param mode the new record mode of the tape.
 	 */
 	void setMode(TapeMode mode)
+
+        /**
+         * expose mode field
+         */
+        TapeMode getMode()
 
 	/**
 	 * @return `true` if the tape is readable, `false` otherwise.
@@ -54,7 +59,15 @@ interface Tape {
 	 * @param request the HTTP request to match.
 	 * @return `true` if a matching recorded interaction was found, `false` otherwise.
 	 */
-	boolean seek(Request request)
+        boolean seek(Request request)
+
+	/**
+	 * Attempts to find a recorded interaction on the tape that matches the supplied request and response.
+	 * @param request the HTTP request to match.
+         * @param response the HTTP response to match.
+	 * @return `true` if a matching recorded interaction was found, `false` otherwise.
+	 */
+        boolean seek(Request request, Response response)
 
 	/**
 	 * Retrieves a previously recorded response that matches the request.

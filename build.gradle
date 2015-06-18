@@ -1,19 +1,25 @@
 apply plugin: 'groovy'
 apply plugin: 'codenarc'
-apply plugin: 'nexus'
-apply plugin: 'github-pages'
+apply plugin: 'com.bmuschko.nexus'
+apply plugin: 'org.ajoberstar.github-pages'
+
+def currentJvm = org.gradle.internal.jvm.Jvm.current()
+
+if(!(currentJvm ==~ /1\.7\..*/)) {
+  ant.fail("Java version 1.7.x required, found '$currentJvm'")
+}
 
 buildscript {
 	repositories {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.2'
-		classpath 'org.ajoberstar:gradle-git:0.2.0'
+		classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+		classpath 'org.ajoberstar:gradle-git:1.2.0-milestone.1'
 	}
 }
 
-version = '1.1.2-banno'
+version = "1.1.2-banno"
 group = 'co.freeside'
 archivesBaseName = 'betamax'
 
@@ -21,14 +27,19 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	groovy 'org.codehaus.groovy:groovy-all:2.3.0:indy'
+nexus {
+  repositoryUrl  "http://nexus.banno.com/nexus/content/repositories/releases/"
+  snapshotRepositoryUrl "http://nexus.banno.com/nexus/content/repositories/snapshots/"
 
-	compile 'junit:junit:4.10',
+}
+
+dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.3.0:indy',
+        'junit:junit:4.10',
         'org.yaml:snakeyaml:1.13',
-        'org.apache.httpcomponents:httpclient:4.2.1',
+        'org.apache.httpcomponents:httpclient:4.3.6',
         'commons-lang:commons-lang:2.6',
-        'org.eclipse.jetty:jetty-server:7.3.1.v20110307'
+        'org.eclipse.jetty:jetty-server:8.1.2.v20120308'
 
 	testCompile('org.codehaus.groovy.modules.http-builder:http-builder:0.7.1') {
 		exclude module: 'groovy'
@@ -39,9 +50,10 @@ dependencies {
 		exclude module: 'junit-dep'
 	}
 	testCompile 'commons-httpclient:commons-httpclient:3.1',
-				'com.github.groovy-wslite:groovy-wslite:0.7.1'
+		    'com.github.groovy-wslite:groovy-wslite:0.7.1'
 
-	testRuntime 'cglib:cglib-nodep:3.1'
+        testRuntime 'cglib:cglib-nodep:3.1',
+                    'org.objenesis:objenesis:2.1'
 }
 
 modifyPom {
@@ -98,15 +110,6 @@ githubPages {
 		exclude '**/_site/**'
 		from('src/docs') {
 			exclude '**/*.less'
-		}
-	}
-}
-
-test {
-	testLogging {
-		quiet {
-			events 'failed'
-			exceptionFormat 'short'
 		}
 	}
 }

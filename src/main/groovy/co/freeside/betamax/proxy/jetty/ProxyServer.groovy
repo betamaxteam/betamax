@@ -45,11 +45,16 @@ class ProxyServer extends SimpleServer implements HttpInterceptor {
 		port = recorder.proxyPort
 
 		def handler = new BetamaxProxy()
-		handler <<
-				new TapeReader(recorder) <<
-				new TapeWriter(recorder) <<
-				new HeaderFilter() <<
-				new TargetConnector(newHttpClient(recorder))
+                def connector = new TargetConnector(newHttpClient(recorder))
+                def filterAndConnector = new HeaderFilter()
+                def writer = new TapeWriter(recorder)
+                def reader = new TapeReader(recorder)
+
+                filterAndConnector << connector
+
+                def reconciler = new TapeReconciler(recorder, filterAndConnector)
+
+		handler << reconciler << reader << writer << filterAndConnector
 
 		def connectHandler = new CustomConnectHandler(handler, port + 1)
 
@@ -127,4 +132,3 @@ class ProxyServer extends SimpleServer implements HttpInterceptor {
 	}
 
 }
-

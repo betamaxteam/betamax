@@ -24,7 +24,7 @@ import co.freeside.betamax.util.*
 import org.junit.rules.MethodRule
 import org.junit.runners.model.*
 import org.yaml.snakeyaml.introspector.PropertyUtils
-import static TapeMode.READ_WRITE
+import static TapeMode.*
 import static co.freeside.betamax.MatchRule.*
 import static java.util.Collections.EMPTY_MAP
 /**
@@ -110,6 +110,7 @@ class Recorder implements MethodRule {
 	}
 
 	private StorableTape tape
+        private StorableTape reconciliationTape
 	private final HttpInterceptor proxy = new ProxyServer(this)
 
 	/**
@@ -118,10 +119,17 @@ class Recorder implements MethodRule {
 	 * @param arguments customize the behaviour of the tape.
 	 */
 	void insertTape(String name, Map arguments = [:]) {
-		tape = tapeLoader.loadTape(name)
+                tape = tapeLoader.loadTape(name)
 		tape.mode = arguments.mode ?: defaultMode
 		tape.matchRules = arguments.match ?: [method, uri]
-		tape
+
+                if(tape.mode == RECONCILE) {
+                  reconciliationTape = tapeLoader.loadTape(name + ".reconciliation-errors")
+                  reconciliationTape.matchRules = arguments.match ?: [method, uri]
+                } else {
+                  reconciliationTape = null
+                }
+                tape
 	}
 
 	/**
@@ -132,15 +140,28 @@ class Recorder implements MethodRule {
 		tape
 	}
 
+        /**
+	 * Gets the reconciliation error tape for the active tape, if
+         * the active tape's mode is RECONCILE.
+	 * @return the reconciliation tape for the current tape..
+	 */
+	Tape getReconciliationTape() {
+		reconciliationTape
+	}
+
 	/**
 	 * 'Ejects' the current _tape_, writing its content to file. If the proxy is active after calling this method it
 	 * will no longer record or play back any HTTP traffic until another tape is inserted.
 	 */
 	void ejectTape() {
-		if (tape) {
+         	if (tape) {
 			tapeLoader.writeTape(tape)
-			tape = null
+                       	tape = null
 		}
+                if (reconciliationTape) {
+                        tapeLoader.writeTape(reconciliationTape)
+                        reconciliationTape = null
+                }
 	}
 
 	/**

@@ -35,7 +35,12 @@ class PostBodySpec extends Specification {
 		connection.outputStream.withStream { stream ->
 			stream << postBody.getBytes('UTF-8')
 		}
-		println connection.inputStream.text
+
+                // This println is necessary for this test to pass.
+                // I believe this is because the connection is lazy and
+                // doesn't do the POST until we evaluate the response
+                // (inputStream.text) - BJH
+                println connection.inputStream.text
 
 		and:
 		recorder.stopProxy()

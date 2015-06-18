@@ -63,5 +63,4 @@ class TapeWriterSpec extends Specification {
 		def e = thrown(ProxyException)
 		e.httpStatus == HTTP_FORBIDDEN
 	}
-
 }

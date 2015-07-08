@@ -5,6 +5,20 @@ apply plugin: 'org.ajoberstar.github-pages'
 
 def currentJvm = org.gradle.internal.jvm.Jvm.current()
 
+Map<String, String> readNexusCredentials() {
+  String userHome = System.getProperty("user.home")
+  File f = new File("$userHome/.ivy2/.banno_credentials")
+  if(f.exists()) {
+    f.readLines().inject([:]) {map, line ->
+      String[] entry = line.split("=")
+      map.put(entry[0].trim(), entry[1].trim())
+      map
+    }
+  } else {
+    throw new RuntimeException("No credentials file found (${f.getAbsolutePath()})")
+  }
+}
+
 if(!(currentJvm ==~ /1\.7\..*/)) {
   ant.fail("Java version 1.7.x required, found '$currentJvm'")
 }
@@ -94,8 +108,15 @@ modifyPom {
 	}
 }
 
+// Sets project properties used by nexus
+ext {
+  nexusCredentials = readNexusCredentials()
+  nexusUsername = nexusCredentials["user"]
+  nexusPassword = nexusCredentials["password"]
+}
+
 nexus {
-	sign = false 
+	sign = false
 }
 
 codenarc {

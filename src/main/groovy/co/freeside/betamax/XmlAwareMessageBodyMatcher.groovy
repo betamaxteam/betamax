@@ -1,19 +1,19 @@
 package co.freeside.betamax
 
-import co.freeside.betamax.message.Response
+import co.freeside.betamax.message.Message
 
 /**
- * A rule for matching response bodies
+ * A rule for matching message bodies
  * while ignoring specified xml elements.
  */
-class XmlAwareResponseBodyMatcher implements Comparator<Response> {
+class XmlAwareMessageBodyMatcher implements Comparator<Message> {
   List<String> xmlElementNames = []
 
-  XmlAwareResponseBodyMatcher(String... xmlElementNames) {
+    XmlAwareMessageBodyMatcher(String... xmlElementNames) {
     this.xmlElementNames = xmlElementNames
   }
 
-  int compare(Response a, Response b) {
+  int compare(Message a, Message b) {
     (a.hasBody() ? cleanse(a.bodyAsText.text) : null) <=>
     (b.hasBody() ? cleanse(b.bodyAsText.text) : null)
   }

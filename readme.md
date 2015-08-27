@@ -22,7 +22,7 @@ _Tapes_ are just [YAML][yaml] files so you can edit them with a text editor, com
 
 ## Full documentation
 
-Full documentation can be found on [Betamax's home page][home].
+	Full documentation can be found on [Betamax's home page][home].
 
 ## Project status
 
@@ -81,6 +81,7 @@ This would ignore values inside <trackingId> and <timestamp> elements.  If more 
 ### Banno Fork Development Notes
 
 - This project is written in Groovy and uses Gradle for builds.  './gradlew' is the wrapper script to run, and it will install Groovy and Gradle for you.
+- To see full output in the console, use the '-i -s' flags, e.g. './gradlew clean test -i -s'Mess
 - To build, run './gradlew clean test' (or whatever goals you need).
 - To release, run './gradlew clean test uploadArchives'.  You'll be prompted for Nexus credentials.
 - To be compatible with Java 1.7, we must build under 1.7 to avoid an error due to Groovy leveraging new 1.8 things such as ToIntFunction.

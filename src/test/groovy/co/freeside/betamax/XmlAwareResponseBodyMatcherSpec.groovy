@@ -1,10 +1,9 @@
 package co.freeside.betamax
 
 import co.freeside.betamax.util.message.*
-import co.freeside.betamax.message.*
+
 import java.nio.charset.Charset
 import spock.lang.Specification
-import spock.lang.Ignore
 
 class XmlAwareResponseBodyMatcherSpec extends Specification {
 
@@ -21,7 +20,7 @@ class XmlAwareResponseBodyMatcherSpec extends Specification {
     def response2 = response("<a>9</a><b>4</b><c>3</c>")
 
     when:
-    def rule = new XmlAwareResponseBodyMatcher("a", "b")
+    def rule = new XmlAwareMessageBodyMatcher("a", "b")
     def result = rule.compare(response1, response2)
 
     then:
@@ -34,7 +33,7 @@ class XmlAwareResponseBodyMatcherSpec extends Specification {
     def response2 = response("<a>9</a><b>4</b><c>9</c>")
 
     when:
-    def rule = new XmlAwareResponseBodyMatcher("a", "b")
+    def rule = new XmlAwareMessageBodyMatcher("a", "b")
     def result = rule.compare(response1, response2)
 
     then:
@@ -47,7 +46,7 @@ class XmlAwareResponseBodyMatcherSpec extends Specification {
     def response2 = response("<a>1</a><b>2</b>")
 
     when:
-    def rule = new XmlAwareResponseBodyMatcher()
+    def rule = new XmlAwareMessageBodyMatcher()
     def result = rule.compare(response1, response2)
 
     then:

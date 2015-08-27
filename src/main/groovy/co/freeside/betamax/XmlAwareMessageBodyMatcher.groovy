@@ -22,6 +22,7 @@ class XmlAwareMessageBodyMatcher implements Comparator<Message> {
   String cleanse(String bodyText) {
     xmlElementNames.inject(bodyText) {bodySoFar, element ->
       bodySoFar.replaceAll("<$element>[^<]*</$element>", "")
+               .replaceAll("<$element/>", "")
     }
   }
 }

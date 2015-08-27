@@ -29,6 +29,20 @@ class XmlAwareMessageBodyMatcherSpec extends Specification {
         result == 0
     }
 
+  void 'can ignore diffs in specific XML elements in the body (self-closing tags)'() {
+    given:
+    def message1 = message("<a/><b/><c>3</c>")
+    def message2 = message("<a>9</a><b>4</b><c>3</c>")
+
+    when:
+    def rule = new XmlAwareMessageBodyMatcher("a", "b")
+    def result = rule.compare(message1, message2)
+
+    then:
+    result == 0
+  }
+
+
     void 'does not ignore diffs in other elements in the body'() {
         given:
         def message1 = message("<a>1</a><b>2</b><c>3</c>")

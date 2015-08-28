@@ -22,7 +22,7 @@ _Tapes_ are just [YAML][yaml] files so you can edit them with a text editor, com
 
 ## Full documentation
 
-Full documentation can be found on [Betamax's home page][home].
+	Full documentation can be found on [Betamax's home page][home].
 
 ## Project status
 
@@ -70,10 +70,12 @@ We've forked Betamax because it hasn't had a commit by the maintainer since June
 
 We periodically want to check our tapes against the live services, such as JxChange, to detect breaking changes on their end.  To this end we created a new tape mode, 'RECONCILE', which sends all requests to the live server and then looks for matching requests on the tape, and compares the responses using the new ResponseMatcher and ResponseMatchRule(s).  If they match, the test passes as normal.  If the response from the server is different from the taped one, the interaction is written to a 'reconciliation error tape' whose name will be the regular tape name plus '_reconciliation_errors', e.g. 'my_spec_reconciliation_errors.yaml'.  A Jenkins job can therefore fail on the presence of such files.
 
-Responses are unlikely to match exactly.  To handle this, we have an XmlAwareResponseBodyMatchRule which ignores the values in certain elements, e.g.
+### More Flexible Request/Response matching
+
+Responses and requests may not match exactly due to date fields, etc.  This can affect both reconciliation mode and taped response lookup, respectively.  Since both requests and response implement Message, we've created an XmlAwareMessageMatcher than can be used to create request/response matchers that ignore certain elements, e.g.
 
 ```scala
-new XmlAwareResponseBodyMatchRule("trackingId", "timestamp")
+new XmlAwareMessageBodyMatcher("trackingId", "timestamp")
 ```
 
 This would ignore values inside <trackingId> and <timestamp> elements.  If more sophisticated checks are needed, simply implement more rules.
@@ -81,6 +83,7 @@ This would ignore values inside <trackingId> and <timestamp> elements.  If more 
 ### Banno Fork Development Notes
 
 - This project is written in Groovy and uses Gradle for builds.  './gradlew' is the wrapper script to run, and it will install Groovy and Gradle for you.
+- To see full output in the console, use the '-i -s' flags, e.g. './gradlew clean test -i -s'
 - To build, run './gradlew clean test' (or whatever goals you need).
 - To release, run './gradlew clean test uploadArchives'.  You'll be prompted for Nexus credentials.
 - To be compatible with Java 1.7, we must build under 1.7 to avoid an error due to Groovy leveraging new 1.8 things such as ToIntFunction.

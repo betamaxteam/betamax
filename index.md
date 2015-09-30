@@ -338,7 +338,7 @@ The documentation is built with [Jekyll][jekyll], [Twitter Bootstrap](http://twi
 [snakeyaml]:http://www.snakeyaml.org/
 [sonatype]:https://oss.sonatype.org/content/repositories/snapshots/
 [spock]:http://spockframework.org/
-[tapeexample]:https://github.com/robfletcher/betamax/blob/master/src/test/resources/betamax/tapes/smoke_spec.yaml
+[tapeexample]:https://github.com/robfletcher/betamax/blob/master/betamax-proxy/src/test/resources/betamax/tapes/smoke_spec.yaml
 [twitter]:http://twitter.com/rfletcherEW (@rfletcherEW on Twitter)
 [twitterratelimit]:https://dev.twitter.com/docs/rate-limiting
 [webservices]:http://en.wikipedia.org/wiki/Web_service

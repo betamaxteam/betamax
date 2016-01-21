@@ -85,6 +85,7 @@ This would ignore values inside <trackingId> and <timestamp> elements.  If more 
 - This project is written in Groovy and uses Gradle for builds.  './gradlew' is the wrapper script to run, and it will install Groovy and Gradle for you.
 - To see full output in the console, use the '-i -s' flags, e.g. './gradlew clean test -i -s'
 - To build, run './gradlew clean test' (or whatever goals you need).
+- To publish to your local ivy repo (~/.ivy2/local), run '.gradlew publishIvyPublicationToLocalRepository'
 - To release, run './gradlew clean test uploadArchives'.  You'll be prompted for Nexus credentials.
 - To be compatible with Java 1.7, we must build under 1.7 to avoid an error due to Groovy leveraging new 1.8 things such as ToIntFunction.
 - The version number has the '-banno' suffix, e.g. '1.1.2-banno-SNAPSHOT'

@@ -2,6 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'codenarc'
 apply plugin: 'com.bmuschko.nexus'
 apply plugin: 'org.ajoberstar.github-pages'
+apply plugin: 'ivy-publish'
 
 def currentJvm = org.gradle.internal.jvm.Jvm.current()
 
@@ -47,14 +48,33 @@ version = "2.0.0-banno"
 group = 'co.freeside'
 archivesBaseName = 'betamax'
 
+
 repositories {
 	mavenCentral()
+	ivy {
+		name 'local'
+		url "${System.properties['user.home']}/.ivy2/local"
+		layout 'pattern', {
+			artifact "[organisation]/[module]/[revision]/[ext]s/[artifact](.[ext])"
+			ivy "[organisation]/[module]/[revision]/ivys/[artifact](.[ext])"
+		}
+	}
+}
+
+publishing {
+	publications {
+		ivy(IvyPublication) {
+			from components.java
+		}
+	}
+	repositories {
+		add project.repositories.local
+	}
 }
 
 nexus {
   repositoryUrl  "http://nexus.banno.com/nexus/content/repositories/releases/"
   snapshotRepositoryUrl "http://nexus.banno.com/nexus/content/repositories/snapshots/"
-
 }
 
 dependencies {

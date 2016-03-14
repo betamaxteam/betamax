@@ -34,6 +34,8 @@ public class Recorder {
     private final Configuration configuration;
     private final Collection<RecorderListener> listeners = Lists.newArrayList();
 
+    private Tape tape;
+
     public Recorder() {
         this(ProxyConfiguration.builder().build());
     }
@@ -46,10 +48,9 @@ public class Recorder {
     /**
      * Starts the Recorder, inserting a tape with the specified parameters.
      *
-     * @param tapeName the name of the tape.
-     * @param mode the tape mode. If not supplied the default mode from the configuration is used.
+     * @param tapeName  the name of the tape.
+     * @param mode      the tape mode. If not supplied the default mode from the configuration is used.
      * @param matchRule the rules used to match recordings on the tape. If not supplied a default is used.
-     *
      * @throws IllegalStateException if the Recorder is already started.
      */
     public void start(String tapeName, Optional<TapeMode> mode, Optional<MatchRule> matchRule) {
@@ -91,8 +92,17 @@ public class Recorder {
         for (RecorderListener listener : listeners) {
             listener.onRecorderStop();
         }
+
         getTapeLoader().writeTape(tape);
         tape = null;
+    }
+
+    public void addListener(final RecorderListener recorderListener) {
+        listeners.add(recorderListener);
+    }
+
+    public void removeListener(final RecorderListener recorderListener) {
+        listeners.remove(recorderListener);
     }
 
     /**
@@ -104,12 +114,14 @@ public class Recorder {
         return tape;
     }
 
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
     /**
      * Not just a property as `tapeRoot` gets changed during constructor.
      */
-    private TapeLoader<? extends Tape> getTapeLoader() {
+    protected TapeLoader<? extends Tape> getTapeLoader() {
         return new YamlTapeLoader(configuration.getTapeRoot());
     }
-
-    private Tape tape;
 }

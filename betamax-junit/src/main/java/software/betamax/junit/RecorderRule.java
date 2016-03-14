@@ -17,15 +17,15 @@
 package software.betamax.junit;
 
 import com.google.common.base.Strings;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import software.betamax.*;
-
-import java.util.logging.Logger;
-
-import static com.google.common.base.CaseFormat.*;
-import static java.util.logging.Level.SEVERE;
+import software.betamax.Configuration;
+import software.betamax.ProxyConfiguration;
+import software.betamax.Recorder;
+import software.betamax.proxy.ProxyServer;
+import software.betamax.tape.Tape;
 
 /**
  * This is an extension of {@link Recorder} that can be used as a
@@ -33,60 +33,54 @@ import static java.util.logging.Level.SEVERE;
  * activate
  * Betamax recording.
  */
-public class RecorderRule extends Recorder implements TestRule {
+public class RecorderRule implements TestRule {
 
-    private final Logger log = Logger.getLogger(RecorderRule.class.getName());
+    private Recorder recorder;
+    private ProxyServer proxyServer;
 
     public RecorderRule() {
-        super();
+        initServer(ProxyConfiguration.builder()
+                .createProxyOnStartup(false)
+                .build());
     }
 
-    public RecorderRule(Configuration configuration) {
-        super(configuration);
+    public RecorderRule(final Configuration configuration) {
+        initServer(ProxyConfiguration.builder()
+                .withConfig(configuration)
+                .createProxyOnStartup(false)
+                .build());
+    }
+
+    private void initServer(final ProxyConfiguration proxyConfiguration) {
+        proxyServer = new ProxyServer(proxyConfiguration);
+
+        recorder = new Recorder(proxyConfiguration);
+        recorder.addListener(proxyServer);
     }
 
     @Override
     public Statement apply(final Statement statement, final Description description) {
-        final Betamax annotation = description.getAnnotation(Betamax.class);
-        if (annotation != null) {
-            log.fine(String.format("found @Betamax annotation on '%s'", description.getDisplayName()));
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    try {
-                        String tapeName = annotation.tape();
-                        if (Strings.isNullOrEmpty(tapeName)) {
-                            tapeName = defaultTapeName(description);
-                        }
+        RuleChain ruleChain = RuleChain.emptyRuleChain();
 
-                        TapeMode tapeMode = annotation.mode();
-                        MatchRule matchRule = ComposedMatchRule.of(annotation.match());
+        // class rule - start the proxy server
+        if (Strings.isNullOrEmpty(description.getMethodName())) {
+            ruleChain = ruleChain.around(new ProxyServerResource(proxyServer));
 
-                        start(tapeName, tapeMode, matchRule);
+        } else if (!proxyServer.isRunning() && description.getAnnotation(Betamax.class) != null) {
 
-                        statement.evaluate();
-                    } catch (Exception e) {
-                        log.log(SEVERE, "Caught exception starting Betamax", e);
-                        throw e;
-                    } finally {
-                        stop();
-                    }
-                }
-            };
-        } else {
-            log.fine(String.format("no @Betamax annotation on '%s'", description.getDisplayName()));
-            return statement;
+            // method rule - start/stop the proxy if it isn't already started and there's a betamax annotation
+            ruleChain = ruleChain.around(new ProxyServerResource(proxyServer));
         }
+
+        // start the recorder for the given betamax tape on either the class or the test method
+        return ruleChain.around(new RecorderResource(description, recorder)).apply(statement, description);
     }
 
-    private String defaultTapeName(Description description) {
-        String name;
-        if (description.getMethodName() != null) {
-            name = LOWER_CAMEL.to(LOWER_UNDERSCORE, description.getMethodName());
-        } else {
-            name = UPPER_CAMEL.to(LOWER_UNDERSCORE, description.getTestClass().getSimpleName());
-        }
-        return name.replace('_', ' ');
+    public Tape getTape() {
+        return recorder.getTape();
     }
 
+    public Configuration getConfiguration() {
+        return recorder.getConfiguration();
+    }
 }

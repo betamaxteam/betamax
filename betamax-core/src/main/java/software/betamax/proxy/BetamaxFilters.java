@@ -44,16 +44,17 @@ import static java.util.logging.Level.SEVERE;
 
 public class BetamaxFilters extends HttpFiltersAdapter {
 
-    private NettyRequestAdapter request;
-    private NettyResponseAdapter upstreamResponse;
-    private final Tape tape;
-
     private static final Logger LOG = Logger.getLogger(BetamaxFilters.class.getName());
 
-    public BetamaxFilters(HttpRequest originalRequest, Tape tape) {
+    private NettyRequestAdapter request;
+    private NettyResponseAdapter upstreamResponse;
+    private TapeProvider tapeProvider;
+
+    public BetamaxFilters(final HttpRequest originalRequest, final TapeProvider tapeProvider) {
         super(originalRequest);
+
         request = NettyRequestAdapter.wrap(originalRequest);
-        this.tape = tape;
+        this.tapeProvider = tapeProvider;
     }
 
     @Override
@@ -108,7 +109,8 @@ public class BetamaxFilters extends HttpFiltersAdapter {
         }
 
         if (ProxyUtils.isLastChunk(httpObject)) {
-            if (tape.isWritable()) {
+            final Tape tape = tapeProvider.getTape();
+            if (tape != null && tape.isWritable()) {
                 LOG.info(String.format("Recording to tape %s", tape.getName()));
                 tape.record(request, upstreamResponse);
             } else {
@@ -137,6 +139,7 @@ public class BetamaxFilters extends HttpFiltersAdapter {
     }
 
     private Optional<? extends FullHttpResponse> onRequestIntercepted() throws IOException {
+        final Tape tape = tapeProvider.getTape();
         if (tape == null) {
             return Optional.of(new DefaultFullHttpResponse(HTTP_1_1, new HttpResponseStatus(403, "No tape")));
         } else if (tape.isReadable() && tape.seek(request)) {
@@ -192,5 +195,4 @@ public class BetamaxFilters extends HttpFiltersAdapter {
         // TODO: more detail
         return new DefaultFullHttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR);
     }
-
 }

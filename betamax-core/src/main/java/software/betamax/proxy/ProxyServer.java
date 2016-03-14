@@ -16,6 +16,7 @@
 
 package software.betamax.proxy;
 
+import com.google.common.base.Throwables;
 import org.littleshoot.proxy.*;
 import software.betamax.ProxyConfiguration;
 import software.betamax.internal.RecorderListener;
@@ -29,53 +30,124 @@ import org.littleshoot.proxy.extras.SelfSignedMitmManager;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static software.betamax.proxy.netty.PredicatedHttpFilters.httpMethodPredicate;
 import static com.google.common.base.Predicates.not;
 import static io.netty.handler.codec.http.HttpMethod.CONNECT;
 
-public class ProxyServer implements RecorderListener {
+public class ProxyServer implements RecorderListener, TapeProvider {
 
-    private final ProxyConfiguration configuration;
-    private final ProxyOverrider proxyOverrider = new ProxyOverrider();
-    private final SSLOverrider sslOverrider = new SSLOverrider();
-    private HttpProxyServer proxyServer;
-    private boolean running;
+    private static final Logger LOG = Logger.getLogger(ProxyServer.class.getName());
 
     private static final Predicate<HttpRequest> NOT_CONNECT = not(httpMethodPredicate(CONNECT));
 
-    private static final Logger LOG = Logger.getLogger(ProxyServer.class.getName());
+    private final ProxyConfiguration configuration;
+
+    private final ProxyOverrider proxyOverrider = new ProxyOverrider();
+    private final SSLOverrider sslOverrider = new SSLOverrider();
+
+    private HttpProxyServer proxyServer;
+    private boolean running;
+
+    private Tape currentTape;
 
     public ProxyServer(ProxyConfiguration configuration) {
         this.configuration = configuration;
     }
 
     @Override
-    public void onRecorderStart(Tape tape) {
-        if (!isRunning()) {
-            start(tape);
-        }
+    public void onRecorderStart(final Tape tape) {
+        start(tape);
     }
 
     @Override
     public void onRecorderStop() {
-        if (isRunning()) {
-            stop();
-        }
+        stop();
+    }
+
+    @Override
+    public Tape getTape() {
+        return currentTape;
     }
 
     public boolean isRunning() {
         return running;
     }
 
-    public void start(final Tape tape) {
+    public void start() {
         if (isRunning()) {
             throw new IllegalStateException("Betamax proxy server is already running");
         }
 
-        InetSocketAddress address = new InetSocketAddress(configuration.getProxyHost(), configuration.getProxyPort());
+        proxyServer = createProxyBootstrap().start();
+        running = true;
+
+        overrideProxySettings();
+        overrideSSLSettings();
+    }
+
+    public void stopServer() {
+        if (!isRunning()) {
+            throw new IllegalStateException("Betamax proxy server is already stopped");
+        }
+
+        restoreOriginalProxySettings();
+        restoreOriginalSSLSettings();
+
+        proxyServer.stop();
+        running = false;
+    }
+
+    public void start(final Tape tape) {
+        if (configuration.isCreateProxyOnStartup() && !isRunning()) {
+            start();
+        }
+
+        this.currentTape = tape;
+    }
+
+    public void stop() {
+        this.currentTape = null;
+
+        if (configuration.isCreateProxyOnStartup() && isRunning()) {
+            stopServer();
+        }
+    }
+
+    private void overrideProxySettings() {
+        proxyOverrider.activate(configuration.getProxyHost(), configuration.getProxyPort(), configuration.getIgnoreHosts());
+    }
+
+    private void restoreOriginalProxySettings() {
+        proxyOverrider.deactivateAll();
+    }
+
+    private void overrideSSLSettings() {
+        if (configuration.isSslEnabled()) {
+            sslOverrider.activate();
+        }
+    }
+
+    private void restoreOriginalSSLSettings() {
+        if (configuration.isSslEnabled()) {
+            sslOverrider.deactivate();
+        }
+    }
+
+    private HttpProxyServerBootstrap createProxyBootstrap() {
+
+        // find a proxy port, if none is explicitly bound
+        int proxyPort = configuration.getProxyPort();
+        if (proxyPort <= 0) {
+            proxyPort = findProxyPort();
+        }
+
+        InetSocketAddress address = new InetSocketAddress(configuration.getProxyHost(), proxyPort);
         LOG.info(String.format("Betamax proxy is binding to %s", address));
+
         HttpProxyServerBootstrap proxyServerBootstrap = DefaultHttpProxyServer
                 .bootstrap()
                 .withIdleConnectionTimeout(configuration.getProxyTimeoutSeconds())
@@ -106,48 +178,62 @@ public class ProxyServer implements RecorderListener {
 
             @Override
             public HttpFilters filterRequest(HttpRequest originalRequest) {
-                HttpFilters filters = new BetamaxFilters(originalRequest, tape);
+                HttpFilters filters = new BetamaxFilters(originalRequest, ProxyServer.this);
                 return new PredicatedHttpFilters(filters, NOT_CONNECT, originalRequest);
             }
         });
 
-        proxyServer = proxyServerBootstrap.start();
-        running = true;
-
-        overrideProxySettings();
-        overrideSSLSettings();
+        return proxyServerBootstrap;
     }
 
-    public void stop() {
-        if (!isRunning()) {
-            throw new IllegalStateException("Betamax proxy server is already stopped");
+    private int findProxyPort() {
+
+        Integer httpProxyPort;
+
+        do {
+            // use 0 to find an open port
+            httpProxyPort = tryBind(0);
+
+            // sleep, then try again
+            if (httpProxyPort == null) {
+                try {
+                    // try not to burn up a lot of CPU time, but don't wait too long
+                    Thread.sleep(50);
+                } catch (InterruptedException ie) {
+                    Throwables.propagate(ie);
+                }
+            }
+
+        } while (httpProxyPort == null);
+
+        return httpProxyPort;
+    }
+
+    private Integer tryBind(int port) {
+
+        Integer boundSocket;
+        ServerSocket socket = null;
+        try {
+            socket = new ServerSocket();
+            socket.setReuseAddress(true);
+            socket.bind(new InetSocketAddress(port));
+
+            boundSocket = socket.getLocalPort();
+
+        } catch (Exception e) {
+            boundSocket = null;
+            LOG.log(Level.FINE, "Could not bind port " + port, e);
+
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (Exception e) {
+                    Throwables.propagate(e);
+                }
+            }
         }
-        restoreOriginalProxySettings();
-        restoreOriginalSSLSettings();
 
-        proxyServer.stop();
-        running = false;
+        return boundSocket;
     }
-
-    private void overrideProxySettings() {
-        proxyOverrider.activate(configuration.getProxyHost(), configuration.getProxyPort(), configuration.getIgnoreHosts());
-    }
-
-    private void restoreOriginalProxySettings() {
-        proxyOverrider.deactivateAll();
-    }
-
-    private void overrideSSLSettings() {
-        if (configuration.isSslEnabled()) {
-            sslOverrider.activate();
-        }
-    }
-
-    private void restoreOriginalSSLSettings() {
-        if (configuration.isSslEnabled()) {
-            sslOverrider.deactivate();
-        }
-    }
-
 }
-

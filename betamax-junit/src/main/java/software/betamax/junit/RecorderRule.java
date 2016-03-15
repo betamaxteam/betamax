@@ -83,4 +83,8 @@ public class RecorderRule implements TestRule {
     public Configuration getConfiguration() {
         return recorder.getConfiguration();
     }
+
+    public int getListenPort() {
+        return proxyServer.getPort();
+    }
 }

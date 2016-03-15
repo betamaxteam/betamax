@@ -40,7 +40,7 @@ public class Recorder {
         this(ProxyConfiguration.builder().build());
     }
 
-    public Recorder(Configuration configuration) {
+    public Recorder(final Configuration configuration) {
         this.configuration = configuration;
         configuration.registerListeners(listeners);
     }
@@ -53,7 +53,7 @@ public class Recorder {
      * @param matchRule the rules used to match recordings on the tape. If not supplied a default is used.
      * @throws IllegalStateException if the Recorder is already started.
      */
-    public void start(String tapeName, Optional<TapeMode> mode, Optional<MatchRule> matchRule) {
+    public void start(final String tapeName, final Optional<TapeMode> mode, final Optional<MatchRule> matchRule) {
         if (tape != null) {
             throw new IllegalStateException("start called when Recorder is already started");
         }
@@ -67,15 +67,15 @@ public class Recorder {
         }
     }
 
-    public void start(String tapeName, TapeMode mode, MatchRule matchRule) {
-        start(tapeName, mode.toOptional(), Optional.<MatchRule>of(matchRule));
+    public void start(final String tapeName, final TapeMode mode, final MatchRule matchRule) {
+        start(tapeName, mode.toOptional(), Optional.of(matchRule));
     }
 
-    public void start(String tapeName, TapeMode mode) {
+    public void start(final String tapeName, final TapeMode mode) {
         start(tapeName, mode.toOptional(), Optional.<MatchRule>absent());
     }
 
-    public void start(String tapeName) {
+    public void start(final String tapeName) {
         start(tapeName, Optional.<TapeMode>absent(), Optional.<MatchRule>absent());
     }
 

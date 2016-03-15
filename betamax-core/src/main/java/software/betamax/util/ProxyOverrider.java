@@ -18,6 +18,7 @@ package software.betamax.util;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 import io.netty.handler.codec.http.HttpRequest;
 import org.littleshoot.proxy.ChainedProxy;
 import org.littleshoot.proxy.ChainedProxyAdapter;
@@ -34,19 +35,23 @@ import static java.net.Proxy.Type.HTTP;
  */
 public class ProxyOverrider implements ChainedProxyManager {
 
+    private static final Set<String> SCHEMES = Sets.newHashSet("http", "https");
+
     private final Map<String, InetSocketAddress> originalProxies = new LinkedHashMap<String, InetSocketAddress>();
     private final Collection<String> originalNonProxyHosts = new HashSet<String>();
 
     /**
      * Activates a proxy override for the given URI scheme.
      */
-    public void activate(InetAddress host, int port, Collection<String> nonProxyHosts) {
-        for (String scheme : new String[] {"http", "https"}) {
+    public void activate(final InetAddress host, final int port, final Collection<String> nonProxyHosts) {
+
+        for (String scheme : SCHEMES) {
             String currentProxyHost = System.getProperty(scheme + ".proxyHost");
             String currentProxyPort = System.getProperty(scheme + ".proxyPort");
             if (currentProxyHost != null) {
                 originalProxies.put(scheme, new InetSocketAddress(currentProxyHost, Integer.parseInt(currentProxyPort)));
             }
+
             System.setProperty(scheme + ".proxyHost", new InetSocketAddress(host, port).getHostString());
             System.setProperty(scheme + ".proxyPort", Integer.toString(port));
         }
@@ -59,6 +64,7 @@ public class ProxyOverrider implements ChainedProxyManager {
                 originalNonProxyHosts.add(nonProxyHost);
             }
         }
+
         System.setProperty("http.nonProxyHosts", Joiner.on('|').join(nonProxyHosts));
     }
 
@@ -66,7 +72,7 @@ public class ProxyOverrider implements ChainedProxyManager {
      * Deactivates all proxy overrides restoring the pre-existing proxy settings if any.
      */
     public void deactivateAll() {
-        for (String scheme : new String[] {"http", "https"}) {
+        for (String scheme : SCHEMES) {
             InetSocketAddress originalProxy = originalProxies.remove(scheme);
             if (originalProxy != null) {
                 System.setProperty(scheme + ".proxyHost", originalProxy.getHostName());
@@ -82,6 +88,7 @@ public class ProxyOverrider implements ChainedProxyManager {
         } else {
             System.setProperty("http.nonProxyHosts", Joiner.on('|').join(originalNonProxyHosts));
         }
+
         originalNonProxyHosts.clear();
     }
 
@@ -114,7 +121,7 @@ public class ProxyOverrider implements ChainedProxyManager {
      * Used by LittleProxy to connect to a downstream proxy if there is one.
      */
     @Override
-    public void lookupChainedProxies(HttpRequest request, Queue<ChainedProxy> chainedProxies) {
+    public void lookupChainedProxies(final HttpRequest request, final Queue<ChainedProxy> chainedProxies) {
         final InetSocketAddress originalProxy = originalProxies.get(URI.create(request.getUri()).getScheme());
         if (originalProxy != null) {
             ChainedProxy chainProxy = new ChainedProxyAdapter() {

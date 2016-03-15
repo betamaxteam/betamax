@@ -77,6 +77,14 @@ public class ProxyServer implements RecorderListener, TapeProvider {
         return running;
     }
 
+    public String getHostName() {
+        return proxyServer.getListenAddress().getHostName();
+    }
+
+    public int getPort() {
+        return proxyServer.getListenAddress().getPort();
+    }
+
     public void start() {
         if (isRunning()) {
             throw new IllegalStateException("Betamax proxy server is already running");
@@ -118,7 +126,7 @@ public class ProxyServer implements RecorderListener, TapeProvider {
     }
 
     private void overrideProxySettings() {
-        proxyOverrider.activate(configuration.getProxyHost(), configuration.getProxyPort(), configuration.getIgnoreHosts());
+        proxyOverrider.activate(configuration.getProxyHost(), getPort(), configuration.getIgnoreHosts());
     }
 
     private void restoreOriginalProxySettings() {

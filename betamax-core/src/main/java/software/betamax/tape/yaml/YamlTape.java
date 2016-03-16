@@ -16,32 +16,49 @@
 
 package software.betamax.tape.yaml;
 
+import org.yaml.snakeyaml.nodes.Tag;
 import software.betamax.io.FileResolver;
 import software.betamax.message.Request;
 import software.betamax.message.Response;
 import software.betamax.tape.MemoryTape;
-import org.yaml.snakeyaml.nodes.Tag;
+
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
 
 class YamlTape extends MemoryTape {
+
+    private static final Logger LOG = Logger.getLogger(YamlTape.class.getName());
 
     public static final Tag TAPE_TAG = new Tag("!tape");
     public static final Tag FILE_TAG = new Tag("!file");
 
-    private transient boolean dirty;
+    private transient volatile boolean dirty;
+    private transient ReadWriteLock dirtyLock = new ReentrantReadWriteLock();
 
-    YamlTape(FileResolver fileResolver) {
+    YamlTape(final FileResolver fileResolver) {
         super(fileResolver);
     }
 
     @Override
     public boolean isDirty() {
-        return dirty;
+        dirtyLock.readLock().lock();
+        try {
+            return dirty;
+        } finally {
+            dirtyLock.readLock().unlock();
+        }
     }
 
     @Override
-    public void record(Request request, Response response) {
-        super.record(request, response);
-        dirty = true;
+    public void record(final Request request, final Response response) {
+        dirtyLock.writeLock().lock();
+        try {
+            LOG.fine("Recording request / response to the Yaml Tape");
+            super.record(request, response);
+            dirty = true;
+        } finally {
+            dirtyLock.writeLock().unlock();
+        }
     }
-
 }

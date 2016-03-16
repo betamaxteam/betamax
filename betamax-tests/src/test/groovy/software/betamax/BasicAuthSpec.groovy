@@ -16,46 +16,87 @@
 
 package software.betamax
 
-import software.betamax.junit.*
+import com.google.common.io.BaseEncoding
+import com.google.common.io.Files
+import org.junit.Rule
 import software.betamax.junit.Betamax
 import software.betamax.junit.RecorderRule
-import com.google.common.io.*
-import org.junit.Rule
 import spock.lang.*
+
 import static Headers.X_BETAMAX
-import static MatchRules.*
-import static TapeMode.*
-import static java.net.HttpURLConnection.*
+import static java.net.HttpURLConnection.HTTP_OK
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 import static java.util.concurrent.TimeUnit.SECONDS
+import static software.betamax.MatchRules.*
+import static software.betamax.TapeMode.READ_ONLY
+import static software.betamax.TapeMode.WRITE_ONLY
 
 @Unroll
 @Stepwise
 @IgnoreIf({
     def url = "http://httpbin.org/".toURL()
+
+    HttpURLConnection connection = null
     try {
-        HttpURLConnection connection = url.openConnection()
+        connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "HEAD"
         connection.connectTimeout = SECONDS.toMillis(2)
         connection.connect()
         return connection.responseCode >= 400
     } catch (IOException e) {
-        System.err.println "Skipping spec as $url is not available"
+        System.err.println "Skipping spec as $url is not available: " + e.message
         return true
+    } finally {
+        connection?.disconnect()
     }
 })
 class BasicAuthSpec extends Specification {
 
-    @Shared private endpoint = "http://httpbin.org/basic-auth/user/passwd".toURL()
+    @Shared
+    private endpoint = "http://httpbin.org/basic-auth/user/passwd".toURL()
 
-    @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
-    @Shared def configuration = ProxyConfiguration.builder().tapeRoot(tapeRoot).build()
-    @Rule RecorderRule recorder = new RecorderRule(configuration)
+    @Shared
+    @AutoCleanup("deleteDir")
+    def tapeRoot = Files.createTempDir()
+
+    @Shared
+    def configuration = ProxyConfiguration.builder().tapeRoot(tapeRoot).build()
+
+    @Rule
+    RecorderRule recorder = new RecorderRule(configuration)
+
+    def HttpURLConnection connection
+
+    def setup() {
+        connection = endpoint.openConnection() as HttpURLConnection
+    }
+
+    def cleanup() {
+
+        def inputStream = null
+        try {
+            inputStream = connection.inputStream
+        } catch (IOException ioe) {
+        } finally {
+            inputStream?.close()
+        }
+
+        def errorStream = null
+        try {
+            errorStream = connection.errorStream
+        } catch (IOException ioe) {
+        } finally {
+            errorStream?.close()
+        }
+
+        connection.disconnect()
+    }
 
     @Betamax(tape = "basic auth", mode = WRITE_ONLY, match = [method, uri, authorization])
     void "can record #status response from authenticated endpoint"() {
         when:
-        HttpURLConnection connection = endpoint.openConnection()
         connection.setRequestProperty("Authorization", "Basic $credentials");
+        connection.connect()
 
         then:
         connection.responseCode == status
@@ -72,8 +113,8 @@ class BasicAuthSpec extends Specification {
     @Betamax(tape = "basic auth", mode = READ_ONLY, match = [method, uri, authorization])
     void "can play back #status response from authenticated endpoint"() {
         when:
-        HttpURLConnection connection = endpoint.openConnection()
         connection.setRequestProperty("Authorization", "Basic $credentials");
+        connection.connect()
 
         then:
         connection.responseCode == status
@@ -86,5 +127,4 @@ class BasicAuthSpec extends Specification {
 
         credentials = BaseEncoding.base64().encode("user:$password".bytes)
     }
-
 }

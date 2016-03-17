@@ -118,8 +118,6 @@ public class ProxyServer implements RecorderListener, TapeProvider {
     }
 
     public void stop() {
-        this.currentTape = null;
-
         if (configuration.isCreateProxyOnStartup() && isRunning()) {
             stopServer();
         }

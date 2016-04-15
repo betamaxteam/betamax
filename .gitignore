@@ -19,3 +19,4 @@ build/
 lib/
 log.txt
 target/
+littleproxy_cert

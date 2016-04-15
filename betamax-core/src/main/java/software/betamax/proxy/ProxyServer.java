@@ -17,26 +17,26 @@
 package software.betamax.proxy;
 
 import com.google.common.base.Throwables;
+import com.google.common.base.Predicate;
+import io.netty.handler.codec.http.HttpRequest;
 import org.littleshoot.proxy.*;
+import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import software.betamax.ProxyConfiguration;
 import software.betamax.internal.RecorderListener;
 import software.betamax.proxy.netty.PredicatedHttpFilters;
 import software.betamax.tape.Tape;
+import software.betamax.util.BetamaxMitmManager;
 import software.betamax.util.ProxyOverrider;
 import software.betamax.util.SSLOverrider;
-import com.google.common.base.Predicate;
-import io.netty.handler.codec.http.HttpRequest;
-import org.littleshoot.proxy.extras.SelfSignedMitmManager;
-import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static software.betamax.proxy.netty.PredicatedHttpFilters.httpMethodPredicate;
 import static com.google.common.base.Predicates.not;
 import static io.netty.handler.codec.http.HttpMethod.CONNECT;
+import static software.betamax.proxy.netty.PredicatedHttpFilters.httpMethodPredicate;
 
 public class ProxyServer implements RecorderListener, TapeProvider {
 
@@ -161,13 +161,18 @@ public class ProxyServer implements RecorderListener, TapeProvider {
                 .withTransparent(true);
 
         if (configuration.isSslEnabled()) {
-            proxyServerBootstrap.withManInTheMiddle(new SelfSignedMitmManager());
+            proxyServerBootstrap.withManInTheMiddle(new BetamaxMitmManager());
         } else {
             proxyServerBootstrap.withChainProxyManager(proxyOverrider);
         }
 
         if (configuration.getProxyUser() != null) {
             proxyServerBootstrap.withProxyAuthenticator(new ProxyAuthenticator() {
+                @Override
+                public String getRealm() {
+                    return null;
+                }
+
                 @Override
                 public boolean authenticate(String userName, String password) {
                     return configuration.getProxyUser().equals(userName)

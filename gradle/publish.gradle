@@ -5,8 +5,7 @@ signing.keyId=****
 signing.password=****
 signing.secretKeyRingFile=****
 
-ossrhUsername=****
-ossrhPassword=****
+NOTE: SONATYPE_USERNAME and SONATYPE_PASSWORD must be set in your environment
 
 See http://central.sonatype.org/pages/gradle.html for details
  */
@@ -38,13 +37,13 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            if (project.hasProperty("ossrhUsername") && project.hasProperty("ossrhPassword")) {
+            if (System.getenv()['SONATYPE_USERNAME'] != null && System.getenv()['SONATYPE_PASSWORD'] != null) {
                 repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                    authentication(userName: System.getenv()['SONATYPE_USERNAME'], password: System.getenv()['SONATYPE_PASSWORD'])
                 }
 
                 snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                    authentication(userName: System.getenv()['SONATYPE_USERNAME'], password: System.getenv()['SONATYPE_PASSWORD'])
                 }
             } else {
                 repository(url: "file://${System.properties['user.home']}/.m2/repository")

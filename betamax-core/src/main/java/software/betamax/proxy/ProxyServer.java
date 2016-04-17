@@ -16,8 +16,11 @@
 
 package software.betamax.proxy;
 
-import com.google.common.base.Throwables;
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import org.littleshoot.proxy.*;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
@@ -31,6 +34,7 @@ import software.betamax.util.SSLOverrider;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,10 +56,12 @@ public class ProxyServer implements RecorderListener, TapeProvider {
     private HttpProxyServer proxyServer;
     private boolean running;
 
+    private Set<Channel> channels;
     private Tape currentTape;
 
-    public ProxyServer(ProxyConfiguration configuration) {
+    public ProxyServer(final ProxyConfiguration configuration) {
         this.configuration = configuration;
+        this.channels = Sets.newHashSet();
     }
 
     @Override
@@ -118,8 +124,21 @@ public class ProxyServer implements RecorderListener, TapeProvider {
     }
 
     public void stop() {
-        if (configuration.isCreateProxyOnStartup() && isRunning()) {
+        if (!isRunning()) {
+            return;
+        }
+
+        if (configuration.isCreateProxyOnStartup()) {
             stopServer();
+
+        } else if (channels != null && !channels.isEmpty()) {
+
+            // close the open channels to ensure that the tape is written to memory
+            for (Channel channel : channels) {
+                if (channel.isOpen()) {
+                    channel.close();
+                }
+            }
         }
     }
 
@@ -188,9 +207,15 @@ public class ProxyServer implements RecorderListener, TapeProvider {
             }
 
             @Override
-            public HttpFilters filterRequest(HttpRequest originalRequest) {
+            public HttpFilters filterRequest(final HttpRequest originalRequest) {
                 HttpFilters filters = new BetamaxFilters(originalRequest, ProxyServer.this);
                 return new PredicatedHttpFilters(filters, NOT_CONNECT, originalRequest);
+            }
+
+            @Override
+            public HttpFilters filterRequest(final HttpRequest originalRequest, final ChannelHandlerContext ctx) {
+                channels.add(ctx.channel());
+                return super.filterRequest(originalRequest, ctx);
             }
         });
 

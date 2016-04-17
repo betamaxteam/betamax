@@ -22,7 +22,6 @@ import java.util.Properties;
 
 public abstract class ProxyConfigurationBuilder<T extends ProxyConfigurationBuilder<T>> extends ConfigurationBuilder<T> {
 
-
     public ProxyConfiguration build() {
         return new ProxyConfiguration(this);
     }
@@ -34,6 +33,7 @@ public abstract class ProxyConfigurationBuilder<T extends ProxyConfigurationBuil
     protected int proxyTimeoutSeconds = ProxyConfiguration.DEFAULT_PROXY_TIMEOUT;
     protected int requestBufferSize = ProxyConfiguration.DEFAULT_REQUEST_BUFFER_SIZE;
     protected boolean sslEnabled;
+    protected boolean createProxyOnStartup = ProxyConfiguration.DEFAULT_CREATE_PROXY_ON_STARTUP;
 
     @Override
     public T withProperties(Properties properties) {
@@ -57,6 +57,31 @@ public abstract class ProxyConfigurationBuilder<T extends ProxyConfigurationBuil
 
         if (properties.containsKey("betamax.sslEnabled")) {
             sslEnabled(TypedProperties.getBoolean(properties, "betamax.sslEnabled"));
+        }
+
+        if (properties.containsKey("betamax.createProxyOnStartup")) {
+            createProxyOnStartup(TypedProperties.getBoolean(properties, "betamax.createProxyOnStartup"));
+        }
+
+        return self();
+    }
+
+    public T withConfig(final Configuration configuration) {
+        super.withConfig(configuration);
+
+        if (configuration instanceof ProxyConfiguration) {
+            final ProxyConfiguration proxyConfiguration = (ProxyConfiguration) configuration;
+
+            proxyHost(proxyConfiguration.getProxyHostname());
+            proxyPort(proxyConfiguration.getProxyPort());
+            proxyTimeoutSeconds(proxyConfiguration.getProxyTimeoutSeconds());
+            requestBufferSize(proxyConfiguration.getRequestBufferSize());
+            sslEnabled(proxyConfiguration.isSslEnabled());
+            createProxyOnStartup(proxyConfiguration.isCreateProxyOnStartup());
+
+            if (proxyConfiguration.getProxyUser() != null && proxyConfiguration.getProxyPassword() != null) {
+                proxyAuth(proxyConfiguration.getProxyUser(), proxyConfiguration.getProxyPassword());
+            }
         }
 
         return self();
@@ -87,13 +112,18 @@ public abstract class ProxyConfigurationBuilder<T extends ProxyConfigurationBuil
         return self();
     }
 
-    public T requestBufferSize(int requestBufferSize){
+    public T requestBufferSize(int requestBufferSize) {
         this.requestBufferSize = requestBufferSize;
         return self();
     }
 
     public T sslEnabled(boolean sslEnabled) {
         this.sslEnabled = sslEnabled;
+        return self();
+    }
+
+    public T createProxyOnStartup(boolean createProxyOnStartup) {
+        this.createProxyOnStartup = createProxyOnStartup;
         return self();
     }
 }

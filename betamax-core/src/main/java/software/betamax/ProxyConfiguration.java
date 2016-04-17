@@ -16,6 +16,8 @@
 
 package software.betamax;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import software.betamax.internal.RecorderListener;
 import software.betamax.proxy.ProxyConfigurationException;
 import software.betamax.proxy.ProxyServer;
@@ -32,6 +34,7 @@ public class ProxyConfiguration extends Configuration {
     public static final int DEFAULT_REQUEST_BUFFER_SIZE = 8388608; //8MB
     public static final int DEFAULT_PROXY_PORT = 5555;
     public static final int DEFAULT_PROXY_TIMEOUT = 5;
+    public static final boolean DEFAULT_CREATE_PROXY_ON_STARTUP = true;
 
     private final String proxyHost;
     private final int proxyPort;
@@ -40,9 +43,11 @@ public class ProxyConfiguration extends Configuration {
     private final int proxyTimeoutSeconds;
     private final boolean sslEnabled;
     private final int requestBufferSize;
+    private final boolean createProxyOnStartup;
 
-    protected ProxyConfiguration(ProxyConfigurationBuilder<?> builder) {
+    protected ProxyConfiguration(final ProxyConfigurationBuilder<?> builder) {
         super(builder);
+
         this.proxyHost = builder.proxyHost;
         this.proxyPort = builder.proxyPort;
         this.proxyUser = builder.proxyUser;
@@ -50,6 +55,7 @@ public class ProxyConfiguration extends Configuration {
         this.proxyTimeoutSeconds = builder.proxyTimeoutSeconds;
         this.sslEnabled = builder.sslEnabled;
         this.requestBufferSize = builder.requestBufferSize;
+        this.createProxyOnStartup = builder.createProxyOnStartup;
     }
 
     public static ProxyConfigurationBuilder<Builder> builder() {
@@ -87,6 +93,14 @@ public class ProxyConfiguration extends Configuration {
     }
 
     /**
+     * Whether or not the proxy should get auto-created when starting; the JUnit rule
+     * sets this to false (default is true) so that it can create one proxy efficiently for all unit tests.
+     */
+    public boolean isCreateProxyOnStartup() {
+        return createProxyOnStartup;
+    }
+
+    /**
      * @return the hostname or address where the proxy will run. A value of
      * `null` means the proxy will bind to any local address.
      * @see java.net.InetSocketAddress#InetSocketAddress(InetAddress, int)
@@ -101,6 +115,13 @@ public class ProxyConfiguration extends Configuration {
         } catch (UnknownHostException e) {
             throw new ProxyConfigurationException(String.format("Unable to resolve host %s", proxyHost), e);
         }
+    }
+
+    /**
+     * The raw hostname for the proxy server to bind to.
+     */
+    public String getProxyHostname() {
+        return proxyHost;
     }
 
     /**
@@ -125,9 +146,20 @@ public class ProxyConfiguration extends Configuration {
         return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(getProxyHost(), getProxyPort()));
     }
 
+    private static final Predicate<RecorderListener> HAS_PROXY_SERVER = new Predicate<RecorderListener>() {
+        @Override
+        public boolean apply(RecorderListener input) {
+            return input instanceof ProxyServer;
+        }
+    };
+
     @Override
-    public void registerListeners(Collection<RecorderListener> listeners) {
-        listeners.add(new ProxyServer(this));
+    public void registerListeners(final Collection<RecorderListener> listeners) {
+        if (createProxyOnStartup && !Iterables.any(listeners, HAS_PROXY_SERVER)) {
+            listeners.add(new ProxyServer(this));
+        }
+
+        super.registerListeners(listeners);
     }
 
     public static class Builder extends ProxyConfigurationBuilder<Builder> {

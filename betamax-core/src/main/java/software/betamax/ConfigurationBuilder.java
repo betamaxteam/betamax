@@ -92,6 +92,16 @@ public abstract class ConfigurationBuilder<T extends ConfigurationBuilder<T>> {
         return self();
     }
 
+    public T withConfig(final Configuration configuration) {
+        tapeRoot(configuration.getTapeRoot());
+        defaultMode(configuration.getDefaultMode());
+        defaultMatchRule(configuration.getDefaultMatchRule());
+        ignoreHosts(configuration.getIgnoreHosts());
+        ignoreLocalhost(configuration.isIgnoreLocalhost());
+
+        return self();
+    }
+
     public T tapeRoot(File tapeRoot) {
         this.tapeRoot = tapeRoot;
         return self();

@@ -23,7 +23,8 @@ public enum TapeMode {
     READ_ONLY(true, false, false),
     READ_SEQUENTIAL(true, false, true),
     WRITE_ONLY(false, true, false),
-    WRITE_SEQUENTIAL(false, true, true);
+    WRITE_SEQUENTIAL(false, true, true),
+    UNDEFINED(false, false, false);
 
     private final boolean readable;
     private final boolean writable;
@@ -55,7 +56,11 @@ public enum TapeMode {
     }
 
     public Optional<TapeMode> toOptional() {
-        return Optional.of(this);
+        switch(this) {
+            case UNDEFINED:
+                return Optional.absent();
+            default:
+                return Optional.of(this);
+        }
     }
-
 }

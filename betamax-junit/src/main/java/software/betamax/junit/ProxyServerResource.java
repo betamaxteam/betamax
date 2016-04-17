@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package software.betamax.junit;
 
-import software.betamax.MatchRules;
-import software.betamax.TapeMode;
+import org.junit.rules.ExternalResource;
+import software.betamax.proxy.ProxyServer;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+public class ProxyServerResource extends ExternalResource {
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+    private final ProxyServer proxyServer;
 
-@Retention(RUNTIME)
-@Target({METHOD, TYPE})
-public @interface Betamax {
-    String tape() default "";
+    public ProxyServerResource(final ProxyServer proxyServer) {
+        this.proxyServer = proxyServer;
+    }
 
-    TapeMode mode() default TapeMode.UNDEFINED;
+    @Override
+    protected void before() throws Throwable {
+        proxyServer.start();
+    }
 
-    MatchRules[] match() default {MatchRules.method, MatchRules.uri};
+    @Override
+    protected void after() {
+        proxyServer.stopServer();
+    }
 }

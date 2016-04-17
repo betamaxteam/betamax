@@ -18,6 +18,7 @@ package software.betamax
 
 import com.google.common.io.BaseEncoding
 import com.google.common.io.Files
+import org.junit.ClassRule
 import org.junit.Rule
 import software.betamax.junit.Betamax
 import software.betamax.junit.RecorderRule
@@ -46,13 +47,15 @@ import static software.betamax.TapeMode.WRITE_ONLY
         return true
     }
 })
-class BasicAuthSpec extends Specification {
+class SharedRecorderSpec extends Specification {
 
     @Shared private endpoint = "http://httpbin.org/basic-auth/user/passwd".toURL()
 
     @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
     @Shared def configuration = ProxyConfiguration.builder().tapeRoot(tapeRoot).build()
-    @Rule RecorderRule recorder = new RecorderRule(configuration)
+
+    @Shared @ClassRule RecorderRule sharedRecorder = new RecorderRule(configuration)
+    @Rule RecorderRule recorder = sharedRecorder
 
     @Betamax(tape = "basic auth", mode = WRITE_ONLY, match = [method, uri, authorization])
     void "can record #status response from authenticated endpoint"() {

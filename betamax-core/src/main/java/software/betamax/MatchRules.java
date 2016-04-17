@@ -26,47 +26,52 @@ import java.util.Arrays;
 public enum MatchRules implements MatchRule {
     method {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getMethod().equalsIgnoreCase(b.getMethod());
         }
     }, uri {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getUri().equals(b.getUri());
         }
     }, host {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getUri().getHost().equals(b.getUri().getHost());
         }
     }, path {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getUri().getPath().equals(b.getUri().getPath());
         }
     }, port {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getUri().getPort() == b.getUri().getPort();
         }
     }, query {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getUri().getQuery().equals(b.getUri().getQuery());
         }
     }, authorization {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getHeader("Authorization").equals(b.getHeader("Authorization"));
         }
     }, accept {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return a.getHeader("Accept").equals(b.getHeader("Accept"));
+        }
+    }, contentType {
+        @Override
+        public boolean isMatch(final Request a, final Request b) {
+            return a.getHeader("Content-Type").equals(b.getHeader("Content-Type"));
         }
     }, body {
         @Override
-        public boolean isMatch(Request a, Request b) {
+        public boolean isMatch(final Request a, final Request b) {
             return Arrays.equals(a.getBodyAsBinary(), b.getBodyAsBinary());
         }
     }

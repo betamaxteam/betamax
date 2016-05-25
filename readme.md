@@ -31,6 +31,7 @@ Betamax is hosted via [Sonatype](https://oss.sonatype.org/) and is intended to b
 - Ian Grayson
 - Russel Hart
 - Lari Hotari
+- Michal Kováč
 - David Kowis
 - Jason LeCount
 - Peter Ledbrook

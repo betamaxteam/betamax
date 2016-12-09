@@ -19,7 +19,7 @@ package software.betamax.util.server.internal
 import io.netty.channel.ChannelHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.ssl.SslHandler
-import software.betamax.util.DynamicSelfSignedSslEngineSource
+import software.betamax.proxy.ProxyServer
 
 class HttpsChannelInitializer extends HttpChannelInitializer {
 
@@ -33,7 +33,7 @@ class HttpsChannelInitializer extends HttpChannelInitializer {
 
         def pipeline = channel.pipeline()
 
-        def engine = new DynamicSelfSignedSslEngineSource(channel.localAddress().getHostName(), channel.localAddress().port).newSslEngine()
+        def engine = ProxyServer.createMitmManager().serverSslEngine(channel.localAddress().getHostName(), channel.localAddress().port)
 
         engine.useClientMode = false
         pipeline.addFirst("ssl", new SslHandler(engine))

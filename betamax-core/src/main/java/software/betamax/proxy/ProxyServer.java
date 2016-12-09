@@ -144,7 +144,7 @@ public class ProxyServer implements RecorderListener {
         proxyOverrider.deactivateAll();
     }
 
-    private MitmManager createMitmManager() {
+    public static MitmManager createMitmManager() {
         try {
 
             // Use the same betamax private key & cert for backwards compatibility with 2.0.1
@@ -152,11 +152,11 @@ public class ProxyServer implements RecorderListener {
             File tempSSLDir = Files.createTempDir();
 
             Path storePath = tempSSLDir.toPath().resolve("betamax.p12");
-            InputStream betamaxKeystoreStream = getClass().getClassLoader().getResourceAsStream("betamax.p12");
+            InputStream betamaxKeystoreStream = ProxyServer.class.getClassLoader().getResourceAsStream("betamax.p12");
             FileUtils.copyInputStreamToFile(betamaxKeystoreStream, storePath.toFile());
 
             Path keyPath = tempSSLDir.toPath().resolve("betamax.pem");
-            InputStream betamaxKeyStream = getClass().getClassLoader().getResourceAsStream("betamax.pem");
+            InputStream betamaxKeyStream = ProxyServer.class.getClassLoader().getResourceAsStream("betamax.pem");
             FileUtils.copyInputStreamToFile(betamaxKeyStream, keyPath.toFile());
 
             Authority authority = new Authority(

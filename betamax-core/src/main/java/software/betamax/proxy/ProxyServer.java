@@ -29,8 +29,6 @@ import software.betamax.proxy.netty.PredicatedHttpFilters;
 import software.betamax.tape.Tape;
 import software.betamax.util.ProxyOverrider;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;

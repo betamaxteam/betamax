@@ -21,10 +21,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import software.betamax.Configuration;
-import software.betamax.Headers;
-import software.betamax.MatchRule;
-import software.betamax.TapeMode;
+import software.betamax.*;
 import software.betamax.encoding.DeflateEncoder;
 import software.betamax.encoding.GzipEncoder;
 import software.betamax.handler.NonWritableTapeException;
@@ -62,6 +59,7 @@ public abstract class MemoryTape implements Tape {
 
     private transient TapeMode mode = Configuration.DEFAULT_MODE;
     private transient MatchRule matchRule = Configuration.DEFAULT_MATCH_RULE;
+    private transient ModifyRule modifyRule = Configuration.DEFAULT_MODIFY_RULE;
     private transient EntityStorage responseBodyStorage = Configuration.DEFAULT_RESPONSE_BODY_STORAGE;
     private final transient FileResolver fileResolver;
 
@@ -100,6 +98,10 @@ public abstract class MemoryTape implements Tape {
         this.matchRule = matchRule;
     }
 
+    @Override
+    public void setModifyRule(ModifyRule modifyRule) {
+        this.modifyRule = modifyRule;
+    }
     @Override
     public void setResponseBodyStorage(EntityStorage responseBodyStorage) {
         this.responseBodyStorage = responseBodyStorage;
@@ -167,13 +169,13 @@ public abstract class MemoryTape implements Tape {
                 throw new IllegalStateException(String.format("Request %s does not match recorded request %s", stringify(request), stringify(nextInteraction.getRequest())));
             }
 
-            return nextInteraction.getResponse();
+            return this.modifyRule.getModifiedResponse(request, nextInteraction.getResponse());
         } else {
             int position = findMatch(request);
             if (position < 0) {
                 throw new IllegalStateException("no matching recording found");
             } else {
-                return interactions.get(position).getResponse();
+                return this.modifyRule.getModifiedResponse(request, interactions.get(position).getResponse());
             }
         }
     }

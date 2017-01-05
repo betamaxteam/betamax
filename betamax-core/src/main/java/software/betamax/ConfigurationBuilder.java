@@ -36,6 +36,7 @@ public class ConfigurationBuilder {
     protected File tapeRoot = new File(Configuration.DEFAULT_TAPE_ROOT);
     protected TapeMode defaultMode = Configuration.DEFAULT_MODE;
     protected MatchRule defaultMatchRule = Configuration.DEFAULT_MATCH_RULE;
+    protected ModifyRule defaultModifyRule = Configuration.DEFAULT_MODIFY_RULE;
     protected ImmutableCollection<String> ignoreHosts = ImmutableList.of();
     protected boolean ignoreLocalhost;
 
@@ -114,6 +115,11 @@ public class ConfigurationBuilder {
 
     public ConfigurationBuilder defaultMatchRules(MatchRule... defaultMatchRules) {
         this.defaultMatchRule = ComposedMatchRule.of(defaultMatchRules);
+        return this;
+    }
+
+    public ConfigurationBuilder defaultModifyRules(ModifyRule... defaultModifyRules) {
+        this.defaultModifyRule = ComposedModifyRule.of(defaultModifyRules);
         return this;
     }
 

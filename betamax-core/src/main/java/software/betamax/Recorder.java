@@ -16,13 +16,12 @@
 
 package software.betamax;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import software.betamax.internal.RecorderListener;
 import software.betamax.tape.Tape;
 import software.betamax.tape.TapeLoader;
 import software.betamax.tape.yaml.YamlTapeLoader;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -32,7 +31,7 @@ import java.util.Collection;
 public class Recorder {
 
     private final Configuration configuration;
-    private final Collection<RecorderListener> listeners = Lists.newArrayList();
+    private final Collection<RecorderListener> listeners = new ArrayList<>();
 
     public Recorder() {
         this(Configuration.builder().build());
@@ -46,20 +45,19 @@ public class Recorder {
     /**
      * Starts the Recorder, inserting a tape with the specified parameters.
      *
-     * @param tapeName the name of the tape.
-     * @param mode the tape mode. If not supplied the default mode from the configuration is used.
+     * @param tapeName  the name of the tape.
+     * @param mode      the tape mode. If not supplied the default mode from the configuration is used.
      * @param matchRule the rules used to match recordings on the tape. If not supplied a default is used.
-     *
      * @throws IllegalStateException if the Recorder is already started.
      */
-    public void start(String tapeName, Optional<TapeMode> mode, Optional<MatchRule> matchRule) {
+    public void start(String tapeName, TapeMode mode, MatchRule matchRule) {
         if (tape != null) {
             throw new IllegalStateException("start called when Recorder is already started");
         }
 
         tape = getTapeLoader().loadTape(tapeName);
-        tape.setMode(mode.or(configuration.getDefaultMode()));
-        tape.setMatchRule(matchRule.or(configuration.getDefaultMatchRule()));
+        tape.setMode(mode != null ? mode : configuration.getDefaultMode());
+        tape.setMatchRule(matchRule != null ? matchRule : configuration.getDefaultMatchRule());
 
         for (RecorderListener listener : listeners) {
             listener.onRecorderStart(tape);
@@ -67,11 +65,11 @@ public class Recorder {
     }
 
     public void start(String tapeName, TapeMode mode) {
-        start(tapeName, mode.toOptional(), Optional.<MatchRule>absent());
+        start(tapeName, mode, null);
     }
 
     public void start(String tapeName) {
-        start(tapeName, Optional.<TapeMode>absent(), Optional.<MatchRule>absent());
+        start(tapeName, null, null);
     }
 
     /**

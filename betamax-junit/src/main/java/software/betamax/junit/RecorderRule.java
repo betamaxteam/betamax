@@ -16,7 +16,6 @@
 
 package software.betamax.junit;
 
-import com.google.common.base.Strings;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -54,7 +53,7 @@ public class RecorderRule extends Recorder implements TestRule {
                 public void evaluate() throws Throwable {
                     try {
                         String tapeName = annotation.tape();
-                        if (Strings.isNullOrEmpty(tapeName)) {
+                        if (tapeName == null || tapeName.length() == 0) {
                             tapeName = defaultTapeName(description);
                         }
 

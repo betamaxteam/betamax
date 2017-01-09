@@ -16,35 +16,41 @@
 
 package software.betamax;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import software.betamax.message.Request;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ComposedMatchRule implements MatchRule {
 
     public static MatchRule of(MatchRule... rules) {
-        return new ComposedMatchRule(ImmutableSet.copyOf(rules));
+        return new ComposedMatchRule(Arrays.asList(rules));
     }
 
     public static MatchRule of(Iterable<MatchRule> rules) {
-        return new ComposedMatchRule(ImmutableSet.copyOf(rules));
+        List<MatchRule> rulesList = new LinkedList<>();
+        for (MatchRule rule : rules) {
+            rulesList.add(rule);
+        }
+        return new ComposedMatchRule(rulesList);
     }
 
-    private final ImmutableSet<MatchRule> rules;
+    private final List<MatchRule> rules;
 
-    private ComposedMatchRule(ImmutableSet<MatchRule> rules) {
+    private ComposedMatchRule(List<MatchRule> rules) {
         this.rules = rules;
     }
 
     @Override
     public boolean isMatch(final Request a, final Request b) {
-        return Iterables.all(rules, new Predicate<MatchRule>() {
-            @Override
-            public boolean apply(MatchRule rule) {
-                return rule.isMatch(a, b);
+        for (MatchRule rule : rules) {
+            if (!rule.isMatch(a, b)) {
+                return false;
             }
-        });
+        }
+
+        return true;
     }
 
     @Override

@@ -30,10 +30,10 @@ class FileResolverSpec extends Specification {
     @Unroll("converts between #absolutePath and #path using base directory")
     void "converts between file and a path relative to the base directory"() {
         expect:
-        fileResolver.toPath(file) == FileResolver.PATH_JOINER.join(path)
+        fileResolver.toPath(file) == FileResolver.joinPath(*path)
 
         and:
-        fileResolver.toFile(* path) == file
+        fileResolver.toFile(*path) == file
 
         where:
         file                                                   | path

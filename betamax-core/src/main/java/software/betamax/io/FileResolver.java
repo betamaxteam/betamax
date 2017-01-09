@@ -37,7 +37,23 @@ public final class FileResolver {
     }
 
     public File toFile(String... path) {
-        return new File(baseDirectory, PATH_JOINER.join(path));
+        return new File(baseDirectory, joinPath(path));
+    }
+
+    public static String joinPath(String... path) {
+        String filePath = "";
+
+        for (int i = 0; i < path.length; i++) {
+            String s = path[i];
+
+            if (i > 0) {
+                filePath += File.separator;
+            }
+
+            filePath += s;
+        }
+
+        return filePath;
     }
 
     public String toPath(File file) {

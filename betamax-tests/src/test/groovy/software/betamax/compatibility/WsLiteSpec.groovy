@@ -55,7 +55,7 @@ class WsLiteSpec extends Specification {
         def http = new RESTClient(url)
 
         when: "a request is made"
-        def response = http.get(path: "/")
+        def response = http.get(path: "/", connectTimeout: 60000, readTimeout: 60000)
 
         then: "the request is intercepted"
         response.statusCode == HTTP_OK

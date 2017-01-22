@@ -16,49 +16,49 @@
 
 package software.betamax.message;
 
-import com.google.common.base.Strings;
-import com.google.common.net.MediaType;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
-import static com.google.common.net.MediaType.OCTET_STREAM;
+import java.nio.charset.Charset;
 
 public abstract class AbstractMessage implements Message {
 
-    public static final String DEFAULT_CONTENT_TYPE = OCTET_STREAM.toString();
-    public static final String DEFAULT_CHARSET = UTF_8.toString();
+    public static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+    public static final String DEFAULT_CHARSET = Charset.forName("UTF-8").toString();
     public static final String DEFAULT_ENCODING = "none";
 
     @Override
     public String getContentType() {
-        String header = getHeader(CONTENT_TYPE);
-        if (Strings.isNullOrEmpty(header)) {
+        String header = getHeader("Content-Type");
+        if (header == null || header.length() == 0) {
             return DEFAULT_CONTENT_TYPE;
         } else {
-            return MediaType.parse(header).withoutParameters().toString();
+            return header.split(";")[0].trim();
         }
     }
 
     @Override
     public String getCharset() {
-        String header = getHeader(CONTENT_TYPE);
-        if (Strings.isNullOrEmpty(header)) {
+        String header = getHeader("Content-Type");
+        if (header == null || header.length() == 0) {
             // TODO: this isn't valid for non-text data – this method should return Optional<String>
             return DEFAULT_CHARSET;
         } else {
-            return MediaType.parse(header).charset().or(UTF_8).toString();
+            String[] parts = header.split(";");
+            for (String part : parts) {
+                if (part.toLowerCase().contains("charset=")) {
+                    return part.replace("charset=", "").trim();
+                }
+            }
+
+            return DEFAULT_CHARSET;
         }
     }
 
     @Override
     public String getEncoding() {
-        String header = getHeader(CONTENT_ENCODING);
+        String header = getHeader("Content-Encoding");
         return header == null || header.length() == 0 ? DEFAULT_ENCODING : header;
     }
 

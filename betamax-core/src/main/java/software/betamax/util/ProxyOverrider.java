@@ -16,9 +16,8 @@
 
 package software.betamax.util;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import io.netty.handler.codec.http.HttpRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.littleshoot.proxy.ChainedProxy;
 import org.littleshoot.proxy.ChainedProxyAdapter;
 import org.littleshoot.proxy.ChainedProxyManager;
@@ -41,7 +40,7 @@ public class ProxyOverrider implements ChainedProxyManager {
      * Activates a proxy override for the given URI scheme.
      */
     public void activate(InetAddress host, int port, Collection<String> nonProxyHosts) {
-        for (String scheme : new String[] {"http", "https"}) {
+        for (String scheme : new String[]{"http", "https"}) {
             String currentProxyHost = System.getProperty(scheme + ".proxyHost");
             String currentProxyPort = System.getProperty(scheme + ".proxyPort");
             if (currentProxyHost != null) {
@@ -55,18 +54,18 @@ public class ProxyOverrider implements ChainedProxyManager {
         if (currentNonProxyHosts == null) {
             originalNonProxyHosts.clear();
         } else {
-            for (String nonProxyHost : Splitter.on('|').split(currentNonProxyHosts)) {
+            for (String nonProxyHost : StringUtils.split(currentNonProxyHosts, "|")) {
                 originalNonProxyHosts.add(nonProxyHost);
             }
         }
-        System.setProperty("http.nonProxyHosts", Joiner.on('|').join(nonProxyHosts));
+        System.setProperty("http.nonProxyHosts", StringUtils.join(nonProxyHosts, "|"));
     }
 
     /**
      * Deactivates all proxy overrides restoring the pre-existing proxy settings if any.
      */
     public void deactivateAll() {
-        for (String scheme : new String[] {"http", "https"}) {
+        for (String scheme : new String[]{"http", "https"}) {
             InetSocketAddress originalProxy = originalProxies.remove(scheme);
             if (originalProxy != null) {
                 System.setProperty(scheme + ".proxyHost", originalProxy.getHostName());
@@ -80,7 +79,7 @@ public class ProxyOverrider implements ChainedProxyManager {
         if (originalNonProxyHosts.isEmpty()) {
             System.clearProperty("http.nonProxyHosts");
         } else {
-            System.setProperty("http.nonProxyHosts", Joiner.on('|').join(originalNonProxyHosts));
+            System.setProperty("http.nonProxyHosts", StringUtils.join(originalNonProxyHosts, "|"));
         }
         originalNonProxyHosts.clear();
     }

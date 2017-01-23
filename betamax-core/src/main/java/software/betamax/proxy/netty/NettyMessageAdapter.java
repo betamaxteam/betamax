@@ -16,10 +16,6 @@
 
 package software.betamax.proxy.netty;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
@@ -29,6 +25,9 @@ import software.betamax.message.AbstractMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
@@ -36,12 +35,44 @@ import static io.netty.buffer.Unpooled.copiedBuffer;
 public abstract class NettyMessageAdapter<T extends HttpMessage> extends AbstractMessage {
 
     protected final T delegate;
-    private final Multimap<String, String> headers = LinkedHashMultimap.create();
+    private final Map<String, List<String>> headers = new HashMap<>();
     private final CompositeByteBuf body = Unpooled.compositeBuffer();
 
     protected NettyMessageAdapter(T delegate) {
         this.delegate = delegate;
         copyHeaders(delegate);
+    }
+
+    private static String joinHeaderValues(List<String> values) {
+        String headerString = "";
+
+        for (int i = 0; i < values.size(); i++) {
+            String s = values.get(i);
+
+            if (i > 0) {
+                headerString += ", ";
+            }
+
+            headerString += s;
+        }
+
+        return headerString;
+    }
+
+    private void putInHeaders(String name, String value) {
+        if (!headers.containsKey(name)) {
+            headers.put(name, new ArrayList<>());
+        }
+
+        List<String> values = headers.get(name);
+
+        for (String aValue : values) {
+            if (aValue.equals(value)) {
+                return;
+            }
+        }
+
+        values.add(value);
     }
 
     /**
@@ -51,9 +82,7 @@ public abstract class NettyMessageAdapter<T extends HttpMessage> extends Abstrac
     public void copyHeaders(HttpMessage httpMessage) {
         for (String name : httpMessage.headers().names()) {
             for (String value : httpMessage.headers().getAll(name)) {
-                if (!headers.containsEntry(name, value)) {
-                    headers.put(name, value);
-                }
+                putInHeaders(name, value);
             }
         }
     }
@@ -65,21 +94,21 @@ public abstract class NettyMessageAdapter<T extends HttpMessage> extends Abstrac
 
     @Override
     public Map<String, String> getHeaders() {
-        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        HashMap<String, String> map = new HashMap<>();
         for (String name : headers.keySet()) {
-            builder.put(name, getHeader(name));
+            map.put(name, getHeader(name));
         }
-        return builder.build();
+        return map;
     }
 
     @Override
     public String getHeader(String name) {
-        return Joiner.on(", ").join(headers.get(name));
+        return joinHeaderValues(headers.get(name));
     }
 
     @Override
     public void addHeader(String name, String value) {
-        headers.put(name, value);
+        putInHeaders(name, value);
     }
 
     @Override

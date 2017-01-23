@@ -16,8 +16,6 @@
 
 package software.betamax.proxy;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import org.littleshoot.proxy.HttpFiltersAdapter;
@@ -35,6 +33,7 @@ import software.betamax.tape.Tape;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_ENCODING;
@@ -79,7 +78,7 @@ public class BetamaxFilters extends HttpFiltersAdapter {
             if (ProxyUtils.isLastChunk(httpObject)) {
                 // We will have collected the last of the http Request finally
                 // And now we're ready to intercept it and do proxy-type-things
-                response = onRequestIntercepted().orNull();
+                response = onRequestIntercepted();
             }
 
             if (response != null) {
@@ -136,19 +135,19 @@ public class BetamaxFilters extends HttpFiltersAdapter {
         return httpObject;
     }
 
-    private Optional<? extends FullHttpResponse> onRequestIntercepted() throws IOException {
+    private FullHttpResponse onRequestIntercepted() throws IOException {
         if (tape == null) {
-            return Optional.of(new DefaultFullHttpResponse(HTTP_1_1, new HttpResponseStatus(403, "No tape")));
+            return new DefaultFullHttpResponse(HTTP_1_1, new HttpResponseStatus(403, "No tape"));
         } else if (tape.isReadable() && tape.seek(request)) {
             LOG.warn(String.format("Playing back from tape %s", tape.getName()));
             Response recordedResponse = tape.play(request);
             FullHttpResponse response = playRecordedResponse(recordedResponse);
             setViaHeader(response);
             setBetamaxHeader(response, "PLAY");
-            return Optional.of(response);
+            return response;
         } else {
             LOG.warn(String.format("no matching request found on %s", tape.getName()));
-            return Optional.absent();
+            return null;
         }
     }
 
@@ -162,7 +161,8 @@ public class BetamaxFilters extends HttpFiltersAdapter {
             response = new DefaultFullHttpResponse(HTTP_1_1, status);
         }
         for (Map.Entry<String, String> header : recordedResponse.getHeaders().entrySet()) {
-            response.headers().set(header.getKey(), Splitter.onPattern(",\\s*").split(header.getValue()));
+            Pattern pattern = Pattern.compile(",\\s*");
+            response.headers().set(header.getKey(), pattern.split(header.getValue()));
         }
         return response;
     }

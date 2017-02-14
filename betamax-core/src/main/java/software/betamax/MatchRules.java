@@ -32,17 +32,17 @@ public enum MatchRules implements MatchRule {
     }, uri {
         @Override
         public boolean isMatch(Request a, Request b) {
-            return a.getUri().equals(b.getUri());
+            return equal(a.getUri(), b.getUri());
         }
     }, host {
         @Override
         public boolean isMatch(Request a, Request b) {
-            return a.getUri().getHost().equals(b.getUri().getHost());
+            return equal(a.getUri().getHost(), b.getUri().getHost());
         }
     }, path {
         @Override
         public boolean isMatch(Request a, Request b) {
-            return a.getUri().getPath().equals(b.getUri().getPath());
+            return nullSafeEquals(a.getUri().getPath(), b.getUri().getPath());
         }
     }, port {
         @Override
@@ -52,7 +52,7 @@ public enum MatchRules implements MatchRule {
     }, query {
         @Override
         public boolean isMatch(Request a, Request b) {
-            return a.getUri().getQuery().equals(b.getUri().getQuery());
+            return nullSafeEquals(a.getUri().getQuery(), b.getUri().getQuery());
         }
     },
     /**
@@ -69,27 +69,35 @@ public enum MatchRules implements MatchRule {
                 Arrays.sort(bParameters);
                 return Arrays.equals(aParameters, bParameters);
             } else {
-                if ((a.getUri().getQuery() == null) && (b.getUri().getQuery() == null)) {
-                    // both request have no query
-                    return true;
-                }
-                return false;
+                return (a.getUri().getQuery() == null) && (b.getUri().getQuery() == null);
             }
         }
     }, authorization {
         @Override
         public boolean isMatch(Request a, Request b) {
-            return a.getHeader("Authorization").equals(b.getHeader("Authorization"));
+            return nullSafeEquals(a.getHeader("Authorization"), b.getHeader("Authorization"));
         }
     }, accept {
         @Override
         public boolean isMatch(Request a, Request b) {
-            return a.getHeader("Accept").equals(b.getHeader("Accept"));
+            return nullSafeEquals(a.getHeader("Accept"), b.getHeader("Accept"));
         }
     }, body {
         @Override
         public boolean isMatch(Request a, Request b) {
             return Arrays.equals(a.getBodyAsBinary(), b.getBodyAsBinary());
         }
+    };
+
+    // Should be replaced with Objects.equals once we use Java 8 language level
+    private static boolean equal(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
+    }
+
+    private static boolean nullSafeEquals(String a, String b) {
+        boolean aEmpty = (a == null) || (a.isEmpty());
+        boolean bEmpty = (b == null) || (b.isEmpty());
+
+        return (aEmpty && bEmpty) || equal(a, b);
     }
 }

@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSet;
 import software.betamax.internal.RecorderListener;
 import software.betamax.proxy.ProxyConfigurationException;
 import software.betamax.proxy.ProxyServer;
-import software.betamax.tape.EntityStorage;
 import software.betamax.util.Network;
 
 import java.io.File;
@@ -52,7 +51,6 @@ public class Configuration {
     public static final TapeMode DEFAULT_MODE = TapeMode.READ_ONLY;
     public static final MatchRule DEFAULT_MATCH_RULE = ComposedMatchRule.of(MatchRules.method, MatchRules.uri);
     public static final ModifyRule DEFAULT_MODIFY_RULE = ComposedModifyRule.of(ModifyRules.noChange);
-    public static final EntityStorage DEFAULT_RESPONSE_BODY_STORAGE = EntityStorage.inline;
 
     public static final String DEFAULT_PROXY_HOST = "0.0.0.0";
     public static final int DEFAULT_REQUEST_BUFFER_SIZE = 8388608; //8MB

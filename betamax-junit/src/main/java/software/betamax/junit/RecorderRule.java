@@ -16,8 +16,6 @@
 
 package software.betamax.junit;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -55,21 +53,23 @@ public class RecorderRule extends Recorder implements TestRule {
                 public void evaluate() throws Throwable {
                     try {
                         String tapeName = annotation.tape();
-                        if (Strings.isNullOrEmpty(tapeName)) {
+                        if (tapeName == null || tapeName.length() == 0) {
                             tapeName = defaultTapeName(description);
                         }
 
                         TapeMode tapeMode = annotation.mode();
-                        MatchRules[] matchRules = annotation.match();
-
-                        Optional<MatchRule> matchRule;
-                        if (matchRules.length > 0) {
-                            matchRule = Optional.<MatchRule>of(ComposedMatchRule.of(matchRules));
-                        } else {
-                            matchRule = Optional.absent();
+                        if (tapeMode.equals(TapeMode.UNDEFINED)) {
+                            tapeMode = null;
                         }
 
-                        start(tapeName, tapeMode.toOptional(), matchRule);
+                        MatchRules[] matchRules = annotation.match();
+
+                        MatchRule matchRule = null;
+                        if (matchRules.length > 0) {
+                            matchRule = ComposedMatchRule.of(matchRules);
+                        }
+
+                        start(tapeName, tapeMode, matchRule);
 
                         statement.evaluate();
                     } catch (Exception e) {

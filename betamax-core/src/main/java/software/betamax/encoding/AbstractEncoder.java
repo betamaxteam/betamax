@@ -16,15 +16,24 @@
 
 package software.betamax.encoding;
 
-import com.google.common.io.CharStreams;
-
 import java.io.*;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 public abstract class AbstractEncoder {
     public final String decode(InputStream input, String charset) {
         try {
-            return CharStreams.toString(new InputStreamReader(getDecodingInputStream(input), charset));
+            Reader reader = new InputStreamReader(getDecodingInputStream(input), charset);
+            StringBuilder sb = new StringBuilder();
+
+            CharBuffer buf = CharBuffer.allocate(0x800);
+            while (reader.read(buf) != -1) {
+                buf.flip();
+                sb.append(buf);
+                buf.clear();
+            }
+
+            return sb.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -15,8 +15,6 @@
  */
 package software.betamax;
 
-import com.google.common.base.Optional;
-
 public enum TapeMode {
 
     UNDEFINED(false, false, false),
@@ -53,14 +51,6 @@ public enum TapeMode {
      */
     public boolean asBoolean() {
         return readable || writable;
-    }
-
-    public Optional<TapeMode> toOptional() {
-        if (this.equals(TapeMode.UNDEFINED)) {
-            return Optional.absent();
-        } else {
-            return Optional.of(this);
-        }
     }
 
 }

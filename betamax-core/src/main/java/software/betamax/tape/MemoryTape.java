@@ -16,9 +16,6 @@
 
 package software.betamax.tape;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import software.betamax.Configuration;
 import software.betamax.Headers;
 import software.betamax.MatchRule;
@@ -35,6 +32,7 @@ import software.betamax.message.tape.RecordedResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +49,7 @@ import static java.util.Collections.unmodifiableList;
 public abstract class MemoryTape implements Tape {
 
     private String name;
-    private List<RecordedInteraction> interactions = Lists.newArrayList();
+    private List<RecordedInteraction> interactions = new ArrayList<>();
 
     private transient TapeMode mode = Configuration.DEFAULT_MODE;
     private transient MatchRule matchRule = Configuration.DEFAULT_MATCH_RULE;
@@ -112,7 +110,7 @@ public abstract class MemoryTape implements Tape {
     }
 
     public void setInteractions(List<RecordedInteraction> interactions) {
-        this.interactions = Lists.newArrayList(interactions);
+        this.interactions = new ArrayList<>(interactions);
     }
 
     @Override
@@ -197,12 +195,14 @@ public abstract class MemoryTape implements Tape {
     }
 
     private synchronized int findMatch(final Request request) {
-        return Iterables.indexOf(interactions, new Predicate<RecordedInteraction>() {
-            @Override
-            public boolean apply(RecordedInteraction input) {
-                return matchRule.isMatch(request, input.getRequest());
+        for (int i = 0; i < interactions.size(); i++) {
+            RecordedInteraction input = interactions.get(i);
+            if (matchRule.isMatch(request, input.getRequest())) {
+                return i;
             }
-        });
+        }
+
+        return -1;
     }
 
     private RecordedRequest recordRequest(Request request) {

@@ -16,9 +16,6 @@
 
 package software.betamax.tape.yaml;
 
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-import com.google.common.primitives.Ints;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
@@ -134,7 +131,9 @@ public class TapeRepresenter extends Representer {
         }
 
         private Set<Property> sort(Set<Property> properties, String... names) {
-            return Sets.newLinkedHashSet(Ordering.from(OrderedPropertyComparator.forNames(names)).sortedCopy(properties));
+            List<Property> list = new ArrayList<>(properties);
+            Collections.sort(list, OrderedPropertyComparator.forNames(names));
+            return new LinkedHashSet<>(list);
         }
     }
 
@@ -148,8 +147,10 @@ public class TapeRepresenter extends Representer {
             this.propertyNames = Arrays.asList(propertyNames);
         }
 
-        public int compare(Property a, Property b) {
-            return Ints.compare(propertyNames.indexOf(a.getName()), propertyNames.indexOf(b.getName()));
+        public int compare(Property left, Property right) {
+            int a = propertyNames.indexOf(left.getName());
+            int b = propertyNames.indexOf(right.getName());
+            return (a < b) ? -1 : ((a > b) ? 1 : 0);
         }
 
         private List<String> propertyNames;

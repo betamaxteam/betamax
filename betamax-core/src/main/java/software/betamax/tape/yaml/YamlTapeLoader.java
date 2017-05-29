@@ -16,8 +16,6 @@
 
 package software.betamax.tape.yaml;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
@@ -54,7 +52,12 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
         File file = fileFor(name);
         if (file.isFile()) {
             try {
-                BufferedReader reader = Files.newReader(file, Charset.forName(FILE_CHARSET));
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(
+                                new FileInputStream(file), Charset.forName(FILE_CHARSET)
+                        )
+                );
+
                 YamlTape tape = readFrom(reader);
                 LOG.info(String.format("loaded tape with %d recorded interactions from file %s...", tape.size(), file.getAbsolutePath()));
                 return tape;
@@ -73,7 +76,11 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
         file.getParentFile().mkdirs();
         if (tape.isDirty()) {
             try {
-                BufferedWriter bufferedWriter = Files.newWriter(file, Charset.forName(FILE_CHARSET));
+                BufferedWriter bufferedWriter = new BufferedWriter(
+                        new OutputStreamWriter(
+                                new FileOutputStream(file), Charset.forName(FILE_CHARSET)
+                        )
+                );
                 LOG.info(String.format("writing tape %s to file %s...", tape.getName(), file.getAbsolutePath()));
                 writeTo(tape, bufferedWriter);
             } catch (IOException e) {
@@ -82,14 +89,12 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
         }
     }
 
-    @VisibleForTesting
     public YamlTape newTape(String name) {
         YamlTape tape = new YamlTape();
         tape.setName(name);
         return tape;
     }
 
-    @VisibleForTesting
     public YamlTape readFrom(Reader reader) {
         try {
             return (YamlTape) getYaml().load(reader);
@@ -100,7 +105,6 @@ public class YamlTapeLoader implements TapeLoader<YamlTape> {
         }
     }
 
-    @VisibleForTesting
     public void writeTo(Tape tape, Writer writer) throws IOException {
         try {
             getYaml().dump(tape, writer);

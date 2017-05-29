@@ -16,8 +16,6 @@
 
 package software.betamax.io;
 
-import com.google.common.base.Joiner;
-
 import java.io.File;
 
 /**
@@ -29,7 +27,6 @@ public final class FileResolver {
     private final File baseDirectory;
     private final String baseDirectoryPath;
 
-    static final Joiner PATH_JOINER = Joiner.on(File.separatorChar);
 
     public FileResolver(File baseDirectory) {
         this.baseDirectory = baseDirectory.getAbsoluteFile();
@@ -37,7 +34,23 @@ public final class FileResolver {
     }
 
     public File toFile(String... path) {
-        return new File(baseDirectory, PATH_JOINER.join(path));
+        return new File(baseDirectory, joinPath(path));
+    }
+
+    public static String joinPath(String... path) {
+        String filePath = "";
+
+        for (int i = 0; i < path.length; i++) {
+            String s = path[i];
+
+            if (i > 0) {
+                filePath += File.separator;
+            }
+
+            filePath += s;
+        }
+
+        return filePath;
     }
 
     public String toPath(File file) {

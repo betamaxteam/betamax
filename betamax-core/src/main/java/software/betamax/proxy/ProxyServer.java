@@ -35,13 +35,14 @@ import software.betamax.util.ProxyOverrider;
 import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.nio.file.Path;
 
 import static com.google.common.base.Predicates.not;
 import static io.netty.handler.codec.http.HttpMethod.CONNECT;
 import static software.betamax.proxy.netty.PredicatedHttpFilters.httpMethodPredicate;
 
 public class ProxyServer implements RecorderListener {
+
+    private static final String BETAMAX_CERT_DIR = "betamax.cert.dir";
 
     private final Configuration configuration;
     private final ProxyOverrider proxyOverrider = new ProxyOverrider();
@@ -149,16 +150,32 @@ public class ProxyServer implements RecorderListener {
         try {
 
             // Use the same betamax private key & cert for backwards compatibility with 2.0.1
-            // We use temporary files here so we don't pollute people's projects with temporary (and fake) keys and certs
-            File tempSSLDir = Files.createTempDir();
+            // Allow the user to choose a cert directory, e.g. ./build/certs or ./target/certs
+            String certDir = System.getProperty(BETAMAX_CERT_DIR);
+            File tempSSLDir;
+            if (certDir == null) {
+                // We use temporary files here so we don't pollute people's projects with temporary (and fake) keys and certs
+                tempSSLDir = Files.createTempDir();
+                // Save the directory into a system property so that we don't create everything anew for each test
+                System.setProperty(BETAMAX_CERT_DIR, tempSSLDir.getAbsolutePath());
+            } else {
+                tempSSLDir = new File(certDir);
+                tempSSLDir.mkdirs();
+            }
 
-            Path storePath = tempSSLDir.toPath().resolve("betamax.p12");
-            InputStream betamaxKeystoreStream = getClass().getClassLoader().getResourceAsStream("betamax.p12");
-            FileUtils.copyInputStreamToFile(betamaxKeystoreStream, storePath.toFile());
+            File storePath = new File(tempSSLDir, "betamax.p12");
+            if (!storePath.exists()) {
+                try (InputStream betamaxKeystoreStream = getClass().getClassLoader().getResourceAsStream("betamax.p12")) {
+                    FileUtils.copyInputStreamToFile(betamaxKeystoreStream, storePath);
+                }
+            }
 
-            Path keyPath = tempSSLDir.toPath().resolve("betamax.pem");
-            InputStream betamaxKeyStream = getClass().getClassLoader().getResourceAsStream("betamax.pem");
-            FileUtils.copyInputStreamToFile(betamaxKeyStream, keyPath.toFile());
+            File keyPath = new File(tempSSLDir, "betamax.pem");
+            if (!keyPath.exists()) {
+                try (InputStream betamaxKeyStream = getClass().getClassLoader().getResourceAsStream("betamax.pem")) {
+                    FileUtils.copyInputStreamToFile(betamaxKeyStream, keyPath);
+                }
+            }
 
             Authority authority = new Authority(
                     tempSSLDir,

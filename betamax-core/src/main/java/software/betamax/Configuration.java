@@ -50,6 +50,7 @@ public class Configuration {
     public static final String DEFAULT_TAPE_ROOT = "src/test/resources/betamax/tapes";
     public static final TapeMode DEFAULT_MODE = TapeMode.READ_ONLY;
     public static final MatchRule DEFAULT_MATCH_RULE = ComposedMatchRule.of(MatchRules.method, MatchRules.uri);
+    public static final ModifyRule DEFAULT_MODIFY_RULE = ComposedModifyRule.of(ModifyRules.noChange);
 
     public static final String DEFAULT_PROXY_HOST = "0.0.0.0";
     public static final int DEFAULT_REQUEST_BUFFER_SIZE = 8388608; //8MB
@@ -61,6 +62,7 @@ public class Configuration {
     private final ImmutableCollection<String> ignoreHosts;
     private final boolean ignoreLocalhost;
     private final MatchRule defaultMatchRule;
+    private final ModifyRule defaultModifyRule;
 
     private final String proxyHost;
     private final int proxyPort;
@@ -74,6 +76,7 @@ public class Configuration {
         this.tapeRoot = builder.tapeRoot;
         this.defaultMode = builder.defaultMode;
         this.defaultMatchRule = builder.defaultMatchRule;
+        this.defaultModifyRule = builder.defaultModifyRule;
         this.ignoreHosts = builder.ignoreHosts;
         this.ignoreLocalhost = builder.ignoreLocalhost;
         this.proxyHost = builder.proxyHost;
@@ -118,6 +121,10 @@ public class Configuration {
 
     public MatchRule getDefaultMatchRule() {
         return defaultMatchRule;
+    }
+
+    public ModifyRule getDefaultModifyRule() {
+        return defaultModifyRule;
     }
 
     /**

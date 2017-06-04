@@ -19,6 +19,7 @@ package software.betamax.tape;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import software.betamax.*;
 import software.betamax.Configuration;
 import software.betamax.Headers;
 import software.betamax.MatchRule;
@@ -55,6 +56,7 @@ public abstract class MemoryTape implements Tape {
 
     private transient TapeMode mode = Configuration.DEFAULT_MODE;
     private transient MatchRule matchRule = Configuration.DEFAULT_MATCH_RULE;
+    private transient ModifyRule modifyRule = Configuration.DEFAULT_MODIFY_RULE;
 
     private transient AtomicInteger orderedIndex = new AtomicInteger();
 
@@ -85,6 +87,11 @@ public abstract class MemoryTape implements Tape {
     @Override
     public void setMatchRule(MatchRule matchRule) {
         this.matchRule = matchRule;
+    }
+
+    @Override
+    public void setModifyRule(ModifyRule modifyRule) {
+        this.modifyRule = modifyRule;
     }
 
     @Override
@@ -149,13 +156,13 @@ public abstract class MemoryTape implements Tape {
                 throw new IllegalStateException(String.format("Request %s does not match recorded request %s", stringify(request), stringify(nextInteraction.getRequest())));
             }
 
-            return nextInteraction.getResponse();
+            return this.modifyRule.getModifiedResponse(request, nextInteraction.getResponse());
         } else {
             int position = findMatch(request);
             if (position < 0) {
                 throw new IllegalStateException("no matching recording found");
             } else {
-                return interactions.get(position).getResponse();
+                return this.modifyRule.getModifiedResponse(request, interactions.get(position).getResponse());
             }
         }
     }

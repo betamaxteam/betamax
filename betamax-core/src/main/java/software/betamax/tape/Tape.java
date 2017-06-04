@@ -17,6 +17,7 @@
 package software.betamax.tape;
 
 import software.betamax.MatchRule;
+import software.betamax.ModifyRule;
 import software.betamax.TapeMode;
 import software.betamax.handler.HandlerException;
 import software.betamax.message.Request;
@@ -44,6 +45,8 @@ public interface Tape {
      * @param matchRule the rules used to match recordings on the tape.
      */
     void setMatchRule(MatchRule matchRule);
+
+    void setModifyRule(ModifyRule modifyRule);
 
     MatchRule getMatchRule();
 

@@ -53,6 +53,20 @@ public class Recorder {
      * @throws IllegalStateException if the Recorder is already started.
      */
     public void start(String tapeName, Optional<TapeMode> mode, Optional<MatchRule> matchRule) {
+        start(tapeName, mode, matchRule, Optional.<ModifyRule>absent());
+    }
+
+    /**
+     * Starts the Recorder, inserting a tape with the specified parameters.
+     *
+     * @param tapeName the name of the tape.
+     * @param mode the tape mode. If not supplied the default mode from the configuration is used.
+     * @param matchRule the rules used to match recordings on the tape. If not supplied a default is used.
+     * @param modifyRule the rules used to modify recordings on the tape. If not supplied a default is used.
+     *
+     * @throws IllegalStateException if the Recorder is already started.
+     */
+    public void start(String tapeName, Optional<TapeMode> mode, Optional<MatchRule> matchRule, Optional<ModifyRule> modifyRule) {
         if (tape != null) {
             throw new IllegalStateException("start called when Recorder is already started");
         }
@@ -60,6 +74,7 @@ public class Recorder {
         tape = getTapeLoader().loadTape(tapeName);
         tape.setMode(mode.or(configuration.getDefaultMode()));
         tape.setMatchRule(matchRule.or(configuration.getDefaultMatchRule()));
+        tape.setModifyRule(modifyRule.or(configuration.getDefaultModifyRule()));
 
         for (RecorderListener listener : listeners) {
             listener.onRecorderStart(tape);

@@ -2,6 +2,7 @@ apply from: "gradle/idea.gradle"
 
 allprojects {
     version "2.1.0-SNAPSHOT"
+    group 'software.betamax'
 
     ext {
         isSnapshot = version.endsWith("-SNAPSHOT")
